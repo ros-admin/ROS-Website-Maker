@@ -805,27 +805,39 @@
             document.getElementById("seconds").innerText = s < 10 ? "0" + s : s;
 
             if (difference < 0) {
-    clearInterval(countdownInterval);
-    
-    // পুরো ফর্ম কার্ডের ভেতরের অংশ পরিবর্তন করে একটি সুন্দর নোটিশ বসানো
-    document.querySelector(".form-card").innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-            <div style="width: 80px; height: 80px; background: #fef2f2; color: #ef4444; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto 24px auto; border: 2px dashed #fca5a5;">
-                <i class="fas fa-hourglass-end"></i>
-            </div>
-            <h2 style="color: #0f172a; font-size: 1.8rem; font-weight: 800; margin-bottom: 12px;">নিবন্ধনের সময় শেষ!</h2>
-            <p style="color: #475569; font-size: 1.05rem; max-width: 450px; margin: 0 auto 24px auto; line-height: 1.6;">
-                দুঃখিত, "খেলতে খেলতে বিজ্ঞান (পর্ব-১৬)" ইভেন্টের নিবন্ধনের সময়সীমা অতিক্রান্ত হয়েছে। আমাদের পরবর্তী ইভেন্টের আপডেটের জন্য MASLab এর সাথেই থাকুন।
-            </p>
-            <div style="border-top: 1px dashed #e2e8f0; padding-top: 20px; max-width: 400px; margin: 0 auto;">
-                <p style="font-size: 0.9rem; color: #64748b; font-weight: 600;">
-                    যেকোনো জরুরি প্রয়োজনে যোগাযোগ করুন: <br>
-                    <span style="color: #2563eb;"><i class="fas fa-envelope"></i> contact@maslab.org</span>
+        clearInterval(countdownInterval);
+        
+        // পুরো ফর্ম কার্ডের ভেতরের অংশ পরিবর্তন করে লোগো ও আইকনসহ সুন্দর নোটিশ বসানো
+        document.querySelector(".form-card").innerHTML = `
+            <div style="text-align: center; padding: 30px 10px;">
+                <!-- ১. লোগো (ক্লিক করলে maslab.org এ নিয়ে যাবে) -->
+                <a href="https://maslab.org/" target="_blank" style="display: inline-block; margin-bottom: 25px; transition: transform 0.2s;">
+                    <img src="https://maslab.org/wp-content/uploads/2024/03/MASLab-Logo-1-1.png" alt="MASLab Logo" style="width: 120px; height: auto; object-fit: contain;">
+                </a>
+
+                <h2 style="color: #0f172a; font-size: 1.8rem; font-weight: 800; margin-bottom: 12px;">নিবন্ধনের সময় শেষ!</h2>
+                
+                <p style="color: #475569; font-size: 1.05rem; max-width: 450px; margin: 0 auto 28px auto; line-height: 1.6;">
+                    দুঃখিত, "খেলতে খেলতে বিজ্ঞান (পর্ব-১৬)" কর্মশালার নিবন্ধনের সময়সীমা অতিক্রান্ত হয়েছে। আমাদের পরবর্তী ইভেন্টের আপডেটের জন্য MASLab এর সাথেই থাকুন।
                 </p>
+                
+                <!-- ২. আইকনসহ ক্লিকবল ইমেইল ও মোবাইল নম্বর সেকশন -->
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 24px; max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                    <p style="font-size: 0.95rem; color: #64748b; font-weight: 700; margin-bottom: 5px;">যেকোনো জরুরি প্রয়োজনে যোগাযোগ করুন:</p>
+                    
+                    <!-- ইমেইল লিংক -->
+                    <a href="mailto:info@maslab.org" style="color: #2563eb; text-decoration: none; font-size: 1.05rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s;">
+                        <i class="fas fa-envelope" style="color: #2563eb;"></i> info@maslab.org
+                    </a>
+                    
+                    <!-- মোবাইল নম্বর লিংক -->
+                    <a href="tel:+8801730716522" style="color: #0f172a; text-decoration: none; font-size: 1.05rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: color 0.2s;">
+                        <i class="fas fa-phone-alt" style="color: #10b981;"></i> +880 1730-716522
+                    </a>
+                </div>
             </div>
-        </div>
-    `;
-                }
+        `;
+            }
 }, 1000);
 
         function toggleOlympiadField(show) {
