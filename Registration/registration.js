@@ -398,7 +398,7 @@ registrationForm.addEventListener('submit', async (e) => {
   }
 });
 
-// দ্বিতীয় ধাপ: ওটিপি ভেরিফাই এবং চূড়ান্ত সাকসেস মেসেজ (স্ক্রলিং ফিক্সড)
+// দ্বিতীয় этап: ওটিপি ভেরিফাই এবং চূড়ান্ত সাকসেস মেসেজ (স্ক্রলিং ফিক্সড)
 document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
   let otpCode = "";
   otpFields.forEach(field => otpCode += field.value);
@@ -419,7 +419,15 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       method: 'POST',
       body: JSON.stringify(savedFormPayload)
     });
-    const finalRes = await response.json();
+
+    // সরাসরি response.json() না করে নিরাপদ উপায়ে টেক্সট বা স্ট্রিং এনে হ্যান্ডেল করা হয়েছে
+    const rawText = await response.text();
+    let finalRes;
+    try {
+      finalRes = JSON.parse(rawText);
+    } catch (jsonErr) {
+      throw new Error("Server returned an invalid format, but the data might be processed.");
+    }
 
     if (finalRes.success) {
       if (countdownInterval) clearInterval(countdownInterval); 
@@ -427,7 +435,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       const regNumber = finalRes.memberId || "ROS-2026-____";
       const userEnglishName = savedFormPayload.englishName || "(Name in English)";
 
-      // সাকসেস মেসেজ ও পেন্ডিং ডিজাইন (মোবাইল ভিউ ফিক্সড)
+      // সাকসেস মেসেজ ও পেন্ডিং ডিজাইন (আপনার অরিজিনাল মেসেজ ও ডিজাইন হুবহু এক রাখা হয়েছে)
       document.getElementById('successSection').innerHTML = `
         <div style="text-align: center; padding: 15px 5px; font-family: 'Poppins', sans-serif;">
           <div style="font-size: 45px; color: #4cc9f0; margin-bottom: 10px;"><i class="fas fa-check-circle"></i></div>
@@ -485,4 +493,3 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
     document.getElementById('rosGlobalLoader').style.display = "none";
   }
 });
-                      
