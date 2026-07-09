@@ -49,6 +49,7 @@
 </head>
 <body id="nexusCoreBody">
 
+    <!-- 🔒 ড্যাশবোর্ড প্রোটেকশন গেটওয়ে (সংশোধিত রুট গার্ড) -->
   <script>
     let currentAdminData = null;
     (function checkAuth() {
@@ -60,17 +61,23 @@
       }
       currentAdminData = JSON.parse(sessionData);
       
+      // আপনার ডাটাবেজের রোলের সাথে মিল রেখে ছোট হাতের অক্ষরে রোলগুলো চেক করা হচ্ছে
       const managementRoles = [
-        "admin", "president", "vice_president", "general_secretary", 
+        "admin", "super_admin", "president", "vice_president", "general_secretary", 
         "joint_general_secretary", "organizing_secretary", "treasurer", 
         "education_secretary", "event_secretary", "pr_secretary", "it_secretary", "executive_member"
       ];
-      if (!managementRoles.includes(currentAdminData.role)) {
-        alert("অননুমোদিত অ্যাক্সেস! এই পেজে প্রবেশের অনুমতি আপনার নেই।");
+      
+      // .toLowerCase() এবং .trim() ব্যবহার করা হয়েছে যেন স্পেসিং বা বড় হাতের অক্ষরের কারণে এরর না আসে
+      const userRole = currentAdminData.role ? currentAdminData.role.toLowerCase().trim() : "";
+      
+      if (!managementRoles.includes(userRole)) {
+        alert("অননুমোদিত অ্যাক্সেস! আপনার বর্তমান রোল: '" + currentAdminData.role + "'। এই প্যানেলে প্রবেশের অনুমতি আপনার নেই।");
         window.location.href = "../";
       }
     })();
   </script>
+  
 
   <div class="top-bar cyber-glass">
     <button class="mobile-menu-btn" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
