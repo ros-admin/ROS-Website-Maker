@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxW3ab4dyolenvfpcM8o3vGmevQEjFLgRgZxYFajX0L5yjPSeDfk-WtSQmAtGhQrNtzdQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkvIfjTQVM69qurRZvF90w_1pq1PaBYDPB8Gv0PCLR3DOyF4Ud8AVzp119agoB8NefpA/exec";
 
 // ১. ড্যাশড স্পিনার লোডার স্টাইল এবং এলিমেন্ট ইনজেকশন
 const styleNode = document.createElement('style');
