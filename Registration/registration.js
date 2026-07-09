@@ -1,8 +1,5 @@
 // আপনার একদম নতুন Google Web App URL 
-const APPS_SCRIPT_URL = "Https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec
-
-
-এটা দিয়ে পুরোটা লিখে দাও। পাশাপাশি তুমি ভুলে এয়ার ওয়াইস রেজিস্ট্রেশন এর জায়গায় ক্লাস বসিয়ে দিয়েছো। ওখানে সর্বশেষ 5 বছরের বছর ভিত্তিক রেজিস্ট্রেশন দেখাও"; 
+const APPS_SCRIPT_URL = "Https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec"; 
 
 // ১. কাস্টম ড্যাশড স্পিনার, মোবাইল রেসপন্সিভ মডাল ফিক্স এবং টাইমার স্টাইল ইনজেকশন
 const styleNode = document.createElement('style');
