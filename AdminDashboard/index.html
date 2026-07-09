@@ -19,74 +19,60 @@
     .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid var(--glass-border); }
     .mobile-menu-btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: #fff; padding: 10px 14px; border-radius: 4px; cursor: pointer; display: none; }
     
-    .erp-wrapper { display: flex; flex: 1; position: relative; margin-top: 60px; }
-    .sidebar-nav { width: 280px; height: calc(100vh - 60px); position: fixed; top: 60px; left: 0; display: flex; flex-direction: column; z-index: 99; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
+    .erp-wrapper { display: flex; flex: 1; position: relative; margin-top: 60px; margin-bottom: 50px; }
+    .sidebar-nav { width: 280px; height: calc(100vh - 110px); position: fixed; top: 60px; left: 0; display: flex; flex-direction: column; z-index: 99; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto; }
     .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--glass-border); }
     .sidebar-header h2 { font-size: 18px; color: var(--neon-blue); letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 180, 216, 0.5); }
     .sidebar-menu { list-style: none; padding: 15px 0; }
     .menu-item a { display: flex; align-items: center; padding: 12px 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; border-left: 4px solid transparent; transition: all 0.3s ease; }
-    .menu-item a i { margin-right: 10px; width: 20px; text-align: center; }
     .menu-item a:hover, .menu-item.active a { color: #fff; background: rgba(0, 180, 216, 0.1); border-left-color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); }
     
-    .main-content-node { margin-left: 280px; flex: 1; padding: 30px; min-height: calc(100vh - 60px); transition: all 0.4s ease; overflow-x: auto; }
+    .main-content-node { margin-left: 280px; flex: 1; padding: 30px; min-height: calc(100vh - 110px); transition: all 0.4s ease; overflow-x: auto; }
     .admin-profile-trigger { cursor: pointer; display: flex; align-items: center; gap: 10px; position: relative; }
     .admin-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 10px rgba(0, 180, 216, 0.4); object-fit: cover; }
-    
     .profile-dropdown { position: absolute; top: 50px; right: 0; width: 220px; border-radius: 8px; padding: 10px 0; display: none; flex-direction: column; z-index: 1001; }
-    .dropdown-info { padding: 10px 20px; border-bottom: 1px solid var(--glass-border); text-align: left; }
-    .dropdown-info h4 { font-size: 14px; color: #fff; }
-    .dropdown-info small { font-size: 11px; color: var(--text-muted); }
+    .dropdown-info { padding: 10px 20px; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
     .profile-dropdown a { padding: 10px 20px; color: var(--text-muted); text-decoration: none; font-size: 13px; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
     .profile-dropdown a:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
     @media (max-width: 992px) { 
       .mobile-menu-btn { display: block; } 
-      .sidebar-nav { left: -280px; } 
+      .sidebar-nav { left: -280px; height: calc(100vh - 60px); top: 60px; } 
       .sidebar-nav.active { left: 0; } 
-      .main-content-node { margin-left: 0; padding: 15px; } 
+      .main-content-node { margin-left: 0; padding: 15px; padding-top: 20px; } 
     }
   </style>
 </head>
-<body id="nexusCoreBody">
+<body id="nexusCoreBody" style="display: none;">
 
-    <!-- 🔒 ড্যাশবোর্ড প্রোটেকশন গেটওয়ে (সংশোধিত রুট গার্ড) -->
+  <!-- 🔒 সিকিউর সেশন গেটওয়ে লজিক -->
   <script>
     let currentAdminData = null;
     (function checkAuth() {
       const sessionData = localStorage.getItem('ros_user') || sessionStorage.getItem('ros_user');
       if (!sessionData) {
         alert("অ্যাক্সেস রিফিউজড! ড্যাশবোর্ডে প্রবেশ করতে প্রথমে লগইন করুন।");
-        window.location.href = "../"; 
+        window.location.href = "../login.html"; 
         return;
       }
       currentAdminData = JSON.parse(sessionData);
       
-      // আপনার ডাটাবেজের রোলের সাথে মিল রেখে ছোট হাতের অক্ষরে রোলগুলো চেক করা হচ্ছে
-      const managementRoles = [
-        "admin", "super_admin", "president", "vice_president", "general_secretary", 
-        "joint_general_secretary", "organizing_secretary", "treasurer", 
-        "education_secretary", "event_secretary", "pr_secretary", "it_secretary", "executive_member"
-      ];
-      
-      // .toLowerCase() এবং .trim() ব্যবহার করা হয়েছে যেন স্পেসিং বা বড় হাতের অক্ষরের কারণে এরর না আসে
-      const userRole = currentAdminData.role ? currentAdminData.role.toLowerCase().trim() : "";
-      
-      if (!managementRoles.includes(userRole)) {
-        alert("অননুমোদিত অ্যাক্সেস! আপনার বর্তমান রোল: '" + currentAdminData.role + "'। এই প্যানেলে প্রবেশের অনুমতি আপনার নেই।");
-        window.location.href = "../";
+      // এডমিন রোল প্রিভিলেন্স ফিল্টার
+      if (currentAdminData.role !== "admin") {
+        alert("অননুমোদিত অ্যাক্সেস! এই প্যানেলে প্রবেশের অনুমতি আপনার নেই।");
+        window.location.href = "../login.html";
       }
     })();
   </script>
-  
 
   <div class="top-bar cyber-glass">
     <button class="mobile-menu-btn" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
     <div style="flex-grow: 1;"></div>
     <div class="admin-profile-trigger" id="profileTrigger">
-      <span id="headerAdminRole" style="font-size: 11px; color: var(--neon-green); font-weight: bold; text-transform: uppercase;"></span>
-      <img src="" id="topAdminAvatar" class="admin-avatar" onerror="this.src='../placeholder.png'">
+      <span id="headerAdminRole" style="font-size: 11px; color: var(--neon-green); font-weight: bold;">SECURE NODE</span>
+      <img src="../placeholder.png" id="topAdminAvatar" class="admin-avatar" onerror="this.src='../placeholder.png'">
       <div class="profile-dropdown cyber-glass" id="profileDropdown">
-        <div class="dropdown-info"><h4 id="dropAdminName"></h4><small id="dropAdminEmail"></small></div>
+        <div class="dropdown-info"><h4 id="dropAdminName">লোড হচ্ছে...</h4><small id="dropAdminEmail">admin@domain.org</small></div>
         <a href="#" id="adminSignOutBtn" style="color: var(--neon-red);"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
       </div>
     </div>
@@ -94,73 +80,22 @@
 
   <div class="erp-wrapper">
     <aside class="sidebar-nav cyber-glass" id="sidebarNode">
-      <div class="sidebar-header"><h2>ROS NEXUS ERP</h2><small style="color: var(--text-muted); font-size: 10px;">SHEET CONTROLLER</small></div>
+      <div class="sidebar-header"><h2>ROS NEXUS ERP</h2><small style="color: var(--text-muted); font-size: 10px;">SYSTEM CONTROL STATION</small></div>
       <ul class="sidebar-menu" id="centralMenuContainer"></ul>
     </aside>
     <main class="main-content-node" id="spaContentRoot"></main>
   </div>
 
-  <div id="rosAlertModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,10,22,0.85); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px;">
-    <div style="background:#051226; width:100%; max-width:400px; padding:30px 20px; border-radius:10px; border:1px solid rgba(0,164,204,0.2); box-shadow:0 15px 35px rgba(0,0,0,0.5); text-align:center; position:relative;">
-      <button id="closeAlertBtn" style="position:absolute; top:12px; right:15px; background:none; border:none; color:#52667d; font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
-      <div id="alertIcon" style="font-size:45px; margin-bottom:15px;"></div>
-      <h3 id="alertTitle" style="color:#fff; font-size:18px; margin-bottom:10px;"></h3>
-      <p id="alertMessage" style="color:#94a3b8; font-size:14px; line-height:1.5; margin-bottom:20px;"></p>
-      <button id="alertActionBtn" style="width:100%; padding:12px; background:#00a4cc; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer;">ঠিক আছে</button>
-    </div>
-  </div>
-
+  <!-- ⚙️ কোর স্ক্রিপ্ট এবং এপিআই কনফিগারেশন -->
   <script>
-    // ⚙️ আপনার নতুন লাইভ গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ ইউআরএল সরাসরি ইনজেক্টেড করা হলো
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkvIfjTQVM69qurRZvF90w_1pq1PaBYDPB8Gv0PCLR3DOyF4Ud8AVzp119agoB8NefpA/exec";
+  </script>
 
-    // 🔄 লোগোসহ ড্যাশড স্পিনার লোডার স্টাইল ও ইনজেকশন 
-    const loaderStyle = document.createElement('style');
-    loaderStyle.innerHTML = `
-      .ros-global-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 10, 22, 0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; }
-      .ros-spinner-container { position: relative; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
-      .ros-dashed-spinner { position: absolute; width: 100%; height: 100%; border: 4px dashed #00b4d8; border-top-color: #ffd700; border-bottom-color: #ffd700; border-radius: 50%; animation: ros-spin 1.5s linear infinite; }
-      .ros-spinner-logo { width: 65px; height: 65px; background: #ffffff; border-radius: 50%; padding: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); object-fit: cover; z-index: 2; }
-      .ros-loader-text { color: #ffd700; font-size: 16px; font-weight: 500; margin-top: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-      @keyframes ros-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    `;
-    document.head.appendChild(loaderStyle);
-
-    const loaderDiv = document.createElement('div');
-    loaderDiv.id = "rosGlobalLoader";
-    loaderDiv.className = "ros-global-loader";
-    loaderDiv.innerHTML = `<div class="ros-spinner-container"><div class="ros-dashed-spinner"></div><img src="https://rosociety.vercel.app/ros%20logo.png" class="ros-spinner-logo"></div><div class="ros-loader-text" id="rosLoaderText">লোড করা হচ্ছে...</div>`;
-    document.body.appendChild(loaderDiv);
-
-    function showLoader(text = "লোড করা হচ্ছে...") {
-      document.getElementById('rosLoaderText').innerText = text;
-      document.getElementById('rosGlobalLoader').style.display = "flex";
-    }
-    function hideLoader() { document.getElementById('rosGlobalLoader').style.display = "none"; }
-
-    // 🔔 গলোবাল কাস্টম অ্যালার্ট
-    function showCustomAlert(type, title, message, callback = null) {
-      const modal = document.getElementById('rosAlertModal');
-      const iconBox = document.getElementById('alertIcon');
-      const actionBtn = document.getElementById('alertActionBtn');
-      if (type === 'success') { iconBox.innerHTML = '<i class="fas fa-check-circle"></i>'; iconBox.style.color = '#2ec4b6'; actionBtn.style.background = '#2ec4b6'; }
-      else { iconBox.innerHTML = '<i class="fas fa-exclamation-circle"></i>'; iconBox.style.color = '#e63946'; actionBtn.style.background = '#e63946'; }
-      document.getElementById('alertTitle').innerText = title;
-      document.getElementById('alertMessage').innerText = message;
-      modal.style.display = 'flex';
-      const close = () => { modal.style.display = 'none'; if(callback) callback(); };
-      actionBtn.onclick = close;
-      document.getElementById('closeAlertBtn').onclick = close;
-    }
-
-    // প্রোফাইল UI ডেটা সিঙ্ক
-    if (currentAdminData) {
-      document.getElementById('headerAdminRole').innerText = currentAdminData.role.replace('_', ' ');
-      document.getElementById('dropAdminName').innerText = currentAdminData.banglaName || currentAdminData.englishName;
-      document.getElementById('dropAdminEmail').innerText = currentAdminData.email;
-      if (currentAdminData.photoUrl) document.getElementById('topAdminAvatar').src = currentAdminData.photoUrl;
-    }
-
+  <!-- মডিউল ফাইল লিঙ্কসমূহ -->
+  <script src="../admin/dashboard.js"></script>
+  <script src="../admin/members.js"></script>
+  
+  <script>
     const erpModules = [
       { id: 'dashboard', name: '📊 ড্যাশবোর্ড হোম' },
       { id: 'members', name: '👥 সদস্য ম্যানেজমেন্ট' }
@@ -169,11 +104,27 @@
     const menuContainer = document.getElementById('centralMenuContainer');
     const contentRoot = document.getElementById('spaContentRoot');
     const sidebarNode = document.getElementById('sidebarNode');
+    const profileDropdown = document.getElementById('profileDropdown');
 
+    // ড্যাশবোর্ড ইনিশিয়ালাইজেশন
     window.addEventListener('DOMContentLoaded', () => {
-      erpModules.forEach((mod, idx) => {
+      if(currentAdminData) {
+        document.getElementById('headerAdminRole').innerText = currentAdminData.role.toUpperCase();
+        document.getElementById('topAdminAvatar').src = currentAdminData.photoUrl || '../placeholder.png';
+        document.getElementById('dropAdminName').innerText = currentAdminData.fullName || 'Admin';
+        document.getElementById('dropAdminEmail').innerText = currentAdminData.email || '';
+      }
+      
+      initSidebarMenu();
+      switchModuleView('dashboard');
+      document.getElementById('nexusCoreBody').style.display = 'flex';
+    });
+
+    function initSidebarMenu() {
+      menuContainer.innerHTML = "";
+      erpModules.forEach((mod, index) => {
         const li = document.createElement('li');
-        li.className = `menu-item ${idx === 0 ? 'active' : ''}`;
+        li.className = `menu-item ${index === 0 ? 'active' : ''}`;
         li.innerHTML = `<a href="#" data-mod-id="${mod.id}">${mod.name}</a>`;
         menuContainer.appendChild(li);
       });
@@ -187,31 +138,31 @@
           if (window.innerWidth <= 992) sidebarNode.classList.remove('active');
         });
       });
-      switchModuleView('dashboard');
-    });
-
-    function switchModuleView(id) {
-      if (id === 'dashboard') loadDashboardModule(contentRoot);
-      else if (id === 'members') loadMembersModule(contentRoot);
     }
 
-    document.getElementById('profileTrigger').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const dd = document.getElementById('profileDropdown');
-      dd.style.display = dd.style.display === 'flex' ? 'none' : 'flex';
+    function switchModuleView(id) {
+      contentRoot.innerHTML = "";
+      if (id === 'dashboard') {
+        loadDashboardModule(contentRoot, currentAdminData, SCRIPT_URL);
+      } else if (id === 'members') {
+        loadMembersModule(contentRoot, SCRIPT_URL);
+      }
+    }
+
+    // ড্রপডাউন ও মোবাইল মেনু ইভেন্টস
+    document.getElementById('profileTrigger').addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      profileDropdown.style.display = profileDropdown.style.display === 'flex' ? 'none' : 'flex'; 
     });
-    document.addEventListener('click', () => { document.getElementById('profileDropdown').style.display = 'none'; });
+    document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
     document.getElementById('mobileMenuToggle').addEventListener('click', () => { sidebarNode.classList.toggle('active'); });
-    document.getElementById('adminSignOutBtn').addEventListener('click', () => {
-      if (confirm("আপনি কি লগআউট করতে চান?")) {
+
+    document.getElementById('adminSignOutBtn').addEventListener('click', () => { 
+      if (confirm("লগআউট করবেন?")) {
         localStorage.removeItem('ros_user'); sessionStorage.removeItem('ros_user');
-        window.location.href = "../";
+        window.location.href = "../login.html"; 
       }
     });
   </script>
-
-  <script src="../AdminDashboard/dashboard.js"></script>
-  <script src="../AdminDashboard/members.js"></script>
 </body>
 </html>
-
