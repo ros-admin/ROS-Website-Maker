@@ -75,6 +75,40 @@ styleNode.innerHTML = `
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
   }
+  /* সাকসেস পেজের বাটন সিএসএস */
+.btn-go-login, .btn-go-home {
+  display: block !important;
+  width: 100% !important;
+  padding: 12px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  font-size: 15px !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  transition: 0.3s ease !important;
+  font-family: 'Poppins', 'Hind Siliguri', sans-serif !important;
+}
+.btn-go-login {
+  background: #00b4d8 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3) !important;
+  margin-bottom: 12px !important;
+}
+.btn-go-login:hover {
+  background: #0096b4 !important;
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.5) !important;
+}
+.btn-go-home {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.btn-go-home:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+}
+
 `;
 document.head.appendChild(styleNode);
 
