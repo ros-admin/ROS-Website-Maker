@@ -75,13 +75,41 @@
     .checkbox-group input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--secondary); width: auto; }
     .checkbox-group label { margin-bottom: 0; color: var(--secondary); }
 
-    .btn-submit { background: linear-gradient(135deg, var(--secondary), #0077b6); color: var(--dark-bg); padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; width: 100%; }
-    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 164, 204, 0.3); }
+    /* শর্তাবলী স্ক্রোল বক্স ও সত্যপাঠ এর নতুন সিএসএস */
+    .terms-wrapper {
+      margin: 25px 0 15px 0;
+      background: var(--panel-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .terms-box {
+      max-height: 100px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #94a3b8;
+      padding-right: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(0, 164, 204, 0.1);
+      padding-bottom: 10px;
+    }
+    .terms-box ol { padding-left: 18px; }
+    .terms-box li { margin-bottom: 4px; }
+    
+    .declaration-group {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .declaration-group input[type="checkbox"] {
+      width: 18px; height: 18px; cursor: pointer; accent-color: var(--secondary); margin-top: 2px; flex-shrink: 0;
+    }
+    .declaration-group label {
+      font-size: 13px; color: #e2e8f0; font-weight: 500; cursor: pointer; user-select: none; line-height: 1.4; margin-bottom: 0;
+    }
 
-    .btn-go-login { background: linear-gradient(135deg, #4cc9f0, #00a4cc); color: var(--dark-bg); padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: all 0.2s; }
-    .btn-go-login:hover { filter: brightness(1.1); }
-    .btn-go-home { background: transparent; color: var(--text-light); border: 1px solid var(--input-border); padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 10px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: all 0.2s; }
-    .btn-go-home:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--secondary); }
+    .btn-submit { background: linear-gradient(135deg, var(--secondary), #0077b6); color: var(--dark-bg); padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; width: 100%; }
+    .btn-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 164, 204, 0.3); }
+    .btn-submit:disabled { background: #1b2a41; color: #52667d; cursor: not-allowed; box-shadow: none; transform: none; border: 1px solid var(--input-border); }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 12, 27, 0.92); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding: 15px; }
     .modal-overlay.active { opacity: 1; visibility: visible; }
@@ -267,7 +295,25 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">
+        <!-- শর্তাবলী বক্স এবং তার নিচে এগ্রি চেকবক্স -->
+        <div class="terms-wrapper">
+          <div class="terms-box">
+            <strong style="color: var(--secondary); display:block; margin-bottom:5px;">নিবন্ধন শর্তাবলী (Terms & Conditions):</strong>
+            <ol>
+              <li>ফর্মে প্রদত্ত সকল তথ্য সত্য এবং নির্ভুল হতে হবে। ভুল তথ্য প্রদান করলে সদস্যপদ বাতিল হতে পারে।</li>
+              <li>সংগঠনের নিয়ম-কানুন ও শৃঙ্খলা সম্পূর্ণভাবে মেনে চলতে হবে।</li>
+              <li>অন্য কোনো ব্যক্তির তথ্য বা ছবি অননুমোদিতভাবে ব্যবহার করা আইনত দণ্ডনীয় অপরাধ।</li>
+              <li>নিবন্ধন নিশ্চিত করতে ইমেইল ভেরিফিকেশন (OTP) বাধ্যতামূলক।</li>
+            </ol>
+          </div>
+          
+          <div class="declaration-group">
+            <input type="checkbox" id="truthCheckbox">
+            <label for="truthCheckbox">আমার দেওয়া সকল তথ্য নির্ভুল এবং আমি উপরের শর্তাবলীর সঙ্গে রাজি আছি।</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn" disabled>
           <i class="fa-solid fa-paper-plane"></i> Send OTP & Proceed
         </button>
       </form>
@@ -279,7 +325,7 @@
     <div class="modal-content" id="modalContentBox">
       <button class="close-modal-btn" id="closeModalBtn">&times;</button>
       
-      <!-- ১. ওটিপি ভেরিফিকেশন সেকশন -->
+        <!-- ১. ওটিপি ভেরিফিকেশন সেকশন -->
       <div id="otpSection">
         <h3 style="color: var(--secondary); margin-bottom: 10px; font-family: 'Poppins', sans-serif;">Email Verification</h3>
         <p style="font-size: 14px; color: #94a3b8;">Enter the 6-digit OTP code sent to your email:</p>
@@ -303,6 +349,19 @@
 
   <script src="../navigation.js"></script>
   <script src="../Registration/registration.js"></script>
+  
+  <!-- সত্যপাঠ বক্স দিয়ে প্রসিড বাটন কন্ট্রোল করার ইনস্ট্যান্ট স্ক্রিপ্ট -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const truthCheckbox = document.getElementById("truthCheckbox");
+      const submitBtn = document.getElementById("submitBtn");
+      
+      if(truthCheckbox && submitBtn) {
+        truthCheckbox.addEventListener("change", function() {
+          submitBtn.disabled = !this.checked;
+        });
+      }
+    });
+  </script>
 </body>
-            </html>
-            
+</html>
