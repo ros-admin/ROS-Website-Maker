@@ -4,16 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ROS Admin Panel - Login</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
     body { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
     
-    /* 🌀 আপনার প্রদেয় কাস্টম ড্যাশড লোডিং স্পিনার সিএসএস */
+    /* 🌀 আপনার দেওয়া কাস্টম ড্যাশড গ্লোবাল লোডার সিএসএস */
     .ros-global-loader {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(3, 10, 22, 0.9); display: none;
@@ -44,6 +42,23 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* টাইমার এবং রিসেন্ড টেক্সট স্টাইল */
+    .otp-timer-container {
+      margin: 15px 0 5px 0; font-size: 14px; color: #ffd700; font-weight: 500; text-align: center;
+    }
+    .resend-otp-btn {
+      background: none; border: none; color: #52667d; font-weight: 600;
+      cursor: not-allowed; text-decoration: underline; font-size: 13px; margin-top: 5px; transition: 0.3s;
+    }
+    .resend-otp-btn.active {
+      color: #00a4cc; cursor: pointer;
+    }
+    .spam-notice-box {
+      background: rgba(255, 215, 0, 0.06); border: 1px dashed #ffd700;
+      border-radius: 6px; padding: 10px; font-size: 12px; color: #f1f5f9;
+      margin: 12px 0; text-align: center; line-height: 1.5;
+    }
+
     /* পপআপ নোটিফিকেশন অ্যানিমেশন */
     @keyframes slideIn {
       0% { transform: translateY(-20px); opacity: 0; }
@@ -56,22 +71,15 @@
 </head>
 <body class="bg-[#030a16] flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
 
-  <!-- ==========================================
-       🌀 আপনার নির্দিষ্ট করে দেওয়া গ্লোবাল লোডার
-       ========================================== -->
   <div id="globalLoader" class="ros-global-loader">
     <div class="ros-spinner-container">
       <div class="ros-dashed-spinner"></div>
-      <!-- এখানে আপনার আসল লোগোর লিঙ্ক বসাবেন (যেমন: logo.png) -->
-      <img src="https://raw.githubusercontent.com/ros-admin/ROS-Website-Maker/refs/heads/main/assets/logo.png" alt="ROS Logo" class="ros-spinner-logo">
+      <img src="https://rosociety.vercel.app/ros%20logo.png" alt="ROS Logo" class="ros-spinner-logo">
     </div>
     <p id="loaderText" class="ros-loader-text">প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
   </div>
 
-  <!-- ==========================================
-       টপ-রাইট প্রিমিয়াম নোটিফিকেশন টোস্ট (Popup Toast)
-       ========================================== -->
-  <div id="notificationToast" class="hidden fixed top-6 right-6 z-50 max-w-sm w-full bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 p-4 rounded-xl shadow-2xl flex items-start gap-3.5 animate-popup">
+  <div id="notificationToast" class="hidden fixed top-6 right-6 z-50 max-w-sm w-full bg-[#030a16]/90 backdrop-blur-xl border border-slate-700/60 p-4 rounded-xl shadow-2xl flex items-start gap-3.5 animate-popup">
     <div id="toastIconContainer" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
       <i id="toastIcon" class="text-lg"></i>
     </div>
@@ -85,25 +93,19 @@
   </div>
 
 
-  <!-- মূল কার্ড কনটেইনার -->
-  <div id="mainCard" class="w-full max-w-md bg-slate-800/40 border border-slate-700/40 backdrop-blur-xl rounded-2xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
+  <div id="mainCard" class="w-full max-w-md bg-slate-900/40 border border-slate-700/40 backdrop-blur-xl rounded-2xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
     
-    <!-- Decorative Glow -->
     <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#00b4d8]/10 rounded-full blur-2xl"></div>
     <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#ffd700]/5 rounded-full blur-2xl"></div>
 
-    <!-- Header Logo (অন্য চিহ্ন বাদ দিয়ে সরাসরি মেইন লোগো ব্যবহার) -->
     <div class="text-center mb-8 relative z-10 flex flex-col items-center">
       <div class="w-20 h-20 rounded-full bg-white p-1 shadow-xl flex items-center justify-center mb-4 border-2 border-[#00b4d8]">
-        <img src="https://raw.githubusercontent.com/ros-admin/ROS-Website-Maker/refs/heads/main/assets/logo.png" alt="ROS Logo" class="w-full h-full object-cover rounded-full">
+        <img src="https://rosociety.vercel.app/ros%20logo.png" alt="ROS Logo" class="w-full h-full object-cover rounded-full">
       </div>
       <h2 class="text-2xl font-bold text-white tracking-wide">ROS অ্যাডমিন পোর্টাল</h2>
       <p class="text-sm text-slate-400 mt-1">প্যানেলে প্রবেশ করতে আপনার তথ্য দিন</p>
     </div>
 
-    <!-- ==========================================
-         ফর্ম ১: মূল লগইন ফর্ম
-         ========================================== -->
     <form id="loginForm" class="space-y-5 relative z-10">
       <div>
         <label class="block text-sm font-semibold text-slate-300 mb-2">ইউজারনেম (Username)</label>
@@ -112,7 +114,7 @@
             <i class="fa-solid fa-user"></i>
           </span>
           <input type="text" id="loginUsername" required autocomplete="username"
-            class="w-full pl-10 pr-4 py-3 bg-slate-900/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
+            class="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
             placeholder="যেমন: rosadmin">
         </div>
       </div>
@@ -127,7 +129,7 @@
             <i class="fa-solid fa-lock"></i>
           </span>
           <input type="password" id="loginPassword" required autocomplete="current-password"
-            class="w-full pl-10 pr-10 py-3 bg-slate-900/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
+            class="w-full pl-10 pr-10 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
             placeholder="••••••••">
           <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
             <i class="fa-solid fa-eye"></i>
@@ -136,15 +138,12 @@
       </div>
 
       <button type="submit" id="loginBtn"
-        class="w-full py-3 px-4 bg-gradient-to-r from-[#00b4d8] to-indigo-600 hover:from-[#00b4d8]/90 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-[#00b4d8]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-[#00b4d8] transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
+        class="w-full py-3 px-4 bg-gradient-to-r from-[#00b4d8] to-indigo-600 hover:from-[#0096b4] hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-[#00b4d8]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-[#00b4d8] transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
         <span>লগইন করুন</span>
         <i class="fa-solid fa-arrow-right"></i>
       </button>
     </form>
 
-    <!-- ==========================================
-         ফর্ম ২: ওটিপি রিকোয়েস্ট (পাসওয়ার্ড সেট/রিসেট)
-         ========================================== -->
     <div id="forgotPasswordWrapper" class="hidden space-y-5 relative z-10">
       <div class="border-b border-slate-700/50 pb-3 mb-2">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -152,11 +151,15 @@
         </h3>
       </div>
       
+      <div class="spam-notice-box">
+        ⚠️ যেকোনো কারণে ওটিপি খুঁজে না পেলে অনুগ্রহ করে আপনার ইমেইলের <strong>Spam (স্প্যাম)</strong> বক্সটি চেক করুন।
+      </div>
+      
       <form id="requestOtpForm" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-2">আপনার ইউজারনেম দিন</label>
           <input type="text" id="resetUsername" required
-            class="w-full px-4 py-3 bg-slate-900/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
+            class="w-full px-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
             placeholder="যেমন: rosadmin">
         </div>
         <button type="submit" id="otpBtn"
@@ -165,19 +168,28 @@
         </button>
       </form>
 
-      <!-- ওটিপি ভেরিফিকেশন ও পাসওয়ার্ড আপডেট সাব-ফর্ম -->
       <form id="resetPasswordForm" class="hidden mt-4 pt-4 border-t border-slate-700/50 space-y-4">
         <div>
-          <label class="block text-sm font-semibold text-emerald-400 mb-1.5">৬ ডিজিট ওটিপি কোড</label>
+          <label class="block text-sm font-semibold text-emerald-400 mb-1.5 text-center">৬ ডিজিট ওটিপি কোড</label>
           <input type="text" id="otpCode" required maxlength="6" pattern="\d{6}"
-            class="w-full px-4 py-2.5 bg-slate-900/60 border border-emerald-600/40 rounded-xl text-white tracking-widest text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            class="w-full px-4 py-2.5 bg-slate-950/60 border border-emerald-600/40 rounded-xl text-white tracking-widest text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             placeholder="000000">
         </div>
+
+        <div id="otpTimerWrapper" class="hidden">
+          <div class="otp-timer-container">
+            ⏱ ওটিপির মেয়াদ বাকি: <span id="otpCountdownTimer" style="font-weight:700; font-family:monospace; font-size:16px;">05:00</span> মিনিট
+          </div>
+          <div style="text-align:center;">
+            <button id="resendOtpBtn" class="resend-otp-btn" type="button" disabled>Resend OTP</button>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-1.5">নতুন পাসওয়ার্ড সেট করুন</label>
           <div class="relative">
             <input type="password" id="newPassword" required minlength="6"
-              class="w-full pl-4 pr-10 py-2.5 bg-slate-900/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 text-sm"
+              class="w-full pl-4 pr-10 py-2.5 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 text-sm"
               placeholder="কমপক্ষে ৬ ডিজিট">
             <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
               <i class="fa-solid fa-eye"></i>
@@ -199,18 +211,17 @@
 
   </div>
 
-  <!-- ==========================================
-       জাভাস্ক্রিপ্ট কন্ট্রোলার ইঞ্জিন
-       ========================================== -->
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
     let toastTimer;
+    let countdownInterval = null;
+    let resendCount = 0;
 
     if (sessionStorage.getItem('currentAdmin')) {
       window.location.href = 'dashboard.html';
     }
 
-    // আপনার কাস্টম স্পিনার লোডার কন্ট্রোল ফাংশন
+    // আপনার কাস্টম ড্যাশড স্পিনার লোডার কন্ট্রোল ফাংশন
     function showLoader(status, customText = "প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...") {
       const loader = document.getElementById('globalLoader');
       const card = document.getElementById('mainCard');
@@ -218,7 +229,7 @@
       
       if(status) {
         loaderText.innerText = customText;
-        loader.style.display = 'flex'; // ফ্লেক্স মোডে এক্টিভ হবে
+        loader.style.display = 'flex'; 
         card.classList.add('opacity-30', 'blur-[3px]', 'pointer-events-none');
       } else {
         loader.style.display = 'none';
@@ -257,6 +268,84 @@
       document.getElementById('notificationToast').classList.add('hidden');
     }
 
+    // টাইমার ও রিসেন্ড ওটিপি ইঞ্জিন লজিক (রেজিস্ট্রেশন পেইজের মত হুবহু)
+    function startOtpEngine(username) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      
+      const timerWrapper = document.getElementById('otpTimerWrapper');
+      const timerDisplay = document.getElementById('otpCountdownTimer');
+      const resendBtn = document.getElementById('resendOtpBtn');
+      
+      timerWrapper.classList.remove('hidden');
+      let totalSeconds = 5 * 60; 
+      resendBtn.disabled = true;
+      resendBtn.classList.remove('active');
+      
+      if(resendCount >= 1) {
+        resendBtn.innerText = "Resend OTP (Limit reached)";
+      } else {
+        resendBtn.innerText = "Resend OTP (Available in 03:00)";
+      }
+
+      countdownInterval = setInterval(() => {
+        totalSeconds--;
+        
+        if (totalSeconds <= 0) {
+          clearInterval(countdownInterval);
+          timerDisplay.innerText = "Time Expired!";
+          resendBtn.disabled = true;
+          resendBtn.classList.remove('active');
+          showNotification("মেয়াদ শেষ!", "ওটিপির ৫ মিনিট মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার ট্রাই করুন।", "error");
+          return;
+        }
+
+        const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const secs = String(totalSeconds % 60).padStart(2, '0');
+        if (timerDisplay) timerDisplay.innerText = `${mins}:${secs}`;
+
+        if (totalSeconds <= 120 && resendCount < 1) {
+          resendBtn.disabled = false;
+          resendBtn.classList.add('active');
+          resendBtn.innerText = "Resend OTP";
+        } else if (resendCount < 1) {
+          const waitTime = totalSeconds - 120;
+          const waitMins = String(Math.floor(waitTime / 60)).padStart(2, '0');
+          const waitSecs = String(waitTime % 60).padStart(2, '0');
+          resendBtn.innerText = `Resend OTP (Available in ${waitMins}:${waitSecs})`;
+        }
+      }, 1000);
+
+      // প্রথমবার ইভেন্ট লিসেনার সেট করা
+      if(!resendBtn.dataset.listenerAttached) {
+        resendBtn.addEventListener('click', async () => {
+          if (resendCount >= 1) return;
+          
+          showLoader(true, "ওটিপি পুনরায় পাঠানো হচ্ছে...");
+          
+          try {
+            const response = await fetch(WEB_APP_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: "sendAdminResetOtp", username: username })
+            });
+            const resData = await response.json();
+            showLoader(false);
+            
+            if (resData.success) {
+              resendCount++;
+              showNotification("সফল!", "ওটিপি সফলভাবে পুনরায় পাঠানো হয়েছে!", "success");
+              startOtpEngine(username); 
+            } else {
+              showNotification("ব্যর্থ!", "ওটিপি পুনরায় পাঠাতে ব্যর্থ হয়েছে: " + resData.error, "error");
+            }
+          } catch (err) {
+            showLoader(false);
+            showNotification("ত্রুটি!", "নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।", "warning");
+          }
+        });
+        resendBtn.dataset.listenerAttached = true;
+      }
+    }
+
     function toggleView(targetId) {
       hideNotification();
       if(targetId === 'forgotPasswordWrapper') {
@@ -265,6 +354,7 @@
       } else {
         document.getElementById('forgotPasswordWrapper').classList.add('hidden');
         document.getElementById('loginForm').classList.remove('hidden');
+        if (countdownInterval) clearInterval(countdownInterval);
       }
     }
 
@@ -337,6 +427,9 @@
           document.getElementById('resetPasswordForm').classList.remove('hidden');
           document.getElementById('otpBtn').classList.add('hidden');
           document.getElementById('resetUsername').disabled = true;
+          
+          resendCount = 0;
+          startOtpEngine(user);
         } else {
           showNotification("ওটিপি পাঠানো যায়নি!", result.error || "সিস্টেম ত্রুটি।", "error");
         }
@@ -368,6 +461,7 @@
         showLoader(false);
         
         if (result.success) {
+          if (countdownInterval) clearInterval(countdownInterval);
           showNotification("সফল হয়েছে!", "পাসওয়ার্ড সফলভাবে সেভ হয়েছে! এখন মূল ফর্মে লগইন করুন।", "success");
           setTimeout(() => {
             document.getElementById('resetPasswordForm').reset();
@@ -375,6 +469,7 @@
             document.getElementById('resetUsername').disabled = false;
             document.getElementById('otpBtn').classList.remove('hidden');
             document.getElementById('resetPasswordForm').classList.add('hidden');
+            document.getElementById('otpTimerWrapper').classList.add('hidden');
             toggleView('loginForm');
           }, 2000);
         } else {
