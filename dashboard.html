@@ -26,32 +26,16 @@
 </head>
 <body class="bg-[#030a16] text-slate-100 min-h-screen flex flex-col">
 
-  <!-- 🌀 গ্লোবাল ড্যাশড লোডার ওভারলে -->
   <div id="globalLoader" class="ros-global-loader">
     <div class="ros-spinner-container">
       <div class="ros-dashed-spinner"></div>
       <img src="https://rosociety.vercel.app/ros%20logo.png" alt="ROS Logo" class="ros-spinner-logo">
     </div>
-    <p id="loaderText" class="text-[#ffd700] text-sm mt-4">লোডিং হচ্ছে...</p>
+    <p class="text-[#ffd700] text-sm mt-4">লোডিং হচ্ছে...</p>
   </div>
 
-  <!-- 🔔 নোটিফিকেশন টোস্ট -->
-  <div id="notificationToast" class="hidden fixed top-20 right-6 z-50 max-w-sm w-full bg-[#030a16] border border-slate-700/60 p-4 rounded-xl shadow-2xl flex items-start gap-3.5">
-    <div id="toastIconContainer" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-      <i id="toastIcon" class="text-lg"></i>
-    </div>
-    <div class="flex-1 pt-0.5">
-      <h4 id="toastTitle" class="text-sm font-bold text-white"></h4>
-      <p id="toastMessage" class="text-xs text-slate-400 mt-0.5"></p>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       Top Navigation Bar (শীর্ষ বার)
-       ========================================== -->
   <header class="bg-slate-900 border-b border-slate-800 h-16 px-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-3">
-      <!-- বামদিকের থ্রি ডট মেনু বাটন -->
       <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-slate-800 flex items-center justify-center text-xl cursor-pointer transition-all">
         <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
@@ -61,7 +45,6 @@
       </div>
     </div>
 
-    <!-- ডানদিকের প্রোফাইল ট্রিগার বাটন -->
     <div class="relative">
       <button onclick="toggleProfileCard()" class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-800 transition-all cursor-pointer">
         <span id="topAdminName" class="text-xs font-bold text-slate-300 hidden sm:inline-block">Loading...</span>
@@ -70,7 +53,6 @@
         </div>
       </button>
 
-      <!-- 👤 রাইট প্রোফাইল ড্রপডাউন বক্স -->
       <div id="profileDropdownCard" class="hidden absolute right-0 mt-3 w-72 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-5 z-50 flex flex-col items-center text-center">
         <div class="w-20 h-20 rounded-full border-2 border-[#ffd700] p-0.5 mb-3 bg-slate-900">
           <img id="popupAdminAvatar" src="https://via.placeholder.com/150" alt="Avatar" class="w-full h-full object-cover rounded-full">
@@ -83,18 +65,14 @@
           <div><span class="text-slate-500 font-semibold block">মোবাইল:</span><span id="popupAdminMobile" class="text-slate-300 font-mono">...</span></div>
         </div>
 
-        <!-- পাসওয়ার্ড চেঞ্জ সেকশন -->
-        <div class="w-full border-t border-slate-800/80 pt-3 mb-4">
-          <button onclick="togglePasswordSection()" class="w-full text-left text-xs font-bold text-[#00b4d8] hover:underline mb-2 flex justify-between items-center">
-            <span>পাসওয়ার্ড পরিবর্তন করুন</span> <i class="fa-solid fa-chevron-down text-[10px]"></i>
-          </button>
-          <div id="passwordFieldsWrapper" class="hidden space-y-2 pt-1">
-            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs" placeholder="নতুন পাসওয়ার্ড">
-            <button onclick="changeProfilePassword()" class="w-full py-1.5 bg-emerald-600 text-white font-bold rounded-lg text-xs transition-all">সেভ করুন</button>
+        <div class="w-full border-t border-slate-800/80 pt-3 mb-4 text-left">
+          <span class="text-xs font-bold text-slate-400 block mb-1.5">পাসওয়ার্ড পরিবর্তন</span>
+          <div class="space-y-2">
+            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none" placeholder="নতুন পাসওয়ার্ড">
+            <button onclick="changeProfilePassword()" class="w-full py-1.5 bg-emerald-600 text-white font-bold rounded-lg text-xs transition-all cursor-pointer">পাসওয়ার্ড সেভ করুন</button>
           </div>
         </div>
 
-        <!-- লগ আউট বাটন -->
         <button onclick="handleLogout()" class="w-full py-2 bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 text-xs font-bold rounded-xl transition-all cursor-pointer">
           <i class="fa-solid fa-right-from-bracket mr-1"></i> লগআউট করুন
         </button>
@@ -102,106 +80,43 @@
     </div>
   </header>
 
-  <!-- Main Body Layout -->
   <div class="flex flex-1 relative">
     
-    <!-- ==========================================
-         Left Navigation Sidebar (সাইডবার)
-         ========================================== -->
-    <aside id="sidebarMenu" class="hidden md:flex w-64 bg-slate-900/40 border-r border-slate-800 p-5 flex-col justify-between shrink-0 absolute md:static left-0 top-0 h-full z-30 backdrop-blur-xl">
-      <div class="space-y-6">
-        <div class="text-xs font-bold uppercase text-slate-500 tracking-wider">মেনু নেভিগেশন</div>
+    <aside id="sidebarMenu" class="hidden md:flex w-64 bg-slate-900/40 border-r border-slate-800 p-5 flex-col shrink-0 absolute md:static left-0 top-0 h-full z-30 backdrop-blur-xl">
+      <div class="space-y-4 w-full">
+        <div class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">প্যানেল মেনু</div>
         <nav class="space-y-1">
-          <button onclick="switchTab('membersTab')" class="tab-link w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 cursor-pointer">
-            <i class="fa-solid fa-users text-sm"></i> <span>মেম্বার তালিকা</span>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left">
+            <i class="fa-solid fa-chart-pie"></i> Main Dashboard
           </button>
-          <button id="navAdminManage" onclick="switchTab('adminsTab')" class="tab-link w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white cursor-pointer">
-            <i class="fa-solid fa-user-shield text-sm"></i> <span>অ্যাডমিন ম্যানেজমেন্ট</span>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left">
+            <i class="fa-solid fa-users"></i> Member Management
+          </button>
+          <button class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left">
+            <i class="fa-solid fa-user-shield"></i> Admin Management
           </button>
         </nav>
       </div>
     </aside>
 
-    <!-- ==========================================
-         Main Dynamic Page Window (এক পাতার মাল্টিপেজ উইন্ডো)
-         ========================================== -->
     <main class="flex-1 p-6 overflow-x-hidden">
-      
-      <!-- 👥 পেজ ১: মেম্বার তালিকা -->
-      <section id="membersTab" class="tab-content space-y-5">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-xl font-bold text-white">মেম্বার ডাটাবেজ</h1>
-            <p class="text-xs text-slate-400 mt-0.5">সব ধরনের অ্যাডমিনই এই তালিকা দেখতে ও অ্যাকশন নিতে পারবেন</p>
-          </div>
-          <button onclick="loadMembersData()" class="px-3 py-1.5 bg-slate-800 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5"><i class="fa-solid fa-rotate"></i> রিফ্রেশ</button>
-        </div>
-        <div class="bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-          <div class="overflow-x-auto w-full">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-300 font-semibold">
-                  <th class="px-5 py-3.5">ইউজারনেম</th>
-                  <th class="px-5 py-3.5">নাম ও ইমেইল</th>
-                  <th class="px-5 py-3.5">মোবাইল</th>
-                  <th class="px-5 py-3.5">রোল</th>
-                  <th class="px-5 py-3.5 text-center">অ্যাকশন</th>
-                </tr>
-              </thead>
-              <tbody id="membersTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- ⚙️ পেজ ২: অ্যাডমিন ম্যানেজমেন্ট (শুধুমাত্র সুপার অ্যাডমিনের জন্য দৃশ্যমান) -->
-      <section id="adminsTab" class="tab-content hidden space-y-5">
-        <div id="superAdminActions" class="hidden flex justify-between items-center">
-          <div>
-            <h1 class="text-xl font-bold text-white">নতুন অ্যাডমিন ক্রিয়েশন</h1>
-            <p class="text-xs text-slate-400 mt-0.5">শুধুমাত্র সুপার অ্যাডমিন নতুন সাব-অ্যাডমিন যোগ করতে পারবেন</p>
-          </div>
-          <button onclick="openModal()" class="px-4 py-2 bg-gradient-to-r from-[#00b4d8] to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> যোগ করুন</button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="adminsCardContainer"></div>
-      </section>
-
+      <div class="border border-dashed border-slate-800 rounded-2xl h-64 flex items-center justify-center text-slate-500 text-xs">
+        [এখানে পেজের মূল কন্টেন্টগুলো তোমার পরবর্তী ইনস্ট্রাকশন অনুযায়ী যুক্ত করা হবে]
+      </div>
     </main>
+
   </div>
 
-  <!-- ➕ অ্যাডমিন যোগ করার মডাল -->
-  <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-2xl">
-      <h3 class="text-sm font-bold text-white mb-4"><i class="fa-solid fa-user-plus text-[#00b4d8] mr-1"></i> নতুন অ্যাডমিন তৈরি করুন</h3>
-      <form id="createAdminForm" class="space-y-3">
-        <input type="text" id="newAdminName" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs" placeholder="নাম (English Name)">
-        <input type="email" id="newAdminEmail" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs" placeholder="ইমেইল এড্রেস">
-        <input type="text" id="newAdminMobile" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs" placeholder="মোবাইল নম্বর">
-        <input type="text" id="newAdminUsername" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs" placeholder="ইউজারনেম">
-        <input type="password" id="newAdminPassword" required minlength="6" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs" placeholder="পাসওয়ার্ড (কমপক্ষে ৬ ডিজিট)">
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeModal()" class="px-3 py-1.5 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl">বাতিল</button>
-          <button type="submit" class="px-4 py-1.5 bg-sky-600 text-white text-xs font-bold rounded-xl">সেভ করুন</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       🛠 জাভাস্ক্রিপ্ট কোড সেকশন (আলাদা আলাদা পেজ কন্ট্রোলার)
-       ========================================== -->
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
     let currentAdmin = null;
-    let toastTimer;
 
-    // 🔒 গ্লোবাল ইনিশিয়েলাইজেশন এবং সিকিউরিটি পেজ গার্ড
     window.addEventListener('DOMContentLoaded', () => {
       const stored = sessionStorage.getItem('currentAdmin');
       if (!stored) { window.location.href = 'index.html'; return; }
       currentAdmin = JSON.parse(stored);
       
-      // ড্যাশবোর্ড ও প্রোফাইল ডাটা সেট করা
+      // ডাটাসমূহ হেডারে ও ড্রপডাউনে সেটআপ
       document.getElementById('topAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminRole').innerText = currentAdmin.role === 'super_admin' ? 'Super Admin 👑' : 'General Admin 🛠';
@@ -212,171 +127,31 @@
         document.getElementById('topAdminAvatar').src = currentAdmin.photoUrl;
         document.getElementById('popupAdminAvatar').src = currentAdmin.photoUrl;
       }
-
-      // সুপার অ্যাডমিন কন্ডিশনাল রেন্ডারিং চেক
-      if (currentAdmin.role === 'super_admin') {
-        document.getElementById('superAdminActions').classList.remove('hidden');
-      }
-
-      loadMembersData();
     });
 
-    // গ্লোবাল ইউটিলিটি ফাংশনসমূহ
-    function showLoader(s, t = "লোডিং...") { document.getElementById('loaderText').innerText = t; document.getElementById('globalLoader').style.display = s ? 'flex' : 'none'; }
     function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('hidden'); }
     function toggleProfileCard() { document.getElementById('profileDropdownCard').classList.toggle('hidden'); }
-    function togglePasswordSection() { document.getElementById('passwordFieldsWrapper').classList.toggle('hidden'); }
-    function openModal() { document.getElementById('adminModal').classList.remove('hidden'); }
-    function closeModal() { document.getElementById('adminModal').classList.add('hidden'); document.getElementById('createAdminForm').reset(); }
     function handleLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
-    function showNotification(title, msg, type = 'error') {
-      clearTimeout(toastTimer);
-      const toast = document.getElementById('notificationToast');
-      document.getElementById('toastTitle').innerText = title;
-      document.getElementById('toastMessage').innerText = msg;
-      const ic = document.getElementById('toastIconContainer');
-      const i = document.getElementById('toastIcon');
-      ic.className = `w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-rose-500/10 border border-rose-500/20'}`;
-      i.className = `fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-xmark text-rose-400'}`;
-      toast.classList.remove('hidden');
-      toastTimer = setTimeout(() => { toast.classList.add('hidden'); }, 4000);
-    }
-
-    // ট্যাব সুইচিং কোড
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.getElementById(tabId).classList.remove('hidden');
-      document.querySelectorAll('.tab-link').forEach(el => {
-        el.classList.remove('bg-[#00b4d8]/10', 'text-[#00b4d8]', 'border', 'border-[#00b4d8]/20');
-        el.classList.add('text-slate-400', 'hover:bg-slate-800/50', 'hover:text-white');
-      });
-      event.currentTarget.classList.add('bg-[#00b4d8]/10', 'text-[#00b4d8]', 'border', 'border-[#00b4d8]/20');
-      
-      if (tabId === 'adminsTab') loadAdminsData();
-      if (tabId === 'membersTab') loadMembersData();
-      if (window.innerWidth < 768) toggleSidebar();
-    }
-
-    // ==========================================
-    // 📁 JS কোড ১: মেম্বার তালিকা পেজ কন্ট্রোলার
-    // ==========================================
-    async function loadMembersData() {
-      showLoader(true, "AdminList ডাটাবেজ পড়া হচ্ছে...");
-      const tbody = document.getElementById('membersTableBody');
-      tbody.innerHTML = '';
-      try {
-        const r = await fetch(`${WEB_APP_URL}?action=getAdmins`);
-        const res = await r.json();
-        showLoader(false);
-        if (res.success && res.admins.length > 0) {
-          res.admins.forEach(member => {
-            const tr = document.createElement('tr');
-            tr.className = "border-b border-slate-800/40 hover:bg-slate-800/20 transition-all";
-            
-            // সুপার অ্যাডমিন ও সাধারণ অ্যাডমিনদের ক্ষমতা সমান কিন্তু ডিলিট অপশন সাধারণ অ্যাডমিনদের জন্য নিষ্ক্রিয়
-            const isRootUser = member.username === 'rosadmin';
-            const canDelete = currentAdmin.role === 'super_admin' && !isRootUser;
-
-            tr.innerHTML = `
-              <td class="px-5 py-3.5 font-mono font-bold text-slate-400 text-xs">@${member.username}</td>
-              <td class="px-5 py-3.5"><div class="font-semibold text-white">${member.englishName}</div><div class="text-[10px] text-slate-400">${member.email}</div></td>
-              <td class="px-5 py-3.5 text-slate-400">${member.mobile || 'N/A'}</td>
-              <td class="px-5 py-3.5"><span class="px-2 py-0.5 text-[10px] font-bold rounded ${member.role === 'super_admin' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-sky-500/10 text-sky-400 border border-sky-500/20'}">${member.role.toUpperCase()}</span></td>
-              <td class="px-5 py-3.5 text-center">
-                ${canDelete ? `
-                  <button onclick="deleteMember('${member.username}')" class="px-2.5 py-1 text-[11px] font-bold text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"><i class="fa-solid fa-trash-can mr-1"></i>মুছে ফেলুন</button>
-                ` : `<span class="text-slate-600 text-[11px]">No Action</span>`}
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
-      } catch (err) { showLoader(false); showNotification("লোড ব্যর্থ!", "সার্ভার এরর।"); }
-    }
-
-    async function deleteMember(username) {
-      if (currentAdmin.role !== 'super_admin') { showNotification("অ্যাক্সেস ডিনাইড!", "সাধারণ এডমিন ইউজার ডিলিট করতে পারবেন না।"); return; }
-      if (!confirm(`আপনি কি নিশ্চিতভাবে @${username} অ্যাডমিন প্রোফাইলটি সম্পূর্ণ ডিলিট করতে চান?`)) return;
-      showLoader(true, "অ্যাকাউন্ট মুছে ফেলা হচ্ছে...");
-      try {
-        const r = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "deleteAdmin", username: username }) });
-        const res = await r.json();
-        showLoader(false);
-        if (res.success) { showNotification("সফল!", "অ্যাকাউন্টটি ডাটাবেজ থেকে মুছে ফেলা হয়েছে।", "success"); loadMembersData(); }
-        else { showNotification("ব্যর্থ!", res.error); }
-      } catch (err) { showLoader(false); showNotification("ত্রুটি!", "অনুরোধ সম্পন্ন করা যায়নি।"); }
-    }
-
-    // ==========================================
-    // 📁 JS কোড ২: অ্যাডমিন ক্রিয়েশন পেজ কন্ট্রোলার
-    // ==========================================
-    async function loadAdminsData() {
-      const container = document.getElementById('adminsCardContainer');
-      container.innerHTML = '<p class="text-slate-500 text-xs animate-pulse">লোড হচ্ছে...</p>';
-      try {
-        const r = await fetch(`${WEB_APP_URL}?action=getAdmins`);
-        const res = await r.json();
-        container.innerHTML = '';
-        if (res.success) {
-          res.admins.forEach(admin => {
-            const card = document.createElement('div');
-            card.className = "bg-slate-900/60 border border-slate-800 p-4 rounded-xl flex items-center gap-3";
-            card.innerHTML = `
-              <div class="w-10 h-10 rounded-full border border-slate-700 overflow-hidden shrink-0"><img src="${admin.photoUrl || 'https://via.placeholder.com/150'}" class="w-full h-full object-cover"></div>
-              <div class="truncate"><h4 class="font-bold text-white text-xs truncate">${admin.englishName}</h4><p class="text-[10px] text-slate-400 font-mono">@${admin.username}</p></div>
-            `;
-            container.appendChild(card);
-          });
-        }
-      } catch (err) { container.innerHTML = ''; }
-    }
-
-    document.getElementById('createAdminForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      if (currentAdmin.role !== 'super_admin') { showNotification("অনুমতি নেই!", "সাধারণ এডমিন নতুন এডমিন যুক্ত করতে পারবে না।"); closeModal(); return; }
-      
-      const name = document.getElementById('newAdminName').value.trim();
-      const email = document.getElementById('newAdminEmail').value.trim();
-      const mobile = document.getElementById('newAdminMobile').value.trim();
-      const user = document.getElementById('newAdminUsername').value.trim();
-      const pass = document.getElementById('newAdminPassword').value;
-
-      closeModal();
-      showLoader(true, "নতুন অ্যাডমিন যুক্ত করা হচ্ছে...");
-      try {
-        const r = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "createAdmin", englishName: name, email: email, mobile: mobile, username: user, password: pass, photoUrl: "" })
-        });
-        const res = await r.json();
-        showLoader(false);
-        if (res.success) { showNotification("সফল!", "নতুন অ্যাডমিন যুক্ত হয়েছে।", "success"); loadAdminsData(); }
-        else { showNotification("ব্যর্থ!", res.error); }
-      } catch (err) { showLoader(false); showNotification("ত্রুটি!", "সার্ভার এরর।"); }
-    });
-
-    // ==========================================
-    // 📁 JS কোড ৩: প্রোফাইল ড্রপডাউন এবং পাসওয়ার্ড পরিবর্তন কন্ট্রোলার
-    // ==========================================
+    // প্রোফাইল থেকে ডিরেক্ট পাসওয়ার্ড চেঞ্জ মেথড
     async function changeProfilePassword() {
       const newPass = document.getElementById('profileNewPass').value;
-      if (!newPass || newPass.length < 6) { showNotification("ভুল পাসওয়ার্ড!", "পাসওয়ার্ড কমপক্ষে ৬ ডিজিটের হতে হবে।"); return; }
+      if (!newPass || newPass.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।"); return; }
       
-      showLoader(true, "আপনার প্রোফাইলের পাসওয়ার্ড আপডেট হচ্ছে...");
+      document.getElementById('globalLoader').style.display = 'flex';
       try {
         const r = await fetch(WEB_APP_URL, {
           method: 'POST',
           body: JSON.stringify({ action: "resetAdminPassword", username: currentAdmin.username, otp: "DIRECT", newPassword: newPass })
         });
         const res = await r.json();
-        showLoader(false);
+        document.getElementById('globalLoader').style.display = 'none';
         if (res.success) {
-          showNotification("সফল!", "পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে।", "success");
+          alert("পাসওয়ার্ড সফলভাবে সেভ হয়েছে!");
           document.getElementById('profileNewPass').value = '';
           toggleProfileCard();
-        } else { showNotification("ব্যর্থ!", res.error); }
-      } catch (e) { showLoader(false); showNotification("ত্রুটি!", "অনুরোধ সম্পন্ন করা যায়নি।"); }
+        } else { alert(res.error); }
+      } catch (e) { document.getElementById('globalLoader').style.display = 'none'; }
     }
   </script>
 </body>
