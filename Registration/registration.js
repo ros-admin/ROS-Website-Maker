@@ -323,7 +323,7 @@ registrationForm.addEventListener('submit', async (e) => {
     });
     const resData = await response.json();
 
-    // ইমেইল অলরেডি রেজিস্টার্ড থাকলে অ্যালার্ট এবং কাস্টম স্ক্রিন লোড (স্ক্রলিং ফিক্স সহ)
+    // ইমেইল অলরেডি রেজিস্টার্ড থাকলে কাস্টম ইউজার-ফ্রেন্ডলি নোটিফিকেশন স্ক্রিন লোড
     if (!resData.success) {
       if (resData.error && (resData.error.includes("already") || resData.error.includes("registered"))) {
         
@@ -332,12 +332,17 @@ registrationForm.addEventListener('submit', async (e) => {
           <div style="text-align: center; padding: 25px 15px; font-family: 'Poppins', 'Hind Siliguri', sans-serif;">
             <div style="font-size: 50px; color: #ff4d6d; margin-bottom: 15px;"><i class="fas fa-exclamation-circle"></i></div>
             <h2 style="color: #fff; font-size: 20px; margin-bottom: 12px; font-family:'Hind Siliguri';">দুঃখিত, নিবন্ধন করা যাচ্ছে না!</h2>
-            <p style="color: #ffd700; font-size: 15px; margin-bottom: 25px; line-height:1.6; font-family:'Hind Siliguri';">
-              এই ই-মেইলে অলরেডি অ্যাকাউন্ট আছে। অনুগ্রহ করে লগইন করুন।
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px; line-height:1.6; font-family:'Hind Siliguri';">
+              এই ই-মেইলটি দিয়ে আমাদের সিস্টেমে ইতিমধ্যে অ্যাকাউন্ট তৈরি করা আছে। আপনি কি লগইন করতে চান নাকি অন্য কোনো ইমেল দিয়ে চেষ্টা করবেন?
             </p>
-            <a href="../../Login/" class="btn-go-login" style="display:inline-block; padding:12px 30px; background:#00b4d8; color:#fff; text-decoration:none; border-radius:6px; font-weight:600; box-shadow: 0 4px 15px rgba(0,180,216,0.3);">
-              <i class="fa-solid fa-right-to-bracket"></i> লগইন করুন
+            
+            <a href="../../Login/" class="btn-go-login" style="display:block; width:100%; padding:12px; background:#00b4d8; color:#fff; text-decoration:none; border-radius:6px; font-weight:600; box-shadow: 0 4px 15px rgba(0,180,216,0.3); margin-bottom: 12px; box-sizing: border-box; text-align: center;">
+              <i class="fa-solid fa-right-to-bracket"></i> Go to Login Page
             </a>
+
+            <button type="button" id="tryAnotherEmailBtn" style="display:block; width:100%; padding:12px; background: rgba(255,215,0,0.1); color:#ffd700; border: 1px solid #ffd700; border-radius:6px; font-weight:600; cursor:pointer; font-family:inherit; transition: 0.3s; box-sizing: border-box;">
+              <i class="fa-solid fa-envelope-open"></i> Try with Another Email
+            </button>
           </div>
         `;
         document.getElementById('closeModalBtn').style.display = "block";
@@ -346,6 +351,20 @@ registrationForm.addEventListener('submit', async (e) => {
         
         // মডাল স্ক্রল টপে রিসেট করা
         document.querySelector('#otpModal .modal-content').scrollTop = 0;
+
+        // "Try with Another Email" বাটনের ক্লিক লজিক
+        document.getElementById('tryAnotherEmailBtn').addEventListener('click', () => {
+          // পপআপ মডাল বন্ধ হবে কিন্তু ফর্ম রিসেট হবে না (সব তথ্য ইনপুট অবস্থায় থাকবে)
+          document.getElementById('otpModal').classList.remove('active');
+          
+          // স্বয়ংক্রিয়ভাবে ইমেইল ইনপুট ফিল্ডে ফোকাস এবং টেক্সট সিলেক্ট করা
+          const emailInput = document.getElementById('email');
+          if (emailInput) {
+            emailInput.focus();
+            emailInput.select();
+          }
+        });
+        
         return; 
       }
       throw new Error(resData.error || "OTP পাঠাতে ব্যর্থ হয়েছে।");
@@ -420,7 +439,6 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       body: JSON.stringify(savedFormPayload)
     });
 
-    // সরাসরি response.json() না করে নিরাপদ উপায়ে টেক্সট বা স্ট্রিং এনে হ্যান্ডেল করা হয়েছে
     const rawText = await response.text();
     let finalRes;
     try {
@@ -435,7 +453,6 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       const regNumber = finalRes.memberId || "ROS-2026-____";
       const userEnglishName = savedFormPayload.englishName || "(Name in English)";
 
-      // সাকসেস মেসেজ ও পেন্ডিং ডিজাইন (আপনার অরিজিনাল মেসেজ ও ডিজাইন হুবহু এক রাখা হয়েছে)
       document.getElementById('successSection').innerHTML = `
         <div style="text-align: center; padding: 15px 5px; font-family: 'Poppins', sans-serif;">
           <div style="font-size: 45px; color: #4cc9f0; margin-bottom: 10px;"><i class="fas fa-check-circle"></i></div>
@@ -457,7 +474,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
             
             <span style="color: #ffd700;"><i class="fa-solid fa-lock"></i> Please keep your assigned password safe for future logins.</span><br><br>
             
-            May your journey with the Rajshahi Olympiad Society be joyful and successful. Best wishes!<br><br>
+            May your journey with the Rajshahi Olympiad Registration Society be joyful and successful. Best wishes!<br><br>
             
             <span style="font-size: 13px; color: #fff;">With regard,<br><strong>Rajshahi Olympiad Society</strong></span>
           </div>
@@ -476,7 +493,6 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       document.getElementById('closeModalBtn').style.display = "none"; 
       document.getElementById('successSection').style.display = "block";
 
-      // সাকসেস মেসেজ আসার সাথে সাথে মডাল কন্টেন্ট স্ক্রল একদম ওপরে পুশ করবে যেন কোনো টেক্সট হাইড না থাকে
       const modalContentBox = document.querySelector('#otpModal .modal-content');
       if (modalContentBox) modalContentBox.scrollTop = 0;
 
