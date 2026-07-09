@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROS Nexus - Enterprise Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-main: #0b0f19; --sidebar-bg: #111827; --topbar-bg: #1f2937;
+      --neon-blue: #38bdf8; --text-main: #f3f4f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
+    body { background: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; overflow: hidden; }
+    
+    /* সাইডবার লেআউট */
+    .sidebar { width: 260px; background: var(--sidebar-bg); display: flex; flex-direction: column; transition: 0.3s; border-right: 1px solid rgba(255,255,255,0.05); z-index: 100; }
+    .sidebar.collapsed { margin-left: -260px; }
+    .sidebar-brand { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--neon-blue); font-weight: 700; font-size: 20px; }
+    .sidebar-menu { list-style: none; padding: 15px 0; flex: 1; }
+    .sidebar-menu li { padding: 12px 20px; color: #9ca3af; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+    .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(56, 189, 248, 0.1); color: var(--neon-blue); border-left: 4px solid var(--neon-blue); }
+    
+    /* মেইন কন্টেন্ট এরিয়া */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { height: 65px; background: var(--topbar-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-left { display: flex; align-items: center; gap: 15px; }
+    .menu-toggle { font-size: 20px; cursor: pointer; color: var(--neon-blue); }
+    
+    /* রাইট প্রোফাইল ট্রিগার */
+    .nav-right { position: relative; }
+    .profile-trigger { display: flex; align-items: center; gap: 10px; cursor: pointer; background: rgba(255,255,255,0.02); padding: 5px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
+    .profile-trigger img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid var(--neon-blue); }
+    
+    /* রাইট প্রোফাইল বক্স ড্রপডাউন */
+    .profile-dropdown { position: absolute; right: 0; top: 50px; width: 280px; background: #1e293b; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2); padding: 20px; display: none; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 200; }
+    .profile-dropdown img { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--neon-blue); }
+    .profile-dropdown h4 { font-size: 16px; margin-bottom: 4px; color: #fff; }
+    .profile-dropdown p { font-size: 13px; color: #94a3b8; margin-bottom: 10px; word-break: break-all; }
+    .profile-dropdown .info-row { font-size: 13px; color: #cbd5e1; width: 100%; text-align: left; background: rgba(0,0,0,0.15); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .profile-dropdown button { width: 100%; padding: 8px; margin-top: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-pwd { background: #334155; color: #fff; }
+    .btn-logout { background: #ef4444; color: #fff; }
+    .btn-pwd:hover { background: #475569; }
+    .btn-logout:hover { background: #dc2626; }
+    
+    .content-body { padding: 25px; flex: 1; overflow-y: auto; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">ROS Nexus ERP</div>
+    <ul class="sidebar-menu">
+      <li data-module="dashboard" class="active"><i class="fas fa-chart-pie"></i> ড্যাশবোর্ড</li>
+      <li data-module="admins" id="menuAdmins" class="hidden"><i class="fas fa-user-shield"></i> অ্যাডমিন কন্ট্রোল</li>
+    </ul>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="nav-left">
+        <i class="fas fa-ellipsis-v menu-toggle" id="menuToggleBtn"></i>
+        <h3 style="font-size: 18px; font-weight: 600;">অ্যাডমিন কন্ট্রোল রুম</h3>
+      </div>
+      
+      <div class="nav-right">
+        <div class="profile-trigger" id="profileTrigger">
+          <span id="topbarAdminName">Loading...</span>
+          <img id="topbarAdminImg" src="https://via.placeholder.com/150" alt="Profile">
+        </div>
+        
+        <div class="profile-dropdown" id="profileDropdown">
+          <img id="boxAdminImg" src="https://via.placeholder.com/150" alt="Profile">
+          <h4 id="boxAdminName">Name</h4>
+          <p id="boxAdminRole" style="color: var(--neon-blue); font-size: 12px; margin-bottom: 12px; font-weight: bold;"></p>
+          <div class="info-row"><i class="fas fa-envelope"></i> <span id="boxAdminEmail">Email</span></div>
+          <div class="info-row"><i class="fas fa-phone"></i> <span id="boxAdminPhone">Phone</span></div>
+          
+          <button class="btn-pwd" id="changePwdBtn"><i class="fas fa-key"></i> পাসওয়ার্ড পরিবর্তন</button>
+          <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> লগ আউট</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-body" id="contentRoot">
+      </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+  <script src="profile.js"></script>
+  <script src="admins.js"></script>
+  <script>
+    // সেশন প্রটেকশন
+    const currentAdmin = JSON.parse(sessionStorage.getItem('currentAdmin'));
+    if(!currentAdmin) { window.location.href = 'index.html'; }
+    
+    window.WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; // আপনার অ্যাপস স্ক্রিপ্ট ইউআরএল বসাবেন
+  </script>
+</body>
+</html>
+
