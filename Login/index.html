@@ -164,8 +164,8 @@
     <div class="logo-area">
       <img src="https://rosociety.vercel.app/ros%20logo.png" alt="ROS Logo">
     </div>
-    <h2>রাজশাহী অলিম্পিয়াড সোসাইটি</h2>
-    <p>সদস্য লগইন পোর্টাল</p>
+    <h2>স্বাগতম!</h2>
+    <p>আপনার অ্যাকাউন্ট লগইন করুন</p>
 
     <form id="loginForm">
       <div class="input-group">
@@ -194,7 +194,16 @@
     </div>
   </div>
 
-  <script src="../Login/login.js"></script>
+  <div id="rosAlertModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,10,22,0.85); display:none; align-items:center; justify-content:center; z-index:99999; padding:20px; box-sizing:border-box;">
+    <div style="background:#051226; width:100%; max-width:400px; padding:30px 20px; border-radius:10px; border:1px solid rgba(0,164,204,0.2); box-shadow:0 15px 35px rgba(0,0,0,0.5); text-align:center; position:relative;">
+      <button id="closeAlertBtn" style="position:absolute; top:12px; right:15px; background:none; border:none; color:#52667d; font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
+      <div id="alertIcon" style="font-size:45px; margin-bottom:15px;"></div>
+      <h3 id="alertTitle" style="color:#fff; font-size:18px; margin-bottom:10px;"></h3>
+      <p id="alertMessage" style="color:#94a3b8; font-size:14px; line-height:1.5; margin-bottom:20px;"></p>
+      <button id="alertActionBtn" style="width:100%; padding:12px; background:#00a4cc; color:#fff; border:none; border-radius:6px; font-weight:600; cursor:pointer; transition:0.3s;">ঠিক আছে</button>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
 </body>
 </html>
-
