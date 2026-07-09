@@ -91,7 +91,7 @@ globalLoaderDiv.innerHTML = `
 `;
 document.body.appendChild(globalLoaderDiv);
 
-// ফর্ম অবজেক্ট রেফারেন্স
+// ফরম অবজেক্ট রেফারেন্স
 const sameAddressCheck = document.getElementById('sameAddressCheck');
 const presentAddress = document.getElementById('presentAddress');
 const permanentAddress = document.getElementById('permanentAddress');
@@ -222,7 +222,7 @@ function startOtpEngine() {
       timerDisplay.innerText = "Time Expired!";
       resendBtn.disabled = true;
       resendBtn.classList.remove('active');
-      alert("ওটিপির ৫ মিনিট মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার ট্রাই করুন।");
+      showToast("ওটিপির ৫ মিনিট মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার ট্রাই করুন।", "danger");
       return;
     }
 
@@ -279,18 +279,26 @@ function setupOtpModalUi() {
         
         if (resData.success) {
           resendCount++;
-          alert("ওটিপি সফলভাবে পুনরায় পাঠানো হয়েছে!");
+          showToast("ওটিপি সফলভাবে পুনরায় পাঠানো হয়েছে!", "success");
           startOtpEngine(); 
         } else {
-          alert("ওটিপি পুনরায় পাঠাতে ব্যর্থ হয়েছে: " + resData.error);
+          showToast("ওটিপি পুনরায় পাঠাতে ব্যর্থ হয়েছে: " + resData.error, "danger");
         }
       } catch (err) {
-        alert("নেটওয়ার্ক ত্রুটি: " + err.message);
+        showToast("নেটওয়ার্ক ত্রুটি: " + err.message, "danger");
       } finally {
         document.getElementById('rosGlobalLoader').style.display = "none";
       }
     });
   }
+}
+
+// স্বাক্ষর ক্যানভাস থেকে ফাঁকা স্বাক্ষর চেক করার সহায়তাকারী ফাংশন
+function isCanvasBlank(cv) {
+  const blank = document.createElement('canvas');
+  blank.width = cv.width;
+  blank.height = cv.height;
+  return cv.toDataURL() === blank.toDataURL();
 }
 
 // প্রথম ধাপ: ফর্ম সাবমিশন ও ওটিপি জেনারেশন
@@ -301,13 +309,20 @@ registrationForm.addEventListener('submit', async (e) => {
   const confirmPassword = document.getElementById('confirmPassword').value;
   
   if (password !== confirmPassword) {
-    alert("ত্রুটি: পাসওয়ার্ড এবং কনফর্ম পাসওয়ার্ড মেলেনি!");
+    showToast("ত্রুটি: পাসওয়ার্ড এবং কনফর্ম পাসওয়ার্ড মেলেনি!", "danger");
     return;
   }
 
   const photoFile = document.getElementById('profilePhoto').files[0];
   if (photoFile && photoFile.size > 1024 * 1024) { 
-    alert("ত্রুটি: প্রোফাইল ছবির সাইজ ১ এমবির বেশি হতে পারবে না!");
+    showToast("ত্রুটি: প্রোফাইল ছবির সাইজ ১ এমবির বেশি হতে পারবে না!", "danger");
+    return;
+  }
+
+  // স্বাক্ষর ভ্যালিডেশন চেক
+  const sigCanvas = document.getElementById('signatureCanvas');
+  if (sigCanvas && isCanvasBlank(sigCanvas)) {
+    showToast("ত্রুটি: অনুগ্রহ করে আপনার ডিজিটাল স্বাক্ষরটি প্রদান করুন!", "danger");
     return;
   }
 
@@ -353,6 +368,9 @@ registrationForm.addEventListener('submit', async (e) => {
 
     const uploadedPhotoUrl = photoFile ? await uploadToCloudinary(photoFile) : "";
     const bloodGroupValue = document.getElementById('bloodGroup').value || "";
+    
+    // স্বাক্ষরকে Base64 টেক্সট ফরম্যাটে রূপান্তর করা
+    const signatureDataUrl = sigCanvas ? sigCanvas.toDataURL() : "";
 
     savedFormPayload = {
       banglaName: document.getElementById('banglaName').value,
@@ -374,7 +392,8 @@ registrationForm.addEventListener('submit', async (e) => {
       facebookLink: document.getElementById('facebookLink').value || "",
       nidOrBrn: document.getElementById('nidOrBrn').value || "",
       password: password,
-      photoUrl: uploadedPhotoUrl
+      photoUrl: uploadedPhotoUrl,
+      signatureData: signatureDataUrl // নতুন স্বাক্ষর ফিল্ড ব্যাকএন্ডের জন্য যুক্ত হলো
     };
 
     setupOtpModalUi();
@@ -392,7 +411,7 @@ registrationForm.addEventListener('submit', async (e) => {
     if (otpFields[0]) otpFields[0].focus();
 
   } catch (error) {
-    alert("রেজিস্ট্রেশন ত্রুটি: " + error.message);
+    showToast("রেজিস্ট্রেশন ত্রুটি: " + error.message, "danger");
   } finally {
     document.getElementById('rosGlobalLoader').style.display = "none";
   }
@@ -404,7 +423,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
   otpFields.forEach(field => otpCode += field.value);
 
   if (otpCode.length < 6) {
-    alert("অনুগ্রহ করে ৬-ডিজিটের সম্পূর্ণ ওটিপি দিন।");
+    showToast("অনুগ্রহ করে ৬-ডিজিটের সম্পূর্ণ ওটিপি দিন।", "danger");
     return;
   }
 
@@ -420,7 +439,6 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       body: JSON.stringify(savedFormPayload)
     });
 
-    // সরাসরি response.json() না করে নিরাপদ উপায়ে টেক্সট বা স্ট্রিং এনে হ্যান্ডেল করা হয়েছে
     const rawText = await response.text();
     let finalRes;
     try {
@@ -435,7 +453,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       const regNumber = finalRes.memberId || "ROS-2026-____";
       const userEnglishName = savedFormPayload.englishName || "(Name in English)";
 
-      // সাকসেস মেসেজ ও পেন্ডিং ডিজাইন (আপনার অরিজিনাল মেসেজ ও ডিজাইন হুবহু এক রাখা হয়েছে)
+      // সাকসেস মেসেজ ও পেন্ডিং ডিজাইন (অরিজিনাল মেসেজ ও ডিজাইন হুবহু এক রাখা হয়েছে)
       document.getElementById('successSection').innerHTML = `
         <div style="text-align: center; padding: 15px 5px; font-family: 'Poppins', sans-serif;">
           <div style="font-size: 45px; color: #4cc9f0; margin-bottom: 10px;"><i class="fas fa-check-circle"></i></div>
@@ -443,7 +461,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
           <p style="color: #4cc9f0; font-size: 15px; margin-bottom: 10px;">Your registration was successful.</p>
           <p style="color: #ffd700; font-weight: bold; font-size: 16px; margin-bottom: 15px;">Registration Number: ${regNumber}</p>
           
-          <div style="color: #a4b3c6; font-size: 13.5px; text-align: left; line-height: 1.6; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-sizing:border-box;">
+          <div style="col; color: #a4b3c6; font-size: 13.5px; text-align: left; line-height: 1.6; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; box-sizing:border-box;">
             Dear <strong>${userEnglishName}</strong>,<br><br>
             Your registration with the Rajshahi Olympiad Society has been successfully completed. Thank you sincerely for joining us.<br><br>
             
@@ -467,7 +485,7 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
           </a>
           
           <a href="../../Home/" class="btn-go-home" style="margin-top: 5px; margin-bottom: 15px;">
-            <i class="fa-solid fa-house"></i> Go Back To Home
+       <i class="fa-solid fa-house"></i> Go Back To Home
           </a>
         </div>
       `;
@@ -476,19 +494,29 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       document.getElementById('closeModalBtn').style.display = "none"; 
       document.getElementById('successSection').style.display = "block";
 
-      // সাকসেস মেসেজ আসার সাথে সাথে মডাল কন্টেন্ট স্ক্রল একদম ওপরে পুশ করবে যেন কোনো টেক্সট হাইড না থাকে
       const modalContentBox = document.querySelector('#otpModal .modal-content');
       if (modalContentBox) modalContentBox.scrollTop = 0;
 
+      // ফরম এবং স্বাক্ষর সম্পন্ন হওয়ার পর ক্যানভাস এবং চেক রিলিজ করা
       registrationForm.reset();
       if (trigger) trigger.querySelector('span').innerText = "Select Blood Group";
       if (hiddenInput) hiddenInput.value = "";
+      
+      const sigCanvas = document.getElementById('signatureCanvas');
+      if (sigCanvas) {
+        const ctx = sigCanvas.getContext('2d');
+        ctx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      }
+      
+      const mainSubmitBtn = document.getElementById('submitBtn');
+      if (mainSubmitBtn) mainSubmitBtn.disabled = true;
+
     } else {
       throw new Error(finalRes.error || "ভেরিফিকেশন কোড ভুল হয়েছে।");
     }
 
   } catch (error) {
-    alert("ভেরিফিকেশন ব্যর্থ: " + error.message);
+    showToast("ভেরিফিকেশন ব্যর্থ: " + error.message, "danger");
   } finally {
     document.getElementById('rosGlobalLoader').style.display = "none";
   }
