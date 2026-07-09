@@ -121,9 +121,9 @@ loginForm.addEventListener('submit', async (e) => {
         const role = resData.userData.role.toLowerCase();
         
         if (role === 'admin') {
-          window.location.href = "../Admin/Dashboard/";
+          window.location.href = "../AdminDashboard/";
         } else if (role === 'member') {
-          window.location.href = "../Dashboard/Member/";
+          window.location.href = "../MemberDashboard/";
         } else {
           // ম্যানেজমেন্টের অন্যান্য স্পেসিফিক রোলগুলোর জন্য জেনারেল এক্সিকিউটিভ ড্যাশবোর্ড
           window.location.href = "../Dashboard/Management/";
