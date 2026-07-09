@@ -1,5 +1,5 @@
 // আপনার একদম নতুন Google Web App URL 
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwdESBxO5dlXbGRndWS6PZ-7QxSCjwCnyxKxigGWwTmtqcDl8vm6lOeuB4P7ZtLY6NrYQ/exec"; 
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkvIfjTQVM69qurRZvF90w_1pq1PaBYDPB8Gv0PCLR3DOyF4Ud8AVzp119agoB8NefpA/exec"; 
 
 // ১. কাস্টম ড্যাশড স্পিনার, মোবাইল রেসপন্সিভ মডাল ফিক্স এবং টাইমার স্টাইল ইনজেকশন
 const styleNode = document.createElement('style');
