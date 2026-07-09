@@ -50,7 +50,6 @@
     .attention-box i { color: var(--alert-icon); font-size: 28px; flex-shrink: 0; }
     .attention-text { font-size: 14px; line-height: 1.5; color: #e2e8f0; }
     .attention-english { display: block; margin-top: 4px; font-size: 12px; color: #94a3b8; font-family: 'Poppins', sans-serif; }
-    .attention-text a { color: var(--accent); text-decoration: none; font-weight: 600; border-bottom: 1.5px dashed var(--accent); }
 
     .registration-card { background: var(--card-bg); border: 1px solid rgba(0, 164, 204, 0.1); padding: 25px 20px; border-radius: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -147,11 +146,12 @@
     </div>
 
     <div class="registration-card">
+      <!-- লগইন বাদ দিয়ে শুধু নোটিশ রাখা হয়েছে -->
       <div class="attention-box">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <div class="attention-text">
-          <strong><span class="desktop-only">বিশেষ দ্রষ্টব্য (Attention):</span><span class="mobile-only">Attention:</span></strong> <span class="desktop-only">ইতোমধ্যে আপনি আমাদের সদস্য হয়ে থাকলে এই ফরমটি পুনরায় পূরণ করার প্রয়োজন নেই। সদস্য পোর্টালে সরাসরি লগইন করার জন্য অনুগ্রহ করে <a href="../../Login/">এখানে ক্লিক করুন</a>।</span>
-          <span class="attention-english">If you are already a member, no need to fill this form again. To login directly <a href="../../Login/">Click Here</a>.</span>
+          <strong><span>বিশেষ দ্রষ্টব্য (Attention):</span></strong> <span>ইতোমধ্যে আপনি আমাদের সদস্য হয়ে থাকলে এই ফরমটি পুনরায় পূরণ করার প্রয়োজন নেই।</span>
+          <span class="attention-english">If you are already a member, no need to fill this form again.</span>
         </div>
       </div>
 
@@ -254,7 +254,7 @@
             <input type="text" id="profession" required placeholder="Student / Job">
           </div>
           <div class="form-group">
-            <label><span class="desktop-only">প্রতিষ্ঠান/কর্মস্থল (Institution/Workplace) *</span><span class="mobile-only">Institution/Workplace *</span></label>
+            <label><span class="desktop-only">প্রতিষ্ঠান/कर्मस्थल (Institution/Workplace) *</span><span class="mobile-only">Institution/Workplace *</span></label>
             <input type="text" id="institution" required>
           </div>
         </div>
@@ -282,17 +282,6 @@
         <div class="form-group">
           <label><span class="desktop-only">এনআইডি / জন্ম নিবন্ধন নম্বর (NID / Birth Registration Number)</span><span class="mobile-only">NID / BRN</span></label>
           <input type="text" id="nidOrBrn">
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label><span class="desktop-only">পাসওয়ার্ড (Password) *</span><span class="mobile-only">Password *</span></label>
-            <input type="password" id="password" required minlength="6" placeholder="******">
-          </div>
-          <div class="form-group">
-            <label><span class="desktop-only">পাসওয়ার্ড নিশ্চিত করুন (Confirm Password) *</span><span class="mobile-only">Confirm Password *</span></label>
-            <input type="password" id="confirmPassword" required minlength="6" placeholder="******">
-          </div>
         </div>
 
         <!-- শর্তাবলী বক্স এবং তার নিচে এগ্রি চেকবক্স -->
@@ -325,7 +314,7 @@
     <div class="modal-content" id="modalContentBox">
       <button class="close-modal-btn" id="closeModalBtn">&times;</button>
       
-        <!-- ১. ওটিপি ভেরিফিকেশন সেকশন -->
+      <!-- ১. ওটিপি ভেরিফিকেশন সেকশন -->
       <div id="otpSection">
         <h3 style="color: var(--secondary); margin-bottom: 10px; font-family: 'Poppins', sans-serif;">Email Verification</h3>
         <p style="font-size: 14px; color: #94a3b8;">Enter the 6-digit OTP code sent to your email:</p>
@@ -350,7 +339,7 @@
   <script src="../navigation.js"></script>
   <script src="../Registration/registration.js"></script>
   
-  <!-- সত্যপাঠ বক্স দিয়ে প্রসিড বাটন কন্ট্রোল করার ইনস্ট্যান্ট স্ক্রিপ্ট -->
+   <!-- সত্যপাঠ বক্স দিয়ে প্রসিড বাটন কন্ট্রোল করার স্ক্রিপ্ট -->
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const truthCheckbox = document.getElementById("truthCheckbox");
