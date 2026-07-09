@@ -42,7 +42,8 @@
        ========================================== -->
   <header class="bg-slate-900 border-b border-slate-800 h-16 px-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-3">
-      <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-slate-800 flex items-center justify-center text-xl cursor-pointer transition-all">
+      <!-- 🛠 থ্রি-ডট বাটন (এর মাধ্যমেই সাইডবার কন্ট্রোল হবে) -->
+      <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-slate-800 flex items-center justify-center text-xl cursor-pointer transition-all text-[#00b4d8]">
         <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
       <div class="flex items-center gap-2">
@@ -88,22 +89,22 @@
     </div>
   </header>
 
-  <div class="flex flex-1 relative">
+  <div class="flex flex-1 relative overflow-hidden">
     
     <!-- ==========================================
-         Left Sidebar Menu
+         Left Sidebar Menu (সম্পূর্ণ ম্যানুয়াল কন্ট্রোল)
          ========================================== -->
-    <aside id="sidebarMenu" class="hidden md:flex w-64 bg-slate-900/40 border-r border-slate-800 p-5 flex-col shrink-0 absolute md:static left-0 top-0 h-full z-30 backdrop-blur-xl">
+    <aside id="sidebarMenu" class="hidden w-64 bg-slate-900/90 border-r border-slate-800 p-5 flex-col shrink-0 absolute left-0 top-0 h-full z-30 backdrop-blur-xl transition-all duration-300 shadow-2xl">
       <div class="space-y-4 w-full">
         <div class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">প্যানেল মেনু</div>
         <nav class="space-y-1">
-          <button onclick="switchTab('main_dashboard')" id="btn-main_dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left">
+          <button onclick="switchTab('main_dashboard')" id="btn-main_dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer">
             <i class="fa-solid fa-chart-pie"></i> Main Dashboard
           </button>
-          <button onclick="switchTab('member_management')" id="btn-member_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left">
+          <button onclick="switchTab('member_management')" id="btn-member_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
             <i class="fa-solid fa-users"></i> Member Management
           </button>
-          <button onclick="switchTab('admin_management')" id="btn-admin_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left">
+          <button onclick="switchTab('admin_management')" id="btn-admin_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
             <i class="fa-solid fa-user-shield"></i> Admin Management
           </button>
         </nav>
@@ -120,7 +121,6 @@
         
         <!-- 📊 প্রধান স্ট্যাটাস কার্ডসমূহ -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <!-- মোট রেজিস্ট্রেশন -->
           <div class="bg-gradient-to-br from-slate-900 to-indigo-950/40 border border-indigo-500/20 rounded-2xl p-4 flex flex-col justify-between">
             <div>
               <span class="text-slate-400 text-xs font-semibold">মোট রেজিস্ট্রেশন</span>
@@ -131,7 +131,6 @@
             </button>
           </div>
 
-          <!-- পেন্ডিং -->
           <div class="bg-gradient-to-br from-slate-900 to-amber-950/40 border border-amber-500/20 rounded-2xl p-4 flex flex-col justify-between">
             <div>
               <span class="text-slate-400 text-xs font-semibold">পেন্ডিং</span>
@@ -142,7 +141,6 @@
             </button>
           </div>
 
-          <!-- Approved -->
           <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Approved</span>
@@ -153,7 +151,6 @@
             </button>
           </div>
 
-          <!-- Inactive -->
           <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/30 rounded-2xl p-4 flex flex-col justify-between">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Inactive</span>
@@ -164,7 +161,6 @@
             </button>
           </div>
 
-          <!-- Suspend -->
           <div class="bg-gradient-to-br from-slate-900 to-rose-950/40 border border-rose-500/20 rounded-2xl p-4 flex flex-col justify-between col-span-2 md:col-span-1">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Suspend</span>
@@ -178,7 +174,6 @@
 
         <!-- 📈 চার্ট সেকশন -->
         <div class="space-y-6">
-          <!-- ক. Last 7 Days Registration চার্ট -->
           <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
             <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Last 7 Days Registration</h4>
             <div class="h-64 w-full">
@@ -186,9 +181,7 @@
             </div>
           </div>
 
-          <!-- খ. নিচের গ্রিড চার্টসমূহ -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- জেন্ডার ভিত্তিক চার্ট -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col items-center">
               <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider self-start mb-4">Gender Wise Registration</h4>
               <div class="h-60 w-60 relative flex items-center justify-center">
@@ -196,7 +189,6 @@
               </div>
             </div>
 
-            <!-- বছর ভিত্তিক চার্ট (সর্বশেষ ৫ বছর) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
               <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Year Wise Registration (Last 5 Years)</h4>
               <div class="h-60 w-full">
@@ -205,7 +197,6 @@
             </div>
           </div>
         </div>
-
       </section>
 
       <!-- 👥 MEMBER MANAGEMENT SECTION -->
@@ -237,7 +228,6 @@
   </div>
 
   <script>
-    // 🔗 আপনার নতুন Google Apps Script URL
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec";
     let currentAdmin = null;
     let allUsersData = [];
@@ -268,7 +258,6 @@
       }
     }
 
-    // শীট থেকে মেম্বারদের রিয়েল ডাটা লোড করা
     async function fetchDashboardData() {
       document.getElementById('globalLoader').style.display = 'flex';
       try {
@@ -299,7 +288,6 @@
       const dateCounts = {};
       const yearCounts = {};
 
-      // গত ৭ দিনের তারিখ সেটআপ
       const last7Days = [];
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
@@ -309,7 +297,6 @@
         last7Days.push(dateStr);
       }
 
-      // সর্বশেষ ৫ বছরের কন্টেইনার তৈরি করা (যেমন: ২০২৬ থেকে শুরু করে পিছনের ৫ বছর)
       const currentYear = new Date().getFullYear();
       const last5Years = [];
       for (let i = 4; i >= 0; i--) {
@@ -319,40 +306,31 @@
       }
 
       users.forEach(user => {
-        // ১. স্ট্যাটাস ফিল্টারিং
         const status = (user.status || '').toLowerCase().trim();
         if (status === 'pending') pending++;
         else if (status === 'approved' || status === 'active') approved++;
         else if (status === 'inactive') inactive++;
         else if (status === 'suspend') suspend++;
 
-        // ২. জেন্ডার গণনা
         const gender = user.gender || 'Male';
         if (genderCounts[gender] !== undefined) genderCounts[gender]++;
 
-        // ৩. ৭ দিনের ডেটা গ্রাফ ক্যালকুলেশন
         if (user.registrationDate) {
           const regDate = user.registrationDate.split(' ')[0]; 
-          if (dateCounts[regDate] !== undefined) {
-            dateCounts[regDate]++;
-          }
+          if (dateCounts[regDate] !== undefined) dateCounts[regDate]++;
           
-          // ৪. বছর ভিত্তিক রেজিস্ট্রেশন ক্যালকুলেশন (Registration Date থেকে বছর বের করে)
           const regYear = user.registrationDate.split('-')[0];
-          if (yearCounts[regYear] !== undefined) {
-            yearCounts[regYear]++;
-          }
+          if (yearCounts[regYear] !== undefined) yearCounts[regYear]++;
         }
       });
 
-      // UI আপডেট
       document.getElementById('stat-total').innerText = total;
       document.getElementById('stat-pending').innerText = pending;
       document.getElementById('stat-approved').innerText = approved;
       document.getElementById('stat-inactive').innerText = inactive;
       document.getElementById('stat-suspend').innerText = suspend;
 
-      // 📊 ১. Last 7 Days Registration (এরিয়া চার্ট)
+      // 📊 Line Chart
       const lineCtx = document.getElementById('chart-last-7-days').getContext('2d');
       if (lineChartObj) lineChartObj.destroy();
       lineChartObj = new Chart(lineCtx, {
@@ -381,7 +359,7 @@
         }
       });
 
-      // 📊 ২. Gender Wise চার্ট
+      // 📊 Pie Chart
       const pieCtx = document.getElementById('chart-gender-wise').getContext('2d');
       if (pieChartObj) pieChartObj.destroy();
       pieChartObj = new Chart(pieCtx, {
@@ -401,7 +379,7 @@
         }
       });
 
-    // 📊 ৩. Year Wise Registration (বার চার্ট)
+      // 📊 Bar Chart
       const barCtx = document.getElementById('chart-year-wise').getContext('2d');
       if (barChartObj) barChartObj.destroy();
       barChartObj = new Chart(barCtx, {
@@ -432,9 +410,7 @@
       const mockUsers = [
         { status: 'pending', gender: 'Male', registrationDate: `${thisYear}-07-09 12:00:00` },
         { status: 'approved', gender: 'Female', registrationDate: `${thisYear}-07-08 10:00:00` },
-        { status: 'approved', gender: 'Male', registrationDate: `${thisYear-1}-05-15 14:00:00` },
-        { status: 'inactive', gender: 'Female', registrationDate: `${thisYear-2}-03-20 11:00:00` },
-        { status: 'suspend', gender: 'Male', registrationDate: `${thisYear-3}-01-10 09:00:00` }
+        { status: 'approved', gender: 'Male', registrationDate: `${thisYear-1}-05-15 14:00:00` }
       ];
       calculateStatsAndRenderCharts(mockUsers);
     }
@@ -445,6 +421,7 @@
       if (selectFilter) selectFilter.value = status;
     }
 
+    // 🔄 ট্যাব পরিবর্তনের সময় সাইডবার বন্ধ করার লজিক যুক্ত করা হয়েছে
     function switchTab(tabId) {
       document.getElementById('main_dashboard-section').classList.add('hidden');
       document.getElementById('member_management-section').classList.add('hidden');
@@ -460,10 +437,15 @@
       const activeBtn = document.getElementById(`btn-${tabId}`);
       if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
 
-      if (window.innerWidth < 768) document.getElementById('sidebarMenu').classList.add('hidden');
+      // ট্যাব সিলেক্ট করার পর সাইডবার স্বয়ংক্রিয়ভাবে আবার হাইড হয়ে যাবে
+      document.getElementById('sidebarMenu').classList.add('hidden');
     }
 
-    function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('hidden'); }
+    // 🛠 থ্রি-ডট টগল ফাংশন
+    function toggleSidebar() { 
+      document.getElementById('sidebarMenu').classList.toggle('hidden'); 
+    }
+    
     function toggleProfileCard() { document.getElementById('profileDropdownCard').classList.toggle('hidden'); }
     function handleLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
