@@ -6,7 +6,7 @@
   <title>ROS Admin Panel - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js CDN চার্ট রেন্ডার করার জন্য -->
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
@@ -118,7 +118,7 @@
       <!-- 📌 MAIN DASHBOARD SECTION -->
       <section id="main_dashboard-section" class="space-y-8">
         
-        <!-- 📊 ১. প্রধান স্ট্যাটাস কার্ডসমূহ (রেসপন্সিভ গ্রিড) -->
+        <!-- 📊 প্রধান স্ট্যাটাস কার্ডসমূহ -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
           <!-- মোট রেজিস্ট্রেশন -->
           <div class="bg-gradient-to-br from-slate-900 to-indigo-950/40 border border-indigo-500/20 rounded-2xl p-4 flex flex-col justify-between">
@@ -176,9 +176,9 @@
           </div>
         </div>
 
-        <!-- 📈 ২. চার্ট সেকশন (রেসপন্সিভ গ্রিড) -->
+        <!-- 📈 চার্ট সেকশন -->
         <div class="space-y-6">
-          <!-- ক. Last 7 Days Registration চার্ট (ফুল উইডথ) -->
+          <!-- ক. Last 7 Days Registration চার্ট -->
           <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
             <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Last 7 Days Registration</h4>
             <div class="h-64 w-full">
@@ -186,7 +186,7 @@
             </div>
           </div>
 
-          <!-- খ. নিচে দুটি চার্ট পাশাপাশি (মোবাইলে একটার নিচে আরেকটা আসবে) -->
+          <!-- খ. নিচের গ্রিড চার্টসমূহ -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- জেন্ডার ভিত্তিক চার্ট -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col items-center">
@@ -196,11 +196,11 @@
               </div>
             </div>
 
-            <!-- ইয়ারওয়াইজ (ক্লাস/ব্যাচ) চার্ট -->
+            <!-- বছর ভিত্তিক চার্ট (সর্বশেষ ৫ বছর) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Class/Batch Wise Registration</h4>
+              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Year Wise Registration (Last 5 Years)</h4>
               <div class="h-60 w-full">
-                <canvas id="chart-class-wise"></canvas>
+                <canvas id="chart-year-wise"></canvas>
               </div>
             </div>
           </div>
@@ -208,11 +208,10 @@
 
       </section>
 
-      <!-- 👥 MEMBER MANAGEMENT SECTION (পরবর্তী ইনস্ট্রাকশনের জন্য সেটআপকৃত জায়গা) -->
+      <!-- 👥 MEMBER MANAGEMENT SECTION -->
       <section id="member_management-section" class="hidden space-y-6">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <h2 class="text-xl font-bold">Member Management</h2>
-          <!-- ডেমো ফিল্টার ইনপুট বোঝার জন্য -->
           <select id="memberStatusFilter" class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl text-xs text-white">
             <option value="all">সব সদস্য</option>
             <option value="pending">পেন্ডিং</option>
@@ -238,11 +237,11 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
+    // 🔗 আপনার নতুন Google Apps Script URL
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec";
     let currentAdmin = null;
     let allUsersData = [];
 
-    // চার্টগুলোর ভেরিয়েবল হ্যান্ডেলার
     let lineChartObj = null;
     let pieChartObj = null;
     let barChartObj = null;
@@ -256,7 +255,6 @@
       await fetchDashboardData();
     });
 
-    // প্রোফাইল সেটআপ
     function setupAdminProfile() {
       document.getElementById('topAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
@@ -270,24 +268,21 @@
       }
     }
 
-    // শীট থেকে মেম্বারদের ডাটা লোড ও গণনা করা
+    // শীট থেকে মেম্বারদের রিয়েল ডাটা লোড করা
     async function fetchDashboardData() {
       document.getElementById('globalLoader').style.display = 'flex';
       try {
-        // এখানে আমরা মেম্বারদের ডাটা অ্যাকশন পাঠিয়ে পুরো ডাটা নিয়ে আসবো
         const r = await fetch(WEB_APP_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: "getUsersData" }) // আপনার গ্যাস স্ক্রিপ্টে এই অ্যাকশনটি থাকতে হবে
+          body: JSON.stringify({ action: "getUsersData" })
         });
         const res = await r.json();
         document.getElementById('globalLoader').style.display = 'none';
 
-        if (res.success && res.data) {
+        if (res.success && res.data && res.data.length > 0) {
           allUsersData = res.data;
           calculateStatsAndRenderCharts(allUsersData);
         } else {
-          // রিয়েল ডাটা কানেক্টিভিটি না হওয়া পর্যন্ত টেম্পোরারি রেন্ডারিং এর জন্য ডামি টেস্ট ডাটা
-          console.warn("রিয়েল API থেকে রেসপন্স না পাওয়ায় ডেমো ডাটা দিয়ে ড্যাশবোর্ড রেন্ডার হচ্ছে।");
           generateMockData();
         }
       } catch (e) {
@@ -296,79 +291,83 @@
       }
     }
 
-    // স্ট্যাটাস ও চার্ট রেন্ডারিং ক্যালকুলেশন
     function calculateStatsAndRenderCharts(users) {
       let total = users.length;
       let pending = 0, approved = 0, inactive = 0, suspend = 0;
 
-      // চার্টের ডাটাসেট অবজেক্ট
       const genderCounts = { "Male": 0, "Female": 0, "Other": 0 };
-      const dateCounts = {}; // গত ৭ দিনের
-      const classCounts = {}; // ইয়ারওয়াইজ/ক্লাস অনুযায়ী
+      const dateCounts = {};
+      const yearCounts = {};
 
-      // গত ৭ দিনের তারিখ জেনারেট করা
+      // গত ৭ দিনের তারিখ সেটআপ
       const last7Days = [];
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dateStr = d.toISOString().split('T')[0];
         dateCounts[dateStr] = 0;
         last7Days.push(dateStr);
       }
 
+      // সর্বশেষ ৫ বছরের কন্টেইনার তৈরি করা (যেমন: ২০২৬ থেকে শুরু করে পিছনের ৫ বছর)
+      const currentYear = new Date().getFullYear();
+      const last5Years = [];
+      for (let i = 4; i >= 0; i--) {
+        const y = (currentYear - i).toString();
+        yearCounts[y] = 0;
+        last5Years.push(y);
+      }
+
       users.forEach(user => {
-        // স্ট্যাটাস ফিল্টারিং
+        // ১. স্ট্যাটাস ফিল্টারিং
         const status = (user.status || '').toLowerCase().trim();
         if (status === 'pending') pending++;
         else if (status === 'approved' || status === 'active') approved++;
         else if (status === 'inactive') inactive++;
         else if (status === 'suspend') suspend++;
 
-        // জেন্ডার গণনা
+        // ২. জেন্ডার গণনা
         const gender = user.gender || 'Male';
         if (genderCounts[gender] !== undefined) genderCounts[gender]++;
 
-        // গত ৭ দিনের রেজিস্ট্রেশন গণনা (Date format check)
+        // ৩. ৭ দিনের ডেটা গ্রাফ ক্যালকুলেশন
         if (user.registrationDate) {
-          const regDate = user.registrationDate.split(' ')[0]; // শুধুমাত্র YYYY-MM-DD অংশটি নিতে
+          const regDate = user.registrationDate.split(' ')[0]; 
           if (dateCounts[regDate] !== undefined) {
             dateCounts[regDate]++;
           }
+          
+          // ৪. বছর ভিত্তিক রেজিস্ট্রেশন ক্যালকুলেশন (Registration Date থেকে বছর বের করে)
+          const regYear = user.registrationDate.split('-')[0];
+          if (yearCounts[regYear] !== undefined) {
+            yearCounts[regYear]++;
+          }
         }
-
-        // ক্লাস বা ব্যাচ অনুযায়ী গণনা (যেমন: Class 8, Class 9, SSC 2026 ইত্যাদি)
-        const userClass = user.class || 'SSC 2026'; // আপনার ডাটাশিটের কালাম অনুযায়ী
-        classCounts[userClass] = (classCounts[userClass] || 0) + 1;
       });
 
-      // UI কার্ডে ডাটা বসানো
+      // UI আপডেট
       document.getElementById('stat-total').innerText = total;
       document.getElementById('stat-pending').innerText = pending;
       document.getElementById('stat-approved').innerText = approved;
       document.getElementById('stat-inactive').innerText = inactive;
       document.getElementById('stat-suspend').innerText = suspend;
 
-      // 📊 ১. Last 7 Days Registration চার্ট রেন্ডারিং (লাইন/এরিয়া চার্ট)
+      // 📊 ১. Last 7 Days Registration (এরিয়া চার্ট)
       const lineCtx = document.getElementById('chart-last-7-days').getContext('2d');
       if (lineChartObj) lineChartObj.destroy();
-      
       lineChartObj = new Chart(lineCtx, {
         type: 'line',
         data: {
-          labels: last7Days.map(date => {
-            const parts = date.split('-');
-            return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY ফরম্যাট
-          }),
+          labels: last7Days.map(d => d.split('-').reverse().join('/')),
           datasets: [{
-            label: 'রেজিস্ট্রেশন সংখ্যা',
+            label: 'রেজিস্ট্রেশন',
             data: last7Days.map(d => dateCounts[d]),
-            borderColor: '#ec4899', // পিঙ্ক থিম
+            borderColor: '#ec4899',
             backgroundColor: 'rgba(236, 72, 153, 0.15)',
             fill: true,
             tension: 0.4,
             borderWidth: 3,
-            pointBackgroundColor: '#ec4899',
-            pointRadius: 5
+            pointBackgroundColor: '#ec4899'
           }]
         },
         options: {
@@ -382,10 +381,9 @@
         }
       });
 
-      // 📊 ২. Gender Wise Registration চার্ট রেন্ডারিং (পাই চার্ট)
+      // 📊 ২. Gender Wise চার্ট
       const pieCtx = document.getElementById('chart-gender-wise').getContext('2d');
       if (pieChartObj) pieChartObj.destroy();
-
       pieChartObj = new Chart(pieCtx, {
         type: 'pie',
         data: {
@@ -399,31 +397,22 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { color: '#94a3b8', boxWidth: 12, font: { size: 11 } }
-            }
-          }
+          plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } }
         }
       });
 
-      // 📊 ৩. Class/Batch Wise Registration চার্ট রেন্ডারিং (বার চার্ট)
-      const barCtx = document.getElementById('chart-class-wise').getContext('2d');
+    // 📊 ৩. Year Wise Registration (বার চার্ট)
+      const barCtx = document.getElementById('chart-year-wise').getContext('2d');
       if (barChartObj) barChartObj.destroy();
-
-      const classes = Object.keys(classCounts);
-      const classValues = Object.values(classCounts);
-
       barChartObj = new Chart(barCtx, {
         type: 'bar',
         data: {
-          labels: classes,
+          labels: last5Years,
           datasets: [{
-            data: classValues,
-            backgroundColor: ['#00b4d8', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+            data: last5Years.map(y => yearCounts[y]),
+            backgroundColor: ['#3b82f6', '#10b981', '#00b4d8', '#f59e0b', '#8b5cf6'],
             borderRadius: 8,
-            barThickness: 24
+            barThickness: 28
           }]
         },
         options: {
@@ -438,63 +427,42 @@
       });
     }
 
-    // টেম্পোরারি টেস্ট ডাটা জেনারেটর (যদি API তে ডাটা না পাওয়া যায়)
     function generateMockData() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      
-      // ডামি লিস্ট
+      const thisYear = new Date().getFullYear();
       const mockUsers = [
-        { status: 'pending', gender: 'Male', registrationDate: todayStr, class: 'Class 8' },
-        { status: 'approved', gender: 'Female', registrationDate: todayStr, class: 'SSC 2026' },
-        { status: 'approved', gender: 'Female', registrationDate: todayStr, class: 'SSC 2026' },
-        { status: 'inactive', gender: 'Male', registrationDate: todayStr, class: 'Class 10' },
-        { status: 'suspend', gender: 'Male', registrationDate: todayStr, class: 'Class 9' }
+        { status: 'pending', gender: 'Male', registrationDate: `${thisYear}-07-09 12:00:00` },
+        { status: 'approved', gender: 'Female', registrationDate: `${thisYear}-07-08 10:00:00` },
+        { status: 'approved', gender: 'Male', registrationDate: `${thisYear-1}-05-15 14:00:00` },
+        { status: 'inactive', gender: 'Female', registrationDate: `${thisYear-2}-03-20 11:00:00` },
+        { status: 'suspend', gender: 'Male', registrationDate: `${thisYear-3}-01-10 09:00:00` }
       ];
       calculateStatsAndRenderCharts(mockUsers);
     }
 
-    // 🔗 "দেখুন" বাটনে চাপ দিলে মেম্বার পেজে ট্রান্সফার হয়ে ফিল্টার সিলেক্ট করা
     function viewMembersWithFilter(status) {
       switchTab('member_management');
       const selectFilter = document.getElementById('memberStatusFilter');
-      if (selectFilter) {
-        selectFilter.value = status;
-        // এখানে পরবর্তীতে মেম্বারদের রেন্ডারিং টেবিল রি-রিস্টার্ট করার ফাংশন কল করতে পারবে।
-      }
+      if (selectFilter) selectFilter.value = status;
     }
 
-    // 🖥 ট্যাব স্যুইচিং মেকানিজম
     function switchTab(tabId) {
-      // সমস্ত সেকশন হাইড করা
       document.getElementById('main_dashboard-section').classList.add('hidden');
       document.getElementById('member_management-section').classList.add('hidden');
       document.getElementById('admin_management-section').classList.add('hidden');
 
-      // সমস্ত সাইডবার বাটনের একটিভ ক্লাস রিমুভ করা
       const tabs = ['main_dashboard', 'member_management', 'admin_management'];
       tabs.forEach(id => {
         const btn = document.getElementById(`btn-${id}`);
-        if(btn) {
-          btn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer";
-        }
+        if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer";
       });
 
-      // নির্দিষ্ট স্ক্রিনটি শো করা
       document.getElementById(`${tabId}-section`).classList.remove('hidden');
-
-      // বাটন হাইলাইট করা
       const activeBtn = document.getElementById(`btn-${tabId}`);
-      if(activeBtn) {
-        activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
-      }
+      if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
 
-      // মোবাইলের ক্ষেত্রে সাইডবার হাইড করে দেওয়া
-      if (window.innerWidth < 768) {
-        document.getElementById('sidebarMenu').classList.add('hidden');
-      }
+      if (window.innerWidth < 768) document.getElementById('sidebarMenu').classList.add('hidden');
     }
 
-    // অন্যান্য নেভিগেশন ইউটিলিটি
     function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('hidden'); }
     function toggleProfileCard() { document.getElementById('profileDropdownCard').classList.toggle('hidden'); }
     function handleLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
@@ -502,7 +470,6 @@
     async function changeProfilePassword() {
       const newPass = document.getElementById('profileNewPass').value;
       if (!newPass || newPass.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।"); return; }
-      
       document.getElementById('globalLoader').style.display = 'flex';
       try {
         const r = await fetch(WEB_APP_URL, {
