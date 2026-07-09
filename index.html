@@ -3,102 +3,354 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ROS Nexus - Enterprise Panel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>ROS Admin Panel - Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --bg-main: #0b0f19; --sidebar-bg: #111827; --topbar-bg: #1f2937;
-      --neon-blue: #38bdf8; --text-main: #f3f4f6;
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+    body { font-family: 'Hind Siliguri', sans-serif; }
+    
+    /* কাস্টম ডুয়াল কালার স্পিনার অ্যানিমেশন */
+    .dual-spinner {
+      border: 4px solid transparent;
+      border-top-color: #38bdf8; /* sky-400 */
+      border-bottom-color: #4f46e5; /* indigo-600 */
+      border-radius: 50%;
+      animation: spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Hind Siliguri', sans-serif; }
-    body { background: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; overflow: hidden; }
-    
-    /* সাইডবার লেআউট */
-    .sidebar { width: 260px; background: var(--sidebar-bg); display: flex; flex-direction: column; transition: 0.3s; border-right: 1px solid rgba(255,255,255,0.05); z-index: 100; }
-    .sidebar.collapsed { margin-left: -260px; }
-    .sidebar-brand { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--neon-blue); font-weight: 700; font-size: 20px; }
-    .sidebar-menu { list-style: none; padding: 15px 0; flex: 1; }
-    .sidebar-menu li { padding: 12px 20px; color: #9ca3af; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
-    .sidebar-menu li:hover, .sidebar-menu li.active { background: rgba(56, 189, 248, 0.1); color: var(--neon-blue); border-left: 4px solid var(--neon-blue); }
-    
-    /* মেইন কন্টেন্ট এরিয়া */
-    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .topbar { height: 65px; background: var(--topbar-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .nav-left { display: flex; align-items: center; gap: 15px; }
-    .menu-toggle { font-size: 20px; cursor: pointer; color: var(--neon-blue); }
-    
-    /* রাইট প্রোফাইল ট্রিগার */
-    .nav-right { position: relative; }
-    .profile-trigger { display: flex; align-items: center; gap: 10px; cursor: pointer; background: rgba(255,255,255,0.02); padding: 5px 12px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
-    .profile-trigger img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1px solid var(--neon-blue); }
-    
-    /* রাইট প্রোফাইল বক্স ড্রপডাউন */
-    .profile-dropdown { position: absolute; right: 0; top: 50px; width: 280px; background: #1e293b; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2); padding: 20px; display: none; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 200; }
-    .profile-dropdown img { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--neon-blue); }
-    .profile-dropdown h4 { font-size: 16px; margin-bottom: 4px; color: #fff; }
-    .profile-dropdown p { font-size: 13px; color: #94a3b8; margin-bottom: 10px; word-break: break-all; }
-    .profile-dropdown .info-row { font-size: 13px; color: #cbd5e1; width: 100%; text-align: left; background: rgba(0,0,0,0.15); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .profile-dropdown button { width: 100%; padding: 8px; margin-top: 8px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn-pwd { background: #334155; color: #fff; }
-    .btn-logout { background: #ef4444; color: #fff; }
-    .btn-pwd:hover { background: #475569; }
-    .btn-logout:hover { background: #dc2626; }
-    
-    .content-body { padding: 25px; flex: 1; overflow-y: auto; }
-    .hidden { display: none; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* পপআপ নোটিফিকেশন অ্যানিমেশন */
+    @keyframes slideIn {
+      0% { transform: translateY(-20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .animate-popup {
+      animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
   </style>
 </head>
-<body>
+<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
 
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">ROS Nexus ERP</div>
-    <ul class="sidebar-menu">
-      <li data-module="dashboard" class="active"><i class="fas fa-chart-pie"></i> ড্যাশবোর্ড</li>
-      <li data-module="admins" id="menuAdmins" class="hidden"><i class="fas fa-user-shield"></i> অ্যাডমিন কন্ট্রোল</li>
-    </ul>
-  </aside>
-
-  <div class="main-wrapper">
-    <header class="topbar">
-      <div class="nav-left">
-        <i class="fas fa-ellipsis-v menu-toggle" id="menuToggleBtn"></i>
-        <h3 style="font-size: 18px; font-weight: 600;">অ্যাডমিন কন্ট্রোল রুম</h3>
+  <div id="globalLoader" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex flex-col items-center justify-center gap-4 transition-all duration-300">
+    <div class="relative w-20 h-20 flex items-center justify-center">
+      <div class="dual-spinner absolute inset-0 w-full h-full shadow-lg shadow-sky-500/10"></div>
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center shadow-md">
+        <i class="fa-solid fa-shield-halved text-white text-xl"></i>
       </div>
-      
-      <div class="nav-right">
-        <div class="profile-trigger" id="profileTrigger">
-          <span id="topbarAdminName">Loading...</span>
-          <img id="topbarAdminImg" src="https://via.placeholder.com/150" alt="Profile">
-        </div>
-        
-        <div class="profile-dropdown" id="profileDropdown">
-          <img id="boxAdminImg" src="https://via.placeholder.com/150" alt="Profile">
-          <h4 id="boxAdminName">Name</h4>
-          <p id="boxAdminRole" style="color: var(--neon-blue); font-size: 12px; margin-bottom: 12px; font-weight: bold;"></p>
-          <div class="info-row"><i class="fas fa-envelope"></i> <span id="boxAdminEmail">Email</span></div>
-          <div class="info-row"><i class="fas fa-phone"></i> <span id="boxAdminPhone">Phone</span></div>
-          
-          <button class="btn-pwd" id="changePwdBtn"><i class="fas fa-key"></i> পাসওয়ার্ড পরিবর্তন</button>
-          <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> লগ আউট</button>
-        </div>
-      </div>
-    </header>
-
-    <main class="content-body" id="contentRoot">
-      </main>
+    </div>
+    <p id="loaderText" class="text-slate-300 font-semibold tracking-wide text-sm animate-pulse">প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...</p>
   </div>
 
-  <script src="dashboard.js"></script>
-  <script src="profile.js"></script>
-  <script src="admins.js"></script>
-  <script>
-    // সেশন প্রটেকশন
-    const currentAdmin = JSON.parse(sessionStorage.getItem('currentAdmin'));
-    if(!currentAdmin) { window.location.href = 'index.html'; }
+  <div id="notificationToast" class="hidden fixed top-6 right-6 z-50 max-w-sm w-full bg-slate-800/90 backdrop-blur-xl border border-slate-700/60 p-4 rounded-xl shadow-2xl flex items-start gap-3.5 animate-popup">
+    <div id="toastIconContainer" class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+      <i id="toastIcon" class="text-lg"></i>
+    </div>
+    <div class="flex-1 pt-0.5">
+      <h4 id="toastTitle" class="text-sm font-bold text-white"></h4>
+      <p id="toastMessage" class="text-xs text-slate-400 mt-0.5 leading-relaxed"></p>
+    </div>
+    <button onclick="hideNotification()" class="text-slate-500 hover:text-slate-300 transition-colors text-sm pl-1 cursor-pointer">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+
+  <div id="mainCard" class="w-full max-w-md bg-slate-800/50 border border-slate-700/50 backdrop-blur-xl rounded-2xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
     
-    window.WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; // আপনার অ্যাপস স্ক্রিপ্ট ইউআরএল বসাবেন
+    <div class="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/20 rounded-full blur-2xl"></div>
+    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl"></div>
+
+    <div class="text-center mb-8 relative z-10">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-600 shadow-lg shadow-sky-500/20 mb-4">
+        <i class="fa-solid fa-shield-halved text-white text-2xl"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-white tracking-wide">ROS অ্যাডমিন পোর্টাল</h2>
+      <p class="text-sm text-slate-400 mt-1">প্যানেলে প্রবেশ করতে আপনার তথ্য দিন</p>
+    </div>
+
+    <form id="loginForm" class="space-y-5 relative z-10">
+      <div>
+        <label class="block text-sm font-semibold text-slate-300 mb-2">ইউজারনেম (Username)</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-solid fa-user"></i>
+          </span>
+          <input type="text" id="loginUsername" required autocomplete="username"
+            class="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all text-sm"
+            placeholder="যেমন: rosadmin">
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="block text-sm font-semibold text-slate-300">পাসওয়ার্ড (Password)</label>
+          <button type="button" onclick="toggleView('forgotPasswordWrapper')" class="text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors">পাসওয়ার্ড সেট/রিসেট?</button>
+        </div>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" id="loginPassword" required autocomplete="current-password"
+            class="w-full pl-10 pr-10 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all text-sm"
+            placeholder="••••••••">
+          <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="loginBtn"
+        class="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-sky-500/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
+        <span>লগইন করুন</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <div id="forgotPasswordWrapper" class="hidden space-y-5 relative z-10">
+      <div class="border-b border-slate-700/50 pb-3 mb-2">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-key text-sky-400"></i> প্রথমবার সেট বা রিসেট প্রসেস
+        </h3>
+      </div>
+      
+      <form id="requestOtpForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-2">আপনার ইউজারনেম দিন</label>
+          <input type="text" id="resetUsername" required
+            class="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all text-sm"
+            placeholder="যেমন: rosadmin">
+        </div>
+        <button type="submit" id="otpBtn"
+          class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <span>ইমেইলে ওটিপি (OTP) পাঠান</span>
+        </button>
+      </form>
+
+      <form id="resetPasswordForm" class="hidden mt-4 pt-4 border-t border-slate-700/50 space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-emerald-400 mb-1.5">৬ ডিজিট ওটিপি কোড</label>
+          <input type="text" id="otpCode" required maxlength="6" pattern="\d{6}"
+            class="w-full px-4 py-2.5 bg-slate-900/50 border border-emerald-600/50 rounded-xl text-white tracking-widest text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            placeholder="000000">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-300 mb-1.5">নতুন পাসওয়ার্ড সেট করুন</label>
+          <div class="relative">
+            <input type="password" id="newPassword" required minlength="6"
+              class="w-full pl-4 pr-10 py-2.5 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 text-sm"
+              placeholder="কমপক্ষে ৬ ডিজিট">
+            <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" id="submitResetBtn"
+          class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">
+          পাসওয়ার্ড নিশ্চিত করুন
+        </button>
+      </form>
+
+      <div class="text-center pt-2">
+        <button type="button" onclick="toggleView('loginForm')" class="text-xs text-slate-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-arrow-left-long mr-1"></i> লগইন ফর্মে ফিরে যান
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
+    let toastTimer;
+
+    if (sessionStorage.getItem('currentAdmin')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // গ্লোবাল লোডার টগল
+    function showLoader(status, customText = "প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...") {
+      const loader = document.getElementById('globalLoader');
+      const card = document.getElementById('mainCard');
+      const loaderText = document.getElementById('loaderText');
+      
+      if(status) {
+        loaderText.innerText = customText;
+        loader.classList.remove('hidden');
+        card.classList.add('opacity-40', 'blur-[2px]', 'pointer-events-none');
+      } else {
+        loader.classList.add('hidden');
+        card.classList.remove('opacity-40', 'blur-[2px]', 'pointer-events-none');
+      }
+    }
+
+    // ✨ নতুন প্রিমিয়াম নোটিফিকেশন টোস্ট ফাংশন
+    function showNotification(title, message, type = 'error') {
+      clearTimeout(toastTimer);
+      const toast = document.getElementById('notificationToast');
+      const iconContainer = document.getElementById('toastIconContainer');
+      const icon = document.getElementById('toastIcon');
+      const titleElem = document.getElementById('toastTitle');
+      const msgElem = document.getElementById('toastMessage');
+
+      titleElem.innerText = title;
+      msgElem.innerText = message;
+
+      // টাইপ অনুযায়ী কালার স্কিম ও আইকন পরিবর্তন
+      if (type === 'success') {
+        iconContainer.className = "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-emerald-500/10 border border-emerald-500/20";
+        icon.className = "fa-solid fa-circle-check text-emerald-400";
+      } else if (type === 'warning') {
+        iconContainer.className = "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-amber-500/10 border border-amber-500/20";
+        icon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+      } else {
+        iconContainer.className = "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-rose-500/10 border border-rose-500/20";
+        icon.className = "fa-solid fa-circle-xmark text-rose-400";
+      }
+
+      toast.classList.remove('hidden');
+      
+      // ৫ সেকেন্ড পর অটোমেটিক হাইড হয়ে যাবে
+      toastTimer = setTimeout(() => { hideNotification(); }, 5000);
+    }
+
+    function hideNotification() {
+      document.getElementById('notificationToast').classList.add('hidden');
+    }
+
+    // ভিউ টগল মেকানিজম
+    function toggleView(targetId) {
+      hideNotification();
+      if(targetId === 'forgotPasswordWrapper') {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('forgotPasswordWrapper').classList.remove('hidden');
+      } else {
+        document.getElementById('forgotPasswordWrapper').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+      }
+    }
+
+    // পাসওয়ার্ড শো/হাইড লজিক
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.className = "fa-solid fa-eye-slash";
+      } else {
+        input.type = "password";
+        icon.className = "fa-solid fa-eye";
+      }
+    }
+
+    // ১. মূল লগইন সাবমিট ইভেন্ট হ্যান্ডলার
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideNotification();
+      const user = document.getElementById('loginUsername').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+
+      showLoader(true, "ক্রিডেনশিয়াল যাচাই করা হচ্ছে...");
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: "adminLogin", username: user, password: pass })
+        });
+
+        const result = await response.json();
+        showLoader(false);
+        
+        if (result.success) {
+          showNotification("লগইন সফল!", "ড্যাশবোর্ডে প্রবেশ করা হচ্ছে, দয়া করে অপেক্ষা করুন...", "success");
+          sessionStorage.setItem('currentAdmin', JSON.stringify(result.adminData));
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+        } else {
+          showNotification("লগইন ব্যর্থ!", result.error || "ভুল ইউজারনেম অথবা পাসওয়ার্ড!", "error");
+        }
+      } catch (error) {
+        showLoader(false);
+        showNotification("নেটওয়ার্ক ত্রুটি!", "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। ইন্টারনেট কানেকশন চেক করুন।", "warning");
+      }
+    });
+
+    // ২. ওটিপি কোড পাঠানোর রিকোয়েস্ট হ্যান্ডলার
+    document.getElementById('requestOtpForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideNotification();
+      const user = document.getElementById('resetUsername').value.trim();
+
+      showLoader(true, "সিকিউর ওটিপি পাঠানো হচ্ছে...");
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: "sendAdminResetOtp", username: user })
+        });
+
+        const result = await response.json();
+        showLoader(false);
+        
+        if (result.success) {
+          showNotification("ওটিপি পাঠানো হয়েছে!", "আপনার রেজিস্টার্ড অ্যাডমিন ইমেইল অ্যাকাউন্টে কোডটি চলে গেছে।", "success");
+          document.getElementById('resetPasswordForm').classList.remove('hidden');
+          document.getElementById('otpBtn').classList.add('hidden');
+          document.getElementById('resetUsername').disabled = true;
+        } else {
+          showNotification("ওটিপি পাঠানো যায়নি!", result.error || "সিস্টেম ত্রুটি।", "error");
+        }
+      } catch (error) {
+        showLoader(false);
+        showNotification("সার্ভার ত্রুটি!", "ওটিপি রিকোয়েস্ট প্রসেস করা সম্ভব হয়নি। আবার চেষ্টা করুন।", "warning");
+      }
+    });
+
+    // ৩. ওটিপি ভেরিফিকেশন ও নতুন পাসওয়ার্ড সাবমিট হ্যান্ডলার
+    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideNotification();
+      const user = document.getElementById('resetUsername').value.trim();
+      const otp = document.getElementById('otpCode').value.trim();
+      const newPass = document.getElementById('newPassword').value;
+
+      showLoader(true, "ডাটাবেজ প্রোফাইল আপডেট করা হচ্ছে...");
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: "resetAdminPassword", username: user, otp: otp, newPassword: newPass })
+        });
+
+        const result = await response.json();
+        showLoader(false);
+        
+        if (result.success) {
+          showNotification("সফল হয়েছে!", "পাসওয়ার্ড সফলভাবে সেভ হয়েছে! এখন মূল ফর্মে লগইন করুন।", "success");
+          setTimeout(() => {
+            document.getElementById('resetPasswordForm').reset();
+            document.getElementById('requestOtpForm').reset();
+            document.getElementById('resetUsername').disabled = false;
+            document.getElementById('otpBtn').classList.remove('hidden');
+            document.getElementById('resetPasswordForm').classList.add('hidden');
+            toggleView('loginForm');
+          }, 2000);
+        } else {
+          showNotification("ভেরিফিকেশন ব্যর্থ!", result.error || "ওটিপি কোড ম্যাচ করেনি বা মেয়াদ শেষ।", "error");
+        }
+      } catch (error) {
+        showLoader(false);
+        showNotification("হালনাগাদ ব্যর্থ!", "পাসওয়ার্ড রিসেট করা যায়নি। নেটওয়ার্ক চেক করে আবার চেষ্টা করুন।", "warning");
+      }
+    });
   </script>
 </body>
 </html>
-
