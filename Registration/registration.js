@@ -76,39 +76,40 @@ styleNode.innerHTML = `
     -webkit-overflow-scrolling: touch;
   }
   /* সাকসেস পেজের বাটন সিএসএস */
-.btn-go-login, .btn-go-home {
-  display: block !important;
-  width: 100% !important;
-  padding: 12px !important;
-  border-radius: 6px !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  font-size: 15px !important;
-  text-align: center !important;
-  box-sizing: border-box !important;
-  transition: 0.3s ease !important;
-  font-family: 'Poppins', 'Hind Siliguri', sans-serif !important;
-}
-.btn-go-login {
-  background: #00b4d8 !important;
-  color: #fff !important;
-  box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3) !important;
-  margin-bottom: 12px !important;
-}
-.btn-go-login:hover {
-  background: #0096b4 !important;
-  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.5) !important;
-}
-.btn-go-home {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: #f1f5f9 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-.btn-go-home:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-}
-
+  .btn-go-reg-again, .btn-go-home {
+    display: block !important;
+    width: 100% !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    font-size: 15px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    transition: 0.3s ease !important;
+    font-family: 'Poppins', 'Hind Siliguri', sans-serif !important;
+  }
+  .btn-go-reg-again {
+    background: #00b4d8 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3) !important;
+    margin-bottom: 12px !important;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-go-reg-again:hover {
+    background: #0096b4 !important;
+    box-shadow: 0 6px 20px rgba(0, 180, 216, 0.5) !important;
+  }
+  .btn-go-home {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  .btn-go-home:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+  }
 `;
 document.head.appendChild(styleNode);
 
@@ -327,17 +328,9 @@ function setupOtpModalUi() {
   }
 }
 
-// প্রথম ধাপ: ফর্ম সাবমিশন ও ওটিপি জেনারেশন
+// প্রথম этап: ফর্ম সাবমিশন ও ওটিপি জেনারেশন
 registrationForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  
-  if (password !== confirmPassword) {
-    alert("ত্রুটি: পাসওয়ার্ড এবং কনফর্ম পাসওয়ার্ড মেলেনি!");
-    return;
-  }
 
   const photoFile = document.getElementById('profilePhoto').files[0];
   if (photoFile && photoFile.size > 1024 * 1024) { 
@@ -367,11 +360,11 @@ registrationForm.addEventListener('submit', async (e) => {
             <div style="font-size: 50px; color: #ff4d6d; margin-bottom: 15px;"><i class="fas fa-exclamation-circle"></i></div>
             <h2 style="color: #fff; font-size: 20px; margin-bottom: 12px; font-family:'Hind Siliguri';">দুঃখিত, নিবন্ধন করা যাচ্ছে না!</h2>
             <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px; line-height:1.6; font-family:'Hind Siliguri';">
-              এই ই-মেইলটি দিয়ে আমাদের সিস্টেমে ইতিমধ্যে অ্যাকাউন্ট তৈরি করা আছে। আপনি কি লগইন করতে চান নাকি অন্য কোনো ইমেল দিয়ে চেষ্টা করবেন?
+              এই ই-মেইলটি দিয়ে আমাদের সিস্টেমে ইতিমধ্যে অ্যাকাউন্ট তৈরি করা আছে। অনুগ্রহ করে অন্য কোনো ইমেল দিয়ে চেষ্টা করুন।
             </p>
             
-            <a href="../../Login/" class="btn-go-login" style="display:block; width:100%; padding:12px; background:#00b4d8; color:#fff; text-decoration:none; border-radius:6px; font-weight:600; box-shadow: 0 4px 15px rgba(0,180,216,0.3); margin-bottom: 12px; box-sizing: border-box; text-align: center;">
-              <i class="fa-solid fa-right-to-bracket"></i> Go to Login Page
+            <a href="../../Home/" class="btn-go-home" style="display:block; width:100%; padding:12px; margin-bottom: 12px; text-align: center;">
+              <i class="fa-solid fa-house"></i> Go Back To Home
             </a>
 
             <button type="button" id="tryAnotherEmailBtn" style="display:block; width:100%; padding:12px; background: rgba(255,215,0,0.1); color:#ffd700; border: 1px solid #ffd700; border-radius:6px; font-weight:600; cursor:pointer; font-family:inherit; transition: 0.3s; box-sizing: border-box;">
@@ -383,15 +376,10 @@ registrationForm.addEventListener('submit', async (e) => {
         document.getElementById('successSection').style.display = "block";
         document.getElementById('otpModal').classList.add('active');
         
-        // মডাল স্ক্রল টপে রিসেট করা
         document.querySelector('#otpModal .modal-content').scrollTop = 0;
 
-        // "Try with Another Email" বাটনের ক্লিক লজিক
         document.getElementById('tryAnotherEmailBtn').addEventListener('click', () => {
-          // পপআপ মডাল বন্ধ হবে কিন্তু ফর্ম রিসেট হবে না (সব তথ্য ইনপুট অবস্থায় থাকবে)
           document.getElementById('otpModal').classList.remove('active');
-          
-          // স্বয়ংক্রিয়ভাবে ইমেইল ইনপুট ফিল্ডে ফোকাস এবং টেক্সট সিলেক্ট করা
           const emailInput = document.getElementById('email');
           if (emailInput) {
             emailInput.focus();
@@ -426,7 +414,6 @@ registrationForm.addEventListener('submit', async (e) => {
       whatsappNumber: document.getElementById('whatsappNumber').value || "",
       facebookLink: document.getElementById('facebookLink').value || "",
       nidOrBrn: document.getElementById('nidOrBrn').value || "",
-      password: password,
       photoUrl: uploadedPhotoUrl
     };
 
@@ -451,7 +438,7 @@ registrationForm.addEventListener('submit', async (e) => {
   }
 });
 
-// দ্বিতীয় этап: ওটিপি ভেরিফাই এবং চূড়ান্ত সাকসেস মেসেজ (স্ক্রলিং ফিক্সড)
+// দ্বিতীয় этап: ওটিপি ভেরিফাই এবং চূড়ান্ত সাকসেস মেসেজ
 document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
   let otpCode = "";
   otpFields.forEach(field => otpCode += field.value);
@@ -506,16 +493,14 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
 
             Your application is currently awaiting verification. Your account will be activated once the admin or president completes the verification process. You will be notified via email once your account is active.<br><br>
             
-            <span style="color: #ffd700;"><i class="fa-solid fa-lock"></i> Please keep your assigned password safe for future logins.</span><br><br>
-            
             May your journey with the Rajshahi Olympiad Registration Society be joyful and successful. Best wishes!<br><br>
             
             <span style="font-size: 13px; color: #fff;">With regard,<br><strong>Rajshahi Olympiad Society</strong></span>
           </div>
           
-          <a href="../../Login/" class="btn-go-login" style="margin-bottom: 12px;">
-            <i class="fa-solid fa-right-to-bracket"></i> Go to Login Page
-          </a>
+          <button type="button" class="btn-go-reg-again" id="regAnotherBtn">
+            <i class="fa-solid fa-user-plus"></i> Register Another Member
+          </button>
           
           <a href="../../Home/" class="btn-go-home" style="margin-top: 5px; margin-bottom: 15px;">
             <i class="fa-solid fa-house"></i> Go Back To Home
@@ -530,9 +515,21 @@ document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
       const modalContentBox = document.querySelector('#otpModal .modal-content');
       if (modalContentBox) modalContentBox.scrollTop = 0;
 
+      // ফর্ম এবং কাস্টম ড্রপডাউন রিসেট লজিক
       registrationForm.reset();
       if (trigger) trigger.querySelector('span').innerText = "Select Blood Group";
       if (hiddenInput) hiddenInput.value = "";
+
+      // "Register Another Member" বাটনের কাজ (মডাল বন্ধ করে নতুন ফর্ম এন্ট্রি করতে দেওয়া)
+      document.getElementById('regAnotherBtn').addEventListener('click', () => {
+        document.getElementById('otpModal').classList.remove('active');
+        // সত্যপাঠ চেকবক্স আনচেক এবং সাবমিট বাটন পুনরায় ডিজেবল করা
+        const truthCheckbox = document.getElementById("truthCheckbox");
+        const submitBtn = document.getElementById("submitBtn");
+        if(truthCheckbox) truthCheckbox.checked = false;
+        if(submitBtn) submitBtn.disabled = true;
+      });
+
     } else {
       throw new Error(finalRes.error || "ভেরিফিকেশন কোড ভুল হয়েছে।");
     }
