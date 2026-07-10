@@ -1,14 +1,118 @@
 /**
  * ==========================================
- * ROS Member Management System Module
- * Developer: Utsab Sarkar
+ * ROS Admin Dashboard - Member Management Module
  * ==========================================
  */
 
-let currentFilteredList = []; // রেন্ডার হওয়া ফিল্টারড লিস্ট ট্র্যাক রাখার জন্য গ্লোবাল ভ্যারিয়েবল
-let activePopupUser = null;   // মডালে থাকা একক ইউজারের ব্যাকআপ ভ্যারিয়েবল
+let currentFilteredList = [];
+let activePopupUser = null;
 
-// ১. শিটের ডাটা থেকে তারিখ নিয়ে অটোমেটিক ইউনিক ডেট ফিল্টার লোড করার ফাংশন
+// মেম্বার ম্যানেজমেন্টের লেআউট ডিজাইন ইনজেকশন
+function initMemberManagementHTML() {
+  const container = document.getElementById('member_management-section');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div>
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-users text-[#00b4d8]"></i> Member Management
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">মেম্বার তথ্য খোঁজা, মাল্টি-ফিল্টারিং এবং কাস্টম রিপোর্ট এক্সপোর্ট করার প্যানেল</p>
+      </div>
+    </div>
+
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+      <div class="flex flex-col md:flex-row gap-3 items-center">
+        <div class="relative flex-1 w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-xs"></i>
+          <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]" placeholder="নাম, মোবাইল নাম্বার, ইমেইল এড্রেস বা রেজিস্ট্রেশন নাম্বার লিখে সার্চ দিন...">
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
+          <button onclick="exportToExcel()" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center">
+            <i class="fa-solid fa-file-excel"></i> Excel ডাউনলোড
+          </button>
+          <button onclick="exportToPDF()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center">
+            <i class="fa-solid fa-file-pdf"></i> PDF ডাউনলোড
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">স্ট্যাটাস ফিল্টার</label>
+          <select id="filterStatus" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+            <option value="all">সব স্ট্যাটাস</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspend">Suspend</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রক্তের গ্রুপ ফিল্টার</label>
+          <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+            <option value="all">সব গ্রুপ</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender ফিল্টার</label>
+          <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+            <option value="all">সব জেন্ডার</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রেজিস্ট্রেশনের তারিখ</label>
+          <select id="filterDate" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+            <option value="all">সব তারিখ</option>
+          </select>
+        </div>
+      </div>
+      <div class="text-right text-[11px] text-slate-400">
+        ফিল্টারড মেম্বার সংখ্যা: <span id="filtered-count" class="text-[#00b4d8] font-bold">0</span> জন
+      </div>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
+              <th class="py-4 px-4 text-center w-12">সিরিয়াল নাম্বার</th>
+              <th class="py-4 px-4">রেজিস্ট্রেশন নাম্বার</th>
+              <th class="py-4 px-4">নাম</th>
+              <th class="py-4 px-4">মোবাইল নাম্বার</th>
+              <th class="py-4 px-4">ইমেইল এড্রেস</th>
+              <th class="py-4 px-4 text-center">রক্তের গ্রুপ</th>
+              <th class="py-4 px-4">রেজিস্ট্রেশনের তারিখ</th>
+              <th class="py-4 px-4">স্ট্যাটাস</th>
+              <th class="py-4 px-4 text-center">স্ট্যাটাস পরিবর্তন অপশন</th>
+              <th class="py-4 px-4 text-center w-16">বিস্তারিত</th>
+            </tr>
+          </thead>
+          <tbody id="memberTableBody" class="divide-y divide-slate-800/60 text-xs text-slate-300"></tbody>
+        </table>
+      </div>
+      <div id="noMemberFallback" class="hidden py-12 text-center text-slate-500 text-xs">
+        <i class="fa-regular fa-folder-open text-3xl mb-3 block text-slate-600"></i>
+        কোনো মেম্বার ডাটা খুঁজে পাওয়া যায়নি!
+      </div>
+    </div>
+  `;
+}
+
+// শিটের ডাটা থেকে তারিখ নিয়ে ড্রপডাউন জেনারেট
 function setupRegistrationDateFilter(users) {
   const dateSelect = document.getElementById('filterDate');
   if (!dateSelect) return;
@@ -16,19 +120,14 @@ function setupRegistrationDateFilter(users) {
   const uniqueDates = [];
   users.forEach(user => {
     if (user.registrationDate) {
-      const datePart = user.registrationDate.split(' ')[0]; // YYYY-MM-DD আলাদা করা
-      if (!uniqueDates.includes(datePart)) {
-        uniqueDates.push(datePart);
-      }
+      const datePart = user.registrationDate.split(' ')[0];
+      if (!uniqueDates.includes(datePart)) uniqueDates.push(datePart);
     }
   });
 
-  // নতুন থেকে পুরাতন তারিখ ক্রমানুসারে সর্ট করা
   uniqueDates.sort((a, b) => new Date(b) - new Date(a));
-
   dateSelect.innerHTML = '<option value="all">সব তারিখ</option>';
   uniqueDates.forEach(date => {
-    // DD/MM/YYYY ফরম্যাটে কনভার্ট করে ড্রপডাউনে শো করানো
     const reversedDate = date.split('-').reverse().join('/');
     const option = document.createElement('option');
     option.value = date;
@@ -37,13 +136,13 @@ function setupRegistrationDateFilter(users) {
   });
 }
 
-// ২. কাস্টম রিকোয়ারমেন্ট অনুযায়ী ৪টি ফিল্টার এবং সার্চ বক্স নিয়ে মেইন টেবিল রেন্ডার ইঞ্জিন
+// মাল্টি-ফিল্টার ও অটো সিরিয়াল মেকানিজমসহ রেন্ডার
 function filterAndRenderMembersTable() {
-  const searchQuery = document.getElementById('memberSearchInput').value.toLowerCase().trim();
-  const statusFilter = document.getElementById('filterStatus').value.toLowerCase();
-  const bloodFilter = document.getElementById('filterBlood').value;
-  const genderFilter = document.getElementById('filterGender').value;
-  const dateFilter = document.getElementById('filterDate').value;
+  const searchQuery = document.getElementById('memberSearchInput')?.value.toLowerCase().trim() || '';
+  const statusFilter = document.getElementById('filterStatus')?.value.toLowerCase() || 'all';
+  const bloodFilter = document.getElementById('filterBlood')?.value || 'all';
+  const genderFilter = document.getElementById('filterGender')?.value || 'all';
+  const dateFilter = document.getElementById('filterDate')?.value || 'all';
 
   const tbody = document.getElementById('memberTableBody');
   const fallback = document.getElementById('noMemberFallback');
@@ -51,35 +150,27 @@ function filterAndRenderMembersTable() {
 
   tbody.innerHTML = '';
 
-  // কম্বাইন্ড সার্চ এবং মাল্টি-ফিল্টারিং লজিক
   currentFilteredList = allUsersData.filter(user => {
-    // ক) সার্চ বক্স কন্ডিশন (নাম, মোবাইল, ইমেইল, মেম্বার আইডি)
     const name = (user.englishName || '').toLowerCase();
     const id = (user.memberId || '').toLowerCase();
     const email = (user.email || '').toLowerCase();
     const mobile = (user.mobile || '').toLowerCase();
     const searchMatch = !searchQuery || name.includes(searchQuery) || id.includes(searchQuery) || email.includes(searchQuery) || mobile.includes(searchQuery);
 
-    // খ) স্ট্যাটাস ফিল্টার কন্ডিশন
     const statusMatch = (statusFilter === 'all') || 
                         (statusFilter === 'approved' && (user.status === 'approved' || user.status === 'active')) ||
                         (user.status && user.status.toLowerCase() === statusFilter);
 
-    // গ) রক্তের গ্রুপ ফিল্টার কন্ডিশন
     const bloodMatch = (bloodFilter === 'all') || (user.bloodGroup === bloodFilter);
-
-    // ঘ) জেন্ডার ফিল্টার কন্ডিশন
     const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
-
-    // ঙ) রেজিস্ট্রেশন তারিখ ফিল্টার কন্ডিশন
     const userDatePart = user.registrationDate ? user.registrationDate.split(' ')[0] : '';
     const dateMatch = (dateFilter === 'all') || (userDatePart === dateFilter);
 
     return searchMatch && statusMatch && bloodMatch && genderMatch && dateMatch;
   });
 
-  // রিয়েল-টাইম ফিল্টারড মেম্বার কাউন্টার আপডেট
-  document.getElementById('filtered-count').innerText = currentFilteredList.length;
+  const countEl = document.getElementById('filtered-count');
+  if(countEl) countEl.innerText = currentFilteredList.length;
 
   if (currentFilteredList.length === 0) {
     fallback.classList.remove('hidden');
@@ -87,12 +178,10 @@ function filterAndRenderMembersTable() {
   }
   fallback.classList.add('hidden');
 
-  // টেবিলে ডাইনামিক রো এবং অটোম্যাটিক ক্রমানুসারে সিরিয়াল জেনারেশন (SL)
   currentFilteredList.forEach((user, index) => {
     const row = document.createElement('tr');
     row.className = "hover:bg-slate-800/30 transition-colors border-b border-slate-800/60 font-medium";
 
-    // স্ট্যাটাস অনুসারে কালার ব্যাজ সেটআপ
     let statusBadge = '';
     const currentStatus = (user.status || 'pending').toLowerCase();
     if (currentStatus === 'pending') {
@@ -105,7 +194,6 @@ function filterAndRenderMembersTable() {
       statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Suspended</span>`;
     }
 
-    // তারিখ ফরম্যাট পরিবর্তন (DD/MM/YYYY)
     const formattedRegDate = user.registrationDate ? user.registrationDate.split(' ')[0].split('-').reverse().join('/') : 'N/A';
 
     row.innerHTML = `
@@ -135,7 +223,7 @@ function filterAndRenderMembersTable() {
   });
 }
 
-// ৩. গুগল অ্যাপ স্ক্রিপ্ট API এর সাথে কানেক্ট করে স্ট্যাটাস পরিবর্তন করার মেথড
+// গুগল স্ক্রিপ্ট API কানেকশন দিয়ে মেম্বার স্ট্যাটাস আপডেট লজিক
 async function updateMemberStatus(memberId, newStatus) {
   if (!memberId) return;
   const confirmAction = confirm(`আপনি কি নিশ্চিতভাবে সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`);
@@ -153,16 +241,11 @@ async function updateMemberStatus(memberId, newStatus) {
     if (loader) loader.style.display = 'none';
 
     if (result.success) {
-      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে! " + (newStatus === 'active' ? "নির্ধারিত গুগল স্ক্রিপ্ট ইমেইল নোটিফিকেশন ইউজারের ঠিকানায় চলে গেছে।" : ""));
-      
-      // লোকাল গ্লোবাল ডাটা অ্যারে সিঙ্ক আপডেট
+      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে! নির্ধারিত গুগল স্ক্রিপ্ট নোটিফিকেশন ইমেইল চলে গেছে।");
       const userIdx = allUsersData.findIndex(u => u.memberId === memberId);
-      if (userIdx > -1) {
-        allUsersData[userIdx].status = (newStatus === 'active') ? 'approved' : newStatus;
-      }
+      if (userIdx > -1) allUsersData[userIdx].status = (newStatus === 'active') ? 'approved' : newStatus;
       
-      // মূল ড্যাশবোর্ডের গ্রাফ ও স্ট্যাটাস কাউন্টার অটো রিফ্রেশ করা
-      if (typeof calculateStatsAndRenderCharts === 'function') calculateStatsAndRenderCharts(allUsersData);
+      if (typeof renderDashboardCharts === 'function') renderDashboardCharts(allUsersData);
       filterAndRenderMembersTable();
     } else {
       alert("ত্রুটি: " + result.error);
@@ -175,12 +258,11 @@ async function updateMemberStatus(memberId, newStatus) {
   }
 }
 
-// ৪. বিস্তারিত মডাল পপআপ লজিক
+// মডাল কন্ট্রোলার
 function openDetailsModal(memberId) {
   activePopupUser = allUsersData.find(u => u.memberId === memberId);
   if (!activePopupUser) return;
   
-  // ডিজাইন এরিয়া স্ট্রাকচার (ডিজাইন পরবর্তীতে পরিবর্তনশীল)
   document.getElementById('modalContentArea').innerHTML = `
     <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3 font-mono text-[11px] text-slate-300">
       <div class="grid grid-cols-2 gap-2">
@@ -204,19 +286,12 @@ function openDetailsModal(memberId) {
   document.getElementById('detailsModal').style.display = 'flex';
 }
 
-function closeDetailsModal() { 
-  document.getElementById('detailsModal').style.display = 'none'; 
-}
+function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; }
+function downloadSingleUserPDF() { alert("একক ইউজারের তথ্যের পিডিএফ ডিজাইন পেন্ডিং রয়েছে।"); }
 
-function downloadSingleUserPDF() { 
-  alert("একক ইউজারের নিবন্ধনের সকল তথ্য সমৃদ্ধ পিডিএফ ডিজাইন আপনি পরে দিবেন বলেছেন, তাই এটি আপাতত পেন্ডিং রাখা হলো।"); 
-}
-
-// ৫. ফিল্টার ট্র্যাকিং অনুযায়ী এক্সেল (Excel) এক্সপোর্ট ফাংশন
+// এক্সেল রিপোর্ট জেনারেটর
 function exportToExcel() {
   if (currentFilteredList.length === 0) { alert("এক্সপোর্ট করার জন্য কোনো ডাটা অবশিষ্ট নেই।"); return; }
-  
-  // রিকোয়ারমেন্ট অনুযায়ী বাম সাইডে ক্রমানুসারে সিরিয়াল নাম্বার জেনারেশন
   const excelDataRows = currentFilteredList.map((user, index) => ({
     "সিরিয়াল নাম্বার": index + 1,
     "রেজিস্ট্রেশন নাম্বার": user.memberId || 'N/A',
@@ -228,47 +303,33 @@ function exportToExcel() {
     "রেজিস্ট্রেশনের তারিখ": user.registrationDate || 'N/A',
     "স্ট্যাটাস": user.status || 'N/A'
   }));
-
   const sheet = XLSX.utils.json_to_sheet(excelDataRows);
   const book = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(book, sheet, "Filtered Members");
   XLSX.writeFile(book, `ROS_Filtered_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// ৬. অফিসিয়াল রিকোয়ারমেন্ট গাইডলাইন মেনে পিডিএফ (PDF) এক্সপোর্ট ফাংশন
+// অফিসিয়াল পিডিএফ রিপোর্ট জেনারেটর
 function exportToPDF() {
   if (currentFilteredList.length === 0) { alert("ডাউনলোড করার মত কোনো মেম্বার ডাটা নেই।"); return; }
-
   const { jsPDF } = window.jspdf;
   const pdfDoc = new jsPDF('p', 'mm', 'a4');
 
-  // ক) সবার উপরে মাঝখানে লোগো (ROS Logo) প্লেসমেন্ট
   const logoUrl = "https://rosociety.vercel.app/ros%20logo.png";
   pdfDoc.addImage(logoUrl, 'PNG', 92, 12, 25, 25);
 
-  // খ) লোগোর নিচে Rajshahi Olympiad Society শিরোনাম
   pdfDoc.setFont("Helvetica", "bold");
   pdfDoc.setFontSize(18);
   pdfDoc.text("Rajshahi Olympiad Society", 105, 44, { align: "center" });
   
-  // গ) এর নিচে মেম্বার ম্যানেজমেন্ট সিস্টেম সাব-হেডিং
   pdfDoc.setFont("Helvetica", "normal");
   pdfDoc.setFontSize(12);
   pdfDoc.text("Member Management System", 105, 51, { align: "center" });
 
-  // ঘ) টেবিল ডাটা প্রিপারেশন (সর্ব বামে চেকবক্স স্পেস `[  ]` এবং ডাইনামিক সিরিয়াল সহ)
   const reportTableRows = currentFilteredList.map((user, index) => [
-    "[  ]", // সর্ব বাম দিকের চেক বক্স স্পেস
-    index + 1,
-    user.memberId || 'N/A',
-    user.englishName || 'N/A',
-    user.mobile || 'N/A',
-    user.email || 'N/A',
-    user.bloodGroup || 'N/A',
-    "" // কমেন্ট বক্স (ফাঁকা কলাম)
+    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.bloodGroup || 'N/A', ""
   ]);
 
-  // ঙ) কাস্টম ডিজাইন টেবিল রেন্ডারিং
   pdfDoc.autoTable({
     startY: 58,
     head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Blood', 'Comment Box']],
@@ -276,32 +337,20 @@ function exportToPDF() {
     theme: 'grid',
     headStyles: { fillColor: [15, 23, 42], fontSize: 9, halign: 'center', fontStyle: 'bold' },
     bodyStyles: { fontSize: 8, font: "Helvetica", textColor: [30, 41, 59] },
-    columnStyles: {
-      0: { cellWidth: 10, halign: 'center' }, // চেকবক্স উইডথ
-      1: { cellWidth: 10, halign: 'center' }, // সিরিয়াল উইডথ
-      2: { cellWidth: 20 },
-      6: { cellWidth: 15, halign: 'center' },
-      7: { cellWidth: 25 } // কমেন্ট বক্স সাইজ
-    },
+    columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 20 }, 6: { cellWidth: 15, halign: 'center' }, 7: { cellWidth: 25 } },
     margin: { left: 10, right: 10 }
   });
 
-  // চ) ডাইনামিক ফুটার সিস্টেম (সকল পেজের জন্য)
   const totalPagesCount = pdfDoc.internal.getNumberOfPages();
   const currentBangladeshTime = new Date().toLocaleString('en-US', { hour12: true });
 
   for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
     pdfDoc.setPage(pageNum);
     pdfDoc.setFontSize(8);
-    pdfDoc.setTextColor(148, 163, 184); // স্মুথ গ্রে কালার
-    
-    // ফুটারের বামদিকে ডাউনলোডের তারিখ এবং সময়
+    pdfDoc.setTextColor(148, 163, 184);
     pdfDoc.text(`Download Date & Time: ${currentBangladeshTime}`, 10, 288);
-    
-    // ফুটারের ডানদিকে ডেভেলপ বাই উৎসব সরকার ক্রেডিট
     pdfDoc.text("Developed by: Utsab Sarkar", 200, 288, { align: "right" });
   }
 
-  // ডাউনলোড ফাইল নেম সেটআপ
   pdfDoc.save(`ROS_Official_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-}
+          }
