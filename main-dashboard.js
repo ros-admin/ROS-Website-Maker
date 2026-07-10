@@ -137,3 +137,13 @@ function calculateStatsAndRenderCharts(users) {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
 }
+
+// মূল ড্যাশবোর্ডের কার্ড থেকে ক্লিক করলে যেন মেম্বার ফিল্টার ট্রিগার হয়
+function viewMembersWithFilter(status) {
+  switchTab('member_management');
+  const selectFilter = document.getElementById('filterStatus');
+  if (selectFilter) {
+    selectFilter.value = status;
+    if(typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
+  }
+}
