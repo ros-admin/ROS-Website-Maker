@@ -87,7 +87,6 @@
   </header>
 
   <div class="flex flex-1 relative overflow-hidden">
-    
     <aside id="sidebarMenu" class="hidden w-64 bg-slate-900/90 border-r border-slate-800 p-5 flex-col shrink-0 absolute left-0 top-0 h-full z-30 backdrop-blur-xl transition-all duration-300 shadow-2xl">
       <div class="space-y-4 w-full">
         <div class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">প্যানেল মেনু</div>
@@ -98,29 +97,17 @@
           <button onclick="switchTab('member_management')" id="btn-member_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
             <i class="fa-solid fa-users"></i> Member Management
           </button>
-          <button onclick="switchTab('admin_management')" id="btn-admin_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
-            <i class="fa-solid fa-user-shield"></i> Admin Management
-          </button>
         </nav>
       </div>
     </aside>
 
     <main class="flex-1 p-4 sm:p-6 overflow-y-auto">
-      
       <section id="main_dashboard-section" class="space-y-8">
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="stats-container-placeholder"></div>
         <div class="space-y-6" id="charts-container-placeholder"></div>
       </section>
 
       <section id="member_management-section" class="hidden space-y-6"></section>
-
-      <section id="admin_management-section" class="hidden">
-        <h2 class="text-xl font-bold mb-4">Admin Management</h2>
-        <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
-          [অ্যাডমিন প্রিভিলেজ সেট করার কোড]
-        </div>
-      </section>
-
     </main>
   </div>
 
@@ -136,9 +123,10 @@
       
       setupAdminProfile();
       
-      // ডাইনামিকভাবে মডিউল HTML রেন্ডার করা হচ্ছে
+      // ১. প্রথমে HTML তৈরি হবে যাতে DOM এলিমেন্টগুলো রেডি থাকে
       if(typeof initMemberManagementHTML === 'function') initMemberManagementHTML();
       
+      // ২. এরপর ডেটা তুলে রেন্ডার করা হবে
       await fetchDashboardData();
     });
 
@@ -161,35 +149,24 @@
         const res = await r.json();
         document.getElementById('globalLoader').style.display = 'none';
 
-        if (res.success && res.data && res.data.length > 0) {
+        if (res.success && res.data) {
           allUsersData = res.data;
-        } else {
-          allUsersData = getMockUsersData();
         }
       } catch (e) {
         document.getElementById('globalLoader').style.display = 'none';
-        allUsersData = getMockUsersData();
+        console.error("ডেটা লোড করতে ব্যর্থ:", e);
       }
       
-      // ফাইল মডিউল অ্যাক্টিভেশন
+      // ৩. লজিক ও চার্ট জেনারেশন কল করা
       if(typeof initMainDashboard === 'function') initMainDashboard(allUsersData);
       if(typeof initMemberManagementLogic === 'function') initMemberManagementLogic(allUsersData);
-    }
-
-    function getMockUsersData() {
-      const thisYear = new Date().getFullYear();
-      return [
-        { memberId: "ROS-001", englishName: "Utsab Sarkar", mobile: "01700000000", email: "utsab@gmail.com", bloodGroup: "A+", gender: "Male", status: 'approved', registrationDate: `${thisYear}-07-09 12:00:00` },
-        { memberId: "ROS-002", englishName: "Sadia Afrin", mobile: "01900000000", email: "sadia@gmail.com", bloodGroup: "O+", gender: "Female", status: 'pending', registrationDate: `${thisYear}-07-08 10:00:00` }
-      ];
     }
 
     function switchTab(tabId) {
       document.getElementById('main_dashboard-section').classList.add('hidden');
       document.getElementById('member_management-section').classList.add('hidden');
-      document.getElementById('admin_management-section').classList.add('hidden');
 
-      ['main_dashboard', 'member_management', 'admin_management'].forEach(id => {
+      ['main_dashboard', 'member_management'].forEach(id => {
         const btn = document.getElementById(`btn-${id}`);
         if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer";
       });
