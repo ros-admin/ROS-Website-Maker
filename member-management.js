@@ -1,13 +1,7 @@
-/**
- * ==========================================
- * ROS Admin Dashboard - Member Management Module
- * ==========================================
- */
-
+// member-management.js
 let currentFilteredList = [];
 let activePopupUser = null;
 
-// মেম্বার ম্যানেজমেন্টের লেআউট ডিজাইন ইনজেকশন
 function initMemberManagementHTML() {
   const container = document.getElementById('member_management-section');
   if (!container) return;
@@ -15,142 +9,84 @@ function initMemberManagementHTML() {
   container.innerHTML = `
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
       <div>
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-users text-[#00b4d8]"></i> Member Management
-        </h2>
-        <p class="text-xs text-slate-400 mt-1">মেম্বার তথ্য খোঁজা, মাল্টি-ফিল্টারিং এবং কাস্টম রিপোর্ট এক্সপোর্ট করার প্যানেল</p>
+        <h2 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-users text-[#00b4d8]"></i> Member Management</h2>
       </div>
     </div>
 
     <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
       <div class="flex flex-col md:flex-row gap-3 items-center">
-        <div class="relative flex-1 w-full">
-          <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-xs"></i>
-          <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]" placeholder="নাম, মোবাইল নাম্বার, ইমেইল এড্রেস বা রেজিস্ট্রেশন নাম্বার লিখে সার্চ দিন...">
-        </div>
-        <div class="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
-          <button onclick="exportToExcel()" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center">
-            <i class="fa-solid fa-file-excel"></i> Excel ডাউনলোড
-          </button>
-          <button onclick="exportToPDF()" class="px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center">
-            <i class="fa-solid fa-file-pdf"></i> PDF ডাউনলোড
-          </button>
+        <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full flex-1 px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none" placeholder="নাম, মোবাইল, আইডি দিয়ে সার্চ করুন...">
+        <div class="flex gap-2 w-full md:w-auto">
+          <button onclick="exportToExcel()" class="px-4 py-3 bg-emerald-600 text-white font-bold text-xs rounded-xl w-full">Excel রিপোর্ট</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">স্ট্যাটাস ফিল্টার</label>
-          <select id="filterStatus" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
-            <option value="all">সব স্ট্যাটাস</option>
+          <label class="block text-[10px] font-bold text-slate-500 mb-1">স্ট্যাটাস ফিল্টার</label>
+          <select id="filterStatus" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white">
+            <option value="all">সব সদস্য</option>
             <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
+            <option value="active">Approved (Active)</option>
             <option value="inactive">Inactive</option>
             <option value="suspend">Suspend</option>
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রক্তের গ্রুপ ফিল্টার</label>
-          <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
-            <option value="all">সব গ্রুপ</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender ফিল্টার</label>
-          <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+          <label class="block text-[10px] font-bold text-slate-500 mb-1">জেন্ডার ফিল্টার</label>
+          <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white">
             <option value="all">সব জেন্ডার</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
-            <option value="Other">Other</option>
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রেজিস্ট্রেশনের তারিখ</label>
-          <select id="filterDate" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
-            <option value="all">সব তারিখ</option>
+          <label class="block text-[10px] font-bold text-slate-500 mb-1">রক্তের গ্রুপ</label>
+          <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white">
+            <option value="all">সব গ্রুপ</option>
+            <option value="A+">A+</option><option value="O+">O+</option><option value="B+">B+</option><option value="AB+">AB+</option>
           </select>
         </div>
       </div>
-      <div class="text-right text-[11px] text-slate-400">
-        ফিল্টারড মেম্বার সংখ্যা: <span id="filtered-count" class="text-[#00b4d8] font-bold">0</span> জন
-      </div>
+      <div class="text-right text-xs">সদস্য সংখ্যা: <span id="filtered-count" class="text-[#00b4d8] font-bold">0</span> জন</div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl mt-4">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-              <th class="py-4 px-4 text-center w-12">সিরিয়াল</th>
-              <th class="py-4 px-4">রেজিস্ট্রেশন নাম্বার</th>
-              <th class="py-4 px-4">নাম</th>
-              <th class="py-4 px-4">মোবাইল নাম্বার</th>
-              <th class="py-4 px-4">ইমেইল এড্রেস</th>
-              <th class="py-4 px-4 text-center">রক্তের গ্রুপ</th>
-              <th class="py-4 px-4">রেজিস্ট্রেশনের তারিখ</th>
-              <th class="py-4 px-4">স্ট্যাটাস</th>
-              <th class="py-4 px-4 text-center">স্ট্যাটাস পরিবর্তন অপশন</th>
-              <th class="py-4 px-4 text-center w-16">বিস্তারিত</th>
+            <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+              <th class="py-4 px-4 text-center">SL</th>
+              <th class="py-4 px-4">Member ID</th>
+              <th class="py-4 px-4">Name</th>
+              <th class="py-4 px-4">Mobile</th>
+              <th class="py-4 px-4">Email</th>
+              <th class="py-4 px-4 text-center">Blood</th>
+              <th class="py-4 px-4">Status</th>
+              <th class="py-4 px-4 text-center">Action</th>
+              <th class="py-4 px-4 text-center">View</th>
             </tr>
           </thead>
-          <tbody id="memberTableBody" class="divide-y divide-slate-800/60 text-xs text-slate-300"></tbody>
+          <tbody id="memberTableBody" class="divide-y divide-slate-800/60 text-slate-300"></tbody>
         </table>
       </div>
-      <div id="noMemberFallback" class="hidden py-12 text-center text-slate-500 text-xs">
-        <i class="fa-regular fa-folder-open text-3xl mb-3 block text-slate-600"></i>
-        কোনো মেম্বার ডাটা খুঁজে পাওয়া যায়নি!
-      </div>
+      <div id="noMemberFallback" class="hidden py-12 text-center text-slate-500">ডাটা পাওয়া যায়নি!</div>
     </div>
 
     <div id="detailsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
         <div class="bg-slate-950 px-5 py-4 border-b border-slate-800 flex justify-between items-center">
-          <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-circle-info text-[#00b4d8]"></i> সদস্যের বিস্তারিত তথ্য</h3>
-          <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+          <h3 class="font-bold text-sm text-white">সদস্যের বিস্তারিত তথ্য</h3>
+          <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="modalContentArea" class="p-5"></div>
-        <div class="bg-slate-950/40 px-5 py-3 border-t border-slate-800 text-right">
-          <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg cursor-pointer">বন্ধ করুন</button>
-        </div>
       </div>
     </div>
   `;
 }
 
 function initMemberManagementLogic(users) {
-  setupRegistrationDateFilter(users);
   filterAndRenderMembersTable();
-}
-
-function setupRegistrationDateFilter(users) {
-  const dateSelect = document.getElementById('filterDate');
-  if (!dateSelect) return;
-
-  const uniqueDates = [];
-  users.forEach(user => {
-    if (user.registrationDate) {
-      const datePart = user.registrationDate.split(' ')[0];
-      if (!uniqueDates.includes(datePart)) uniqueDates.push(datePart);
-    }
-  });
-
-  uniqueDates.sort((a, b) => new Date(b) - new Date(a));
-  dateSelect.innerHTML = '<option value="all">সব তারিখ</option>';
-  uniqueDates.forEach(date => {
-    const reversedDate = date.split('-').reverse().join('/');
-    const option = document.createElement('option');
-    option.value = date;
-    option.innerText = reversedDate;
-    dateSelect.appendChild(option);
-  });
 }
 
 function filterAndRenderMembersTable() {
@@ -158,11 +94,10 @@ function filterAndRenderMembersTable() {
   const statusFilter = document.getElementById('filterStatus')?.value.toLowerCase() || 'all';
   const bloodFilter = document.getElementById('filterBlood')?.value || 'all';
   const genderFilter = document.getElementById('filterGender')?.value || 'all';
-  const dateFilter = document.getElementById('filterDate')?.value || 'all';
 
   const tbody = document.getElementById('memberTableBody');
   const fallback = document.getElementById('noMemberFallback');
-  if (!tbody || !fallback) return;
+  if (!tbody) return;
 
   tbody.innerHTML = '';
 
@@ -171,22 +106,27 @@ function filterAndRenderMembersTable() {
     const id = (user.memberId || '').toLowerCase();
     const email = (user.email || '').toLowerCase();
     const mobile = (user.mobile || '').toLowerCase();
+    
     const searchMatch = !searchQuery || name.includes(searchQuery) || id.includes(searchQuery) || email.includes(searchQuery) || mobile.includes(searchQuery);
-
-    const statusMatch = (statusFilter === 'all') || 
-                        (statusFilter === 'approved' && (user.status === 'approved' || user.status === 'active')) ||
-                        (user.status && user.status.toLowerCase() === statusFilter);
+    
+    // অ্যাপস স্ক্রিপ্টের ডাটা কন্ডিশন ম্যাচিং (active অথবা approved)
+    const currentStatus = (user.status || 'pending').toLowerCase().trim();
+    let statusMatch = (statusFilter === 'all');
+    if (!statusMatch) {
+      if (statusFilter === 'active') {
+        statusMatch = (currentStatus === 'active' || currentStatus === 'approved');
+      } else {
+        statusMatch = (currentStatus === statusFilter);
+      }
+    }
 
     const bloodMatch = (bloodFilter === 'all') || (user.bloodGroup === bloodFilter);
     const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
-    const userDatePart = user.registrationDate ? user.registrationDate.split(' ')[0] : '';
-    const dateMatch = (dateFilter === 'all') || (userDatePart === dateFilter);
 
-    return searchMatch && statusMatch && bloodMatch && genderMatch && dateMatch;
+    return searchMatch && statusMatch && bloodMatch && genderMatch;
   });
 
-  const countEl = document.getElementById('filtered-count');
-  if(countEl) countEl.innerText = currentFilteredList.length;
+  document.getElementById('filtered-count').innerText = currentFilteredList.length;
 
   if (currentFilteredList.length === 0) {
     fallback.classList.remove('hidden');
@@ -201,16 +141,14 @@ function filterAndRenderMembersTable() {
     let statusBadge = '';
     const currentStatus = (user.status || 'pending').toLowerCase();
     if (currentStatus === 'pending') {
-      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
-    } else if (currentStatus === 'approved' || currentStatus === 'active') {
-      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Approved</span>`;
+      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400">Pending</span>`;
+    } else if (currentStatus === 'active' || currentStatus === 'approved') {
+      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400">Approved</span>`;
     } else if (currentStatus === 'inactive') {
-      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/30 text-slate-400 border border-slate-700/50">Inactive</span>`;
+      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-slate-700/30 text-slate-400">Inactive</span>`;
     } else if (currentStatus === 'suspend') {
-      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Suspended</span>`;
+      statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/10 text-rose-400">Suspended</span>`;
     }
-
-    const formattedRegDate = user.registrationDate ? user.registrationDate.split(' ')[0].split('-').reverse().join('/') : 'N/A';
 
     row.innerHTML = `
       <td class="py-3 px-4 text-center font-bold text-slate-400">${index + 1}</td>
@@ -219,20 +157,17 @@ function filterAndRenderMembersTable() {
       <td class="py-3 px-4 font-mono">${user.mobile || 'N/A'}</td>
       <td class="py-3 px-4 text-slate-400 font-mono">${user.email || 'N/A'}</td>
       <td class="py-3 px-4 text-center font-bold text-rose-400">${user.bloodGroup || 'N/A'}</td>
-      <td class="py-3 px-4 font-mono text-slate-400">${formattedRegDate}</td>
       <td class="py-3 px-4">${statusBadge}</td>
       <td class="py-3 px-4 text-center">
-        <select onchange="updateMemberStatus('${user.memberId}', this.value)" class="bg-slate-950 border border-slate-800 text-[11px] text-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+        <select onchange="updateMemberStatus('${user.memberId}', this.value)" class="bg-slate-950 border border-slate-800 text-[11px] text-slate-300 rounded-lg px-2 py-1 cursor-pointer">
           <option value="" disabled selected>পরিবর্তন</option>
-          <option value="active">Approve করুন</option>
-          <option value="inactive">Inactive করুন</option>
-          <option value="suspend">Suspend করুন</option>
+          <option value="active">Approve</option>
+          <option value="inactive">Inactive</option>
+          <option value="suspend">Suspend</option>
         </select>
       </td>
       <td class="py-3 px-4 text-center">
-        <button onclick="openDetailsModal('${user.memberId}')" class="w-7 h-7 bg-slate-800 hover:bg-[#00b4d8]/20 hover:text-[#00b4d8] text-slate-400 rounded-lg flex items-center justify-center transition-all cursor-pointer mx-auto">
-          <i class="fa-solid fa-eye text-xs"></i>
-        </button>
+        <button onclick="openDetailsModal('${user.memberId}')" class="w-7 h-7 bg-slate-800 hover:bg-[#00b4d8]/20 text-slate-400 rounded-lg flex items-center justify-center mx-auto"><i class="fa-solid fa-eye text-xs"></i></button>
       </td>
     `;
     tbody.appendChild(row);
@@ -240,37 +175,23 @@ function filterAndRenderMembersTable() {
 }
 
 async function updateMemberStatus(memberId, newStatus) {
-  if (!memberId) return;
-  const confirmAction = confirm(`আপনি কি নিশ্চিতভাবে সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`);
-  if (!confirmAction) { filterAndRenderMembersTable(); return; }
-
-  const loader = document.getElementById('globalLoader');
-  if (loader) loader.style.display = 'flex';
-
+  if (!confirm(`সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`)) { filterAndRenderMembersTable(); return; }
+  document.getElementById('globalLoader').style.display = 'flex';
   try {
     const response = await fetch(WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ action: "updateStatus", memberId: memberId, status: newStatus })
     });
     const result = await response.json();
-    if (loader) loader.style.display = 'none';
+    document.getElementById('globalLoader').style.display = 'none';
 
     if (result.success) {
-      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!");
-      const userIdx = allUsersData.findIndex(u => u.memberId === memberId);
-      if (userIdx > -1) allUsersData[userIdx].status = (newStatus === 'active') ? 'approved' : newStatus;
-      
-      if (typeof initMainDashboard === 'function') initMainDashboard(allUsersData);
-      filterAndRenderMembersTable();
-    } else {
-      alert("ত্রুটি: " + result.error);
-      filterAndRenderMembersTable();
-    }
-  } catch (error) {
-    if (loader) loader.style.display = 'none';
-    alert("সার্ভার কানেকশন ত্রুটি হয়েছে!");
-    filterAndRenderMembersTable();
-  }
+      alert("সফলভাবে আপডেট করা হয়েছে!");
+      const idx = allUsersData.findIndex(u => u.memberId === memberId);
+      if (idx > -1) allUsersData[idx].status = newStatus;
+      fetchDashboardData(); // চার্ট সহ রি-লোডার
+    } else { alert(result.error); }
+  } catch (error) { document.getElementById('globalLoader').style.display = 'none'; }
 }
 
 function openDetailsModal(memberId) {
@@ -278,93 +199,25 @@ function openDetailsModal(memberId) {
   if (!activePopupUser) return;
   
   document.getElementById('modalContentArea').innerHTML = `
-    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 font-mono text-xs text-slate-300">
-      <div class="grid grid-cols-2 gap-y-2 gap-x-1">
-        <div class="text-slate-500 font-bold">Registration No:</div>
-        <div class="text-[#00b4d8] font-bold">${activePopupUser.memberId || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Full Name:</div>
-        <div class="text-white">${activePopupUser.englishName || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Mobile Number:</div>
-        <div>${activePopupUser.mobile || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Email Address:</div>
-        <div class="break-all text-[11px]">${activePopupUser.email || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Blood Group:</div>
-        <div class="text-rose-400 font-bold">${activePopupUser.bloodGroup || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Gender Status:</div>
-        <div>${activePopupUser.gender || 'N/A'}</div>
-        <div class="text-slate-500 font-bold">Current Status:</div>
-        <div class="capitalize text-amber-400 font-bold">${activePopupUser.status || 'N/A'}</div>
-      </div>
+    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 font-mono text-xs">
+      <div><span class="text-slate-500">ID:</span> <span class="text-[#00b4d8] font-bold">${activePopupUser.memberId}</span></div>
+      <div><span class="text-slate-500">Name:</span> <span class="text-white">${activePopupUser.englishName}</span></div>
+      <div><span class="text-slate-500">Mobile:</span> <span>${activePopupUser.mobile || 'N/A'}</span></div>
+      <div><span class="text-slate-500">Email:</span> <span>${activePopupUser.email || 'N/A'}</span></div>
+      <div><span class="text-slate-500">Class:</span> <span>${activePopupUser.class || 'N/A'}</span></div>
+      <div><span class="text-slate-500">Blood:</span> <span class="text-rose-400 font-bold">${activePopupUser.bloodGroup || 'N/A'}</span></div>
     </div>
+    <div class="mt-4 text-right"><button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-800 text-xs rounded-lg text-white">বন্ধ করুন</button></div>
   `;
-  const modal = document.getElementById('detailsModal');
-  if(modal) { modal.style.display = 'flex'; modal.classList.remove('hidden'); }
+  document.getElementById('detailsModal').style.display = 'flex';
 }
 
-function closeDetailsModal() { 
-  const modal = document.getElementById('detailsModal');
-  if(modal) { modal.style.display = 'none'; modal.classList.add('hidden'); }
-}
+function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; }
 
 function exportToExcel() {
-  if (currentFilteredList.length === 0) { alert("এক্সপোর্ট করার জন্য কোনো ডাটা অবশিষ্ট নেই।"); return; }
-  const excelDataRows = currentFilteredList.map((user, index) => ({
-    "সিরিয়াল নাম্বার": index + 1,
-    "রেজিস্ট্রেশন নাম্বার": user.memberId || 'N/A',
-    "নাম": user.englishName || 'N/A',
-    "মোবাইল নাম্বার": user.mobile || 'N/A',
-    "ইমেইল এড্রেস": user.email || 'N/A',
-    "রক্তের গ্রুপ": user.bloodGroup || 'N/A',
-    "জেন্ডার (Gender)": user.gender || 'N/A',
-    "রেজিস্ট্রেশনের তারিখ": user.registrationDate || 'N/A',
-    "স্ট্যাটাস": user.status || 'N/A'
-  }));
-  const sheet = XLSX.utils.json_to_sheet(excelDataRows);
+  if (currentFilteredList.length === 0) return;
+  const sheet = XLSX.utils.json_to_sheet(currentFilteredList);
   const book = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(book, sheet, "Filtered Members");
-  XLSX.writeFile(book, `ROS_Filtered_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+  XLSX.utils.book_append_sheet(book, sheet, "Members");
+  XLSX.writeFile(book, `ROS_Report.xlsx`);
 }
-
-function exportToPDF() {
-  if (currentFilteredList.length === 0) { alert("ডাউনলোড করার মত কোনো মেম্বার ডাটা নেই।"); return; }
-  const { jsPDF } = window.jspdf;
-  const pdfDoc = new jsPDF('p', 'mm', 'a4');
-
-  const logoUrl = "https://rosociety.vercel.app/ros%20logo.png";
-  pdfDoc.addImage(logoUrl, 'PNG', 92, 12, 25, 25);
-
-  pdfDoc.setFont("Helvetica", "bold");
-  pdfDoc.setFontSize(18);
-  pdfDoc.text("Rajshahi Olympiad Society", 105, 44, { align: "center" });
-  
-  pdfDoc.setFont("Helvetica", "normal");
-  pdfDoc.setFontSize(12);
-  pdfDoc.text("Member Management System", 105, 51, { align: "center" });
-
-  const reportTableRows = currentFilteredList.map((user, index) => [
-    index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.bloodGroup || 'N/A'
-  ]);
-
-  pdfDoc.autoTable({
-    startY: 58,
-    head: [['SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Blood']],
-    body: reportTableRows,
-    theme: 'grid',
-    headStyles: { fillColor: [15, 23, 42], fontSize: 9, halign: 'center', fontStyle: 'bold' },
-    bodyStyles: { fontSize: 8, font: "Helvetica", textColor: [30, 41, 59] },
-    margin: { left: 10, right: 10 }
-  });
-
-  const totalPagesCount = pdfDoc.internal.getNumberOfPages();
-  const currentBangladeshTime = new Date().toLocaleString('en-US', { hour12: true });
-
-  for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
-    pdfDoc.setPage(pageNum);
-    pdfDoc.setFontSize(8);
-    pdfDoc.setTextColor(148, 163, 184);
-    pdfDoc.text(`Download Date & Time: ${currentBangladeshTime}`, 10, 288);
-    pdfDoc.text("Developed by: ROS Team", 200, 288, { align: "right" });
-  }
-
-  pdfDoc.save(`ROS_Official_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-      }
