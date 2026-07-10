@@ -6,9 +6,14 @@
   <title>ROS Admin Panel - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght=400;600;700&family=Poppins:wght=400;500;600&display=swap');
     body { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
     .ros-global-loader {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -103,20 +108,16 @@
     <main class="flex-1 p-4 sm:p-6 overflow-y-auto">
       
       <section id="main_dashboard-section" class="space-y-8">
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="stats-container-placeholder">
-          </div>
-
-        <div class="space-y-6" id="charts-container-placeholder">
-          </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="stats-container-placeholder"></div>
+        <div class="space-y-6" id="charts-container-placeholder"></div>
       </section>
 
-      <section id="member_management-section" class="hidden space-y-6">
-        </section>
+      <section id="member_management-section" class="hidden space-y-6"></section>
 
       <section id="admin_management-section" class="hidden">
         <h2 class="text-xl font-bold mb-4">Admin Management</h2>
         <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
-          [এখানে অ্যাডমিন তৈরি এবং প্রিভিলেজ সেট করার কোড বসবে]
+          [অ্যাডমিন প্রিভিলেজ সেট করার কোড]
         </div>
       </section>
 
@@ -124,7 +125,7 @@
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOlmU7WLGX1gW_p_ojhHGq6pQ9nXMt3pgHYw823SRheU29R9YPhfi8KGjv36ZFtAYyBw/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec";
     let currentAdmin = null;
     let allUsersData = [];
 
@@ -134,13 +135,17 @@
       currentAdmin = JSON.parse(stored);
       
       setupAdminProfile();
+      
+      // ডাইনামিকভাবে মডিউল HTML রেন্ডার করা হচ্ছে
+      if(typeof initMemberManagementHTML === 'function') initMemberManagementHTML();
+      
       await fetchDashboardData();
     });
 
     function setupAdminProfile() {
       document.getElementById('topAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
-      document.getElementById('popupAdminRole').innerText = currentAdmin.role === 'super_admin' ? 'Super Admin' : 'Admin';
+      document.getElementById('popupAdminRole').innerText = currentAdmin.role === 'super_admin' ? 'Super Admin 👑' : 'General Admin 🛠';
       document.getElementById('popupAdminEmail').innerText = currentAdmin.email;
       document.getElementById('popupAdminMobile').innerText = currentAdmin.mobile || 'N/A';
       if (currentAdmin.photoUrl) {
@@ -159,16 +164,24 @@
         if (res.success && res.data && res.data.length > 0) {
           allUsersData = res.data;
         } else {
-          allUsersData = [];
+          allUsersData = getMockUsersData();
         }
       } catch (e) {
         document.getElementById('globalLoader').style.display = 'none';
-        allUsersData = [];
+        allUsersData = getMockUsersData();
       }
       
-      // ফাইল মডিউলগুলোকে রান করানো হচ্ছে
+      // ফাইল মডিউল অ্যাক্টিভেশন
       if(typeof initMainDashboard === 'function') initMainDashboard(allUsersData);
-      if(typeof initMemberManagement === 'function') initMemberManagement(allUsersData);
+      if(typeof initMemberManagementLogic === 'function') initMemberManagementLogic(allUsersData);
+    }
+
+    function getMockUsersData() {
+      const thisYear = new Date().getFullYear();
+      return [
+        { memberId: "ROS-001", englishName: "Utsab Sarkar", mobile: "01700000000", email: "utsab@gmail.com", bloodGroup: "A+", gender: "Male", status: 'approved', registrationDate: `${thisYear}-07-09 12:00:00` },
+        { memberId: "ROS-002", englishName: "Sadia Afrin", mobile: "01900000000", email: "sadia@gmail.com", bloodGroup: "O+", gender: "Female", status: 'pending', registrationDate: `${thisYear}-07-08 10:00:00` }
+      ];
     }
 
     function switchTab(tabId) {
