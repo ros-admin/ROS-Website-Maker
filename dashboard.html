@@ -6,12 +6,7 @@
   <title>ROS Admin Panel - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
     body { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
@@ -43,7 +38,7 @@
   <header class="bg-slate-900 border-b border-slate-800 h-16 px-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-3">
       <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-slate-800 flex items-center justify-center text-xl cursor-pointer transition-all text-[#00b4d8]">
-        <i class="fa-solid fa-bars"></i>
+        <i class="fa-solid fa-ellipsis-vertical"></i>
       </button>
       <div class="flex items-center gap-2">
         <img src="https://rosociety.vercel.app/ros%20logo.png" alt="Logo" class="w-8 h-8 object-cover">
@@ -72,10 +67,10 @@
         </div>
 
         <div class="w-full border-t border-slate-800/80 pt-3 mb-4 text-left">
-          <span class="text-xs font-bold text-slate-400 block mb-1.5">সরাসরি পাসওয়ার্ড পরিবর্তন</span>
+          <span class="text-xs font-bold text-slate-400 block mb-1.5">পাসওয়ার্ড পরিবর্তন</span>
           <div class="space-y-2">
-            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-[#00b4d8]" placeholder="নতুন পাসওয়ার্ড দিন">
-            <button onclick="changeProfilePasswordDirectly()" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition-all cursor-pointer">পাসওয়ার্ড আপডেট করুন</button>
+            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none" placeholder="নতুন পাসওয়ার্ড">
+            <button onclick="changeProfilePassword()" class="w-full py-1.5 bg-emerald-600 text-white font-bold rounded-lg text-xs transition-all cursor-pointer">পাসওয়ার্ড সেভ করুন</button>
           </div>
         </div>
 
@@ -92,11 +87,14 @@
       <div class="space-y-4 w-full">
         <div class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">প্যানেল মেনু</div>
         <nav class="space-y-1">
-          <button onclick="switchTab('main_dashboard')" id="btn-main_dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
+          <button onclick="switchTab('main_dashboard')" id="btn-main_dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer">
             <i class="fa-solid fa-chart-pie"></i> Main Dashboard
           </button>
           <button onclick="switchTab('member_management')" id="btn-member_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
             <i class="fa-solid fa-users"></i> Member Management
+          </button>
+          <button onclick="switchTab('admin_management')" id="btn-admin_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
+            <i class="fa-solid fa-user-shield"></i> Admin Management
           </button>
         </nav>
       </div>
@@ -105,34 +103,28 @@
     <main class="flex-1 p-4 sm:p-6 overflow-y-auto">
       
       <section id="main_dashboard-section" class="space-y-8">
-        </section>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="stats-container-placeholder">
+          </div>
+
+        <div class="space-y-6" id="charts-container-placeholder">
+          </div>
+      </section>
 
       <section id="member_management-section" class="hidden space-y-6">
         </section>
 
+      <section id="admin_management-section" class="hidden">
+        <h2 class="text-xl font-bold mb-4">Admin Management</h2>
+        <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
+          [এখানে অ্যাডমিন তৈরি এবং প্রিভিলেজ সেট করার কোড বসবে]
+        </div>
+      </section>
+
     </main>
   </div>
 
-  <div id="detailsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-id-card text-[#00b4d8]"></i> সদস্যের বিস্তারিত প্রোফাইল তথ্য
-        </h3>
-        <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="modalContentArea" class="p-6 overflow-y-auto text-xs text-slate-300 space-y-4"></div>
-      <div class="px-6 py-4 bg-slate-950/40 border-t border-slate-800 flex justify-end gap-2">
-        <button onclick="downloadSingleUserPDF()" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 cursor-pointer">
-          <i class="fa-solid fa-file-arrow-down"></i> পিডিএফ ডাউনলোড
-        </button>
-        <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl cursor-pointer">বন্ধ করুন</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbydDnzGu74vb1c8QQK54VBXj64aHtq1XpL2c9Bov0LB1Eq99EOwa8HJILUFybnc2siuRg/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOlmU7WLGX1gW_p_ojhHGq6pQ9nXMt3pgHYw823SRheU29R9YPhfi8KGjv36ZFtAYyBw/exec";
     let currentAdmin = null;
     let allUsersData = [];
 
@@ -142,19 +134,13 @@
       currentAdmin = JSON.parse(stored);
       
       setupAdminProfile();
-      
-      // ডাইনামিক ভিউ মডিউল লোড করা
-      if (typeof initMainDashboardHTML === 'function') initMainDashboardHTML();
-      if (typeof initMemberManagementHTML === 'function') initMemberManagementHTML();
-      
       await fetchDashboardData();
-      switchTab('main_dashboard'); // ডিফল্ট হোম পেজ চালু করা
     });
 
     function setupAdminProfile() {
       document.getElementById('topAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
-      document.getElementById('popupAdminRole').innerText = currentAdmin.role === 'super_admin' ? 'Super Admin 👑' : 'General Admin 🛠';
+      document.getElementById('popupAdminRole').innerText = currentAdmin.role === 'super_admin' ? 'Super Admin' : 'Admin';
       document.getElementById('popupAdminEmail').innerText = currentAdmin.email;
       document.getElementById('popupAdminMobile').innerText = currentAdmin.mobile || 'N/A';
       if (currentAdmin.photoUrl) {
@@ -166,73 +152,31 @@
     async function fetchDashboardData() {
       document.getElementById('globalLoader').style.display = 'flex';
       try {
-        const r = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "getUsersData" })
-        });
+        const r = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "getUsersData" }) });
         const res = await r.json();
         document.getElementById('globalLoader').style.display = 'none';
 
         if (res.success && res.data && res.data.length > 0) {
           allUsersData = res.data;
-          triggerModulesUpdate();
-        } else { generateMockData(); }
+        } else {
+          allUsersData = [];
+        }
       } catch (e) {
         document.getElementById('globalLoader').style.display = 'none';
-        generateMockData();
+        allUsersData = [];
       }
-    }
-
-    function triggerModulesUpdate() {
-      if (typeof renderDashboardCharts === 'function') renderDashboardCharts(allUsersData);
-      if (typeof setupRegistrationDateFilter === 'function') setupRegistrationDateFilter(allUsersData);
-      if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
-    }
-
-    function generateMockData() {
-      const thisYear = new Date().getFullYear();
-      allUsersData = [
-        { memberId: "ROS-26-001", englishName: "Utsab Sarkar", mobile: "01712345678", email: "utsab@gmail.com", bloodGroup: "A+", gender: "Male", registrationDate: `${thisYear}-07-10 10:00:00`, status: "approved" },
-        { memberId: "ROS-26-002", englishName: "Nusrat Jahan", mobile: "01911223344", email: "nusrat@gmail.com", bloodGroup: "O+", gender: "Female", registrationDate: `${thisYear}-07-09 11:00:00`, status: "pending" }
-      ];
-      triggerModulesUpdate();
-    }
-
-    // ওটিপি (OTP) বিহীন সরাসরি পাসওয়ার্ড চেঞ্জ ইঞ্জিন
-    async function changeProfilePasswordDirectly() {
-      const newPass = document.getElementById('profileNewPass').value;
-      if (!newPass || newPass.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।"); return; }
       
-      document.getElementById('globalLoader').style.display = 'flex';
-      try {
-        const r = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ 
-            action: "resetAdminPassword", 
-            username: currentAdmin.username, 
-            otp: "DIRECT", // ওটিপি বাইপাস টোকেন
-            newPassword: newPass 
-          })
-        });
-        const res = await r.json();
-        document.getElementById('globalLoader').style.display = 'none';
-        if (res.success) {
-          alert("পাসওয়ার্ড সরাসরি সফলভাবে আপডেট করা হয়েছে!");
-          document.getElementById('profileNewPass').value = '';
-          toggleProfileCard();
-        } else { alert(res.error); }
-      } catch (e) { 
-        document.getElementById('globalLoader').style.display = 'none'; 
-        alert("সার্ভার কানেকশন ত্রুটি!");
-      }
+      // ফাইল মডিউলগুলোকে রান করানো হচ্ছে
+      if(typeof initMainDashboard === 'function') initMainDashboard(allUsersData);
+      if(typeof initMemberManagement === 'function') initMemberManagement(allUsersData);
     }
 
     function switchTab(tabId) {
       document.getElementById('main_dashboard-section').classList.add('hidden');
       document.getElementById('member_management-section').classList.add('hidden');
+      document.getElementById('admin_management-section').classList.add('hidden');
 
-      const tabs = ['main_dashboard', 'member_management'];
-      tabs.forEach(id => {
+      ['main_dashboard', 'member_management', 'admin_management'].forEach(id => {
         const btn = document.getElementById(`btn-${id}`);
         if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer";
       });
@@ -240,22 +184,31 @@
       document.getElementById(`${tabId}-section`).classList.remove('hidden');
       const activeBtn = document.getElementById(`btn-${tabId}`);
       if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
-
       document.getElementById('sidebarMenu').classList.add('hidden');
-    }
-
-    function viewMembersWithFilter(status) {
-      switchTab('member_management');
-      const selectFilter = document.getElementById('filterStatus');
-      if (selectFilter) {
-        selectFilter.value = status;
-        if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
-      }
     }
 
     function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('hidden'); }
     function toggleProfileCard() { document.getElementById('profileDropdownCard').classList.toggle('hidden'); }
     function handleLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+    async function changeProfilePassword() {
+      const newPass = document.getElementById('profileNewPass').value;
+      if (!newPass || newPass.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।"); return; }
+      document.getElementById('globalLoader').style.display = 'flex';
+      try {
+        const r = await fetch(WEB_APP_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: "resetAdminPassword", username: currentAdmin.username, otp: "DIRECT", newPassword: newPass })
+        });
+        const res = await r.json();
+        document.getElementById('globalLoader').style.display = 'none';
+        if (res.success) {
+          alert("পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে!");
+          document.getElementById('profileNewPass').value = '';
+          toggleProfileCard();
+        } else { alert(res.error); }
+      } catch (e) { document.getElementById('globalLoader').style.display = 'none'; }
+    }
   </script>
 
   <script src="main-dashboard.js"></script>
