@@ -50,16 +50,6 @@ function initMemberManagementHTML() {
           </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রক্তের গ্রুপ ফিল্টার</label>
-          <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
-            <option value="all">সব গ্রুপ</option>
-            <option value="A+">A+</option><option value="A-">A-</option>
-            <option value="B+">B+</option><option value="B-">B-</option>
-            <option value="O+">O+</option><option value="O-">O-</option>
-            <option value="AB+">AB+</option><option value="AB-">AB-</option>
-          </select>
-        </div>
-        <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender ফিল্টার</label>
           <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
             <option value="all">সব জেন্ডার</option>
@@ -85,7 +75,7 @@ function initMemberManagementHTML() {
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-              <th class="py-4 px-4 text-center w-12">সিরিয়াল নাম্বার</th>
+              <th class="py-4 px-4 text-center w-12">সিরিয়াল</th>
               <th class="py-4 px-4">রেজিস্ট্রেশন নাম্বার</th>
               <th class="py-4 px-4">নাম</th>
               <th class="py-4 px-4">মোবাইল নাম্বার</th>
@@ -108,7 +98,7 @@ function initMemberManagementHTML() {
   `;
 }
 
-// শিটের ডাটা থেকে তারিখ নিয়ে ড্রপডাউন জেনারেট
+// তারিখ ড্রপডাউন জেনারেট ফাংশন
 function setupRegistrationDateFilter(users) {
   const dateSelect = document.getElementById('filterDate');
   if (!dateSelect) return;
@@ -132,11 +122,10 @@ function setupRegistrationDateFilter(users) {
   });
 }
 
-// মাল্টি-ফিল্টার ও অটো সিরিয়াল মেকানিজমসহ রেন্ডার
+// মাল্টি-ফিল্টার ও টেবিল রেন্ডার মেকানিজম
 function filterAndRenderMembersTable() {
   const searchQuery = document.getElementById('memberSearchInput')?.value.toLowerCase().trim() || '';
   const statusFilter = document.getElementById('filterStatus')?.value.toLowerCase() || 'all';
-  const bloodFilter = document.getElementById('filterBlood')?.value || 'all';
   const genderFilter = document.getElementById('filterGender')?.value || 'all';
   const dateFilter = document.getElementById('filterDate')?.value || 'all';
 
@@ -163,13 +152,11 @@ function filterAndRenderMembersTable() {
       }
     }
 
-    const userBlood = user.bloodGroup || 'N/A';
-    const bloodMatch = (bloodFilter === 'all') || (userBlood === bloodFilter);
     const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
     const userDatePart = user.registrationDate ? user.registrationDate.split(' ')[0] : '';
     const dateMatch = (dateFilter === 'all') || (userDatePart === dateFilter);
 
-    return searchMatch && statusMatch && bloodMatch && genderMatch && dateMatch;
+    return searchMatch && statusMatch && genderMatch && dateMatch;
   });
 
   const countEl = document.getElementById('filtered-count');
@@ -226,7 +213,7 @@ function filterAndRenderMembersTable() {
   });
 }
 
-// গুগল স্ক্রিপ্ট API কানেকশন দিয়ে মেম্বার স্ট্যাটাস আপডেট লজিক
+// স্ট্যাটাস আপডেট করার ফাংশন
 async function updateMemberStatus(memberId, newStatus) {
   if (!memberId) return;
   const confirmAction = confirm(`আপনি কি নিশ্চিতভাবে সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`);
@@ -236,7 +223,6 @@ async function updateMemberStatus(memberId, newStatus) {
   if (loader) loader.style.display = 'flex';
 
   try {
-    // ড্যাশবোর্ডের মূল WEB_APP_URL এর মাধ্যমে API কল করা হচ্ছে
     const response = await fetch(WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ action: "updateStatus", memberId: memberId, status: newStatus })
@@ -244,8 +230,7 @@ async function updateMemberStatus(memberId, newStatus) {
     const result = await response.json();
 
     if (result.success) {
-      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে! নির্ধারিত গুগল স্ক্রিপ্ট নোটিফিকেশন ইমেইল চলে গেছে।");
-      // ড্যাশবোর্ডের ডাটা রিয়েল টাইম আপডেট করার গ্লোবাল ফাংশন কল
+      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!");
       if (typeof fetchDashboardData === 'function') await fetchDashboardData();
     } else {
       if (loader) loader.style.display = 'none';
@@ -259,7 +244,7 @@ async function updateMemberStatus(memberId, newStatus) {
   }
 }
 
-// মডাল কন্ট্রোলার
+// বিস্তারিত মডাল উইন্ডো কন্ট্রোলার
 function openDetailsModal(memberId) {
   activePopupUser = allUsersData.find(u => u.memberId === memberId);
   if (!activePopupUser) return;
@@ -309,7 +294,7 @@ function exportToExcel() {
   XLSX.writeFile(book, `ROS_Filtered_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// অফিসিয়াল পিডিএফ রিপোর্ট জেনারেটর
+// পিডিএফ রিপোর্ট জেনারেটর
 function exportToPDF() {
   if (currentFilteredList.length === 0) { alert("ডাউনলোড করার মত কোনো মেম্বার ডাটা নেই।"); return; }
   const { jsPDF } = window.jspdf;
@@ -327,7 +312,7 @@ function exportToPDF() {
   pdfDoc.text("Member Management System", 105, 51, { align: "center" });
 
   const reportTableRows = currentFilteredList.map((user, index) => [
-    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.class || 'N/A', ""
+    "[]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.class || 'N/A', ""
   ]);
 
   pdfDoc.autoTable({
