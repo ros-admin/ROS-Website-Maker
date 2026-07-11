@@ -104,7 +104,9 @@ function setupRegistrationDateFilter(users) {
   if (!dateSelect) return;
 
   const uniqueDates = [];
-  users.forEach(user => {
+  const sourceData = users || window.allUsersData || [];
+  
+  sourceData.forEach(user => {
     if (user.registrationDate) {
       const datePart = user.registrationDate.split(' ')[0];
       if (!uniqueDates.includes(datePart)) uniqueDates.push(datePart);
@@ -135,7 +137,10 @@ function filterAndRenderMembersTable() {
 
   tbody.innerHTML = '';
 
-  currentFilteredList = allUsersData.filter(user => {
+  // html ফাইল থেকে গ্লোবাল ডেটা অবজেক্ট স্কোপিং নিশ্চিত করা হলো
+  const sourceData = window.allUsersData || [];
+
+  currentFilteredList = sourceData.filter(user => {
     const name = (user.englishName || '').toLowerCase();
     const id = (user.memberId || '').toLowerCase();
     const email = (user.email || '').toLowerCase();
@@ -246,7 +251,8 @@ async function updateMemberStatus(memberId, newStatus) {
 
 // বিস্তারিত মডাল উইন্ডো কন্ট্রোলার
 function openDetailsModal(memberId) {
-  activePopupUser = allUsersData.find(u => u.memberId === memberId);
+  const sourceData = window.allUsersData || [];
+  activePopupUser = sourceData.find(u => u.memberId === memberId);
   if (!activePopupUser) return;
   
   document.getElementById('modalContentArea').innerHTML = `
