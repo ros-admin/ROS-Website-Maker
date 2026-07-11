@@ -207,20 +207,20 @@
     </div>
   </div>
 
-                 <script src="member-management.js"></script>
+  <script src="member-management.js"></script>
 
   <script>
-    // আপনার লাইভ গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ URL
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyI6wOKLbKPXA9wodK3AjbnDu8XXaNl5PRYZ9UL8hK4IAW3BZYoPHbHYjbn7f4saFN12g/exec";
 
     let currentAdmin = null;
-    let allUsersData = [];
+    
+    // গ্লোবাল উইন্ডো স্কোপ ডিফাইন নিশ্চিত করা হলো 
+    window.allUsersData = [];
 
     let lineChartObj = null;
     let pieChartObj = null;
     let barChartObj = null;
 
-    // DOM পুরোপুরি লোড হওয়ার পর রান হবে
     window.addEventListener('DOMContentLoaded', async () => {
       const stored = sessionStorage.getItem('currentAdmin');
       if (!stored) { window.location.href = 'index.html'; return; }
@@ -228,14 +228,14 @@
       
       setupAdminProfile();
       
-      // ১. মেম্বার ম্যানেজমেন্টের HTML লেআউট আগে ইনজেক্ট করুন
+      // HTML লেআউট ইনজেক্ট করা হচ্ছে
       if (typeof initMemberManagementHTML === 'function') {
         initMemberManagementHTML();
       } else {
-        console.error("initMemberManagementHTML function is not defined. Check member-management.js path.");
+        console.error("initMemberManagementHTML function is not defined.");
       }
       
-      // ২. এবার ড্যাশবোর্ড ও মেম্বার ডেটা ফেচ করুন
+      // ড্যাশবোর্ড ডেটা ফেচ শুরু হচ্ছে
       await fetchDashboardData();
     });
 
@@ -262,23 +262,24 @@
         const res = await r.json();
         document.getElementById('globalLoader').style.display = 'none';
 
+        // আপনার কাঙ্ক্ষিত উইন্ডো বাইন্ডিং লজিক
         if (res.success && res.data && res.data.length > 0) {
-          allUsersData = res.data;
+          window.allUsersData = res.data;
         } else {
-          allUsersData = generateMockData();
+          window.allUsersData = generateMockData();
         }
       } catch (e) {
         console.error("Data fetch error:", e);
         document.getElementById('globalLoader').style.display = 'none';
-        allUsersData = generateMockData();
+        window.allUsersData = generateMockData();
       }
 
-      // ড্যাশবোর্ডের চার্ট ও স্ট্যাটাস রেন্ডার
-      calculateStatsAndRenderCharts(allUsersData);
+      // চার্ট রেন্ডার
+      calculateStatsAndRenderCharts(window.allUsersData);
       
-      // ৩. মেম্বার ম্যানেজমেন্টের ফিল্টার ও টেবিল ডেটা রেন্ডার (নিশ্চিত করা হলো যেন ডাটা আসার পর কল হয়)
+      // মেম্বার ম্যানেজমেন্ট টেবিল এবং ফিল্টার সচল করা
       if (typeof setupRegistrationDateFilter === 'function') {
-        setupRegistrationDateFilter(allUsersData);
+        setupRegistrationDateFilter(window.allUsersData);
       }
       if (typeof filterAndRenderMembersTable === 'function') {
         filterAndRenderMembersTable();
@@ -304,7 +305,7 @@
 
       const currentYear = new Date().getFullYear();
       const last5Years = [];
-      for (let i = 4; i >= 0; i--) {
+      for (let i = 4; i >= 4; i--) {
         const y = (currentYear - i).toString();
         yearCounts[y] = 0;
         last5Years.push(y);
@@ -392,7 +393,7 @@
         data: {
           labels: last5Years,
           datasets: [{
-            data: last5Years.map(y => yearCounts[y]),
+            data: last5Years.map(y => yearCounts[y] || 0),
             backgroundColor: ['#3b82f6', '#10b981', '#00b4d8', '#f59e0b', '#8b5cf6'],
             borderRadius: 8,
             barThickness: 28
@@ -410,11 +411,12 @@
       });
     }
 
+    // Mock ডাটাতে জেনুইন ফিল্ড ক্লাস/ব্যাচ যোগ করা হলো
     function generateMockData() {
       const thisYear = new Date().getFullYear();
       return [
-        { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', bloodGroup: 'A+', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
-        { memberId: 'ROS-2026-0002', englishName: 'Test User 2', mobile: '01700000002', email: 'test2@gmail.com', bloodGroup: 'O+', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
+        { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', class: 'Batch 24', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
+        { memberId: 'ROS-2026-0002', englishName: 'Test User 2', mobile: '01700000002', email: 'test2@gmail.com', class: 'Batch 25', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
       ];
     }
 
@@ -468,8 +470,5 @@
       } catch (e) { document.getElementById('globalLoader').style.display = 'none'; }
     }
   </script>
-  
-  
-  <script src="member-management.js"></script>
 </body>
 </html>
