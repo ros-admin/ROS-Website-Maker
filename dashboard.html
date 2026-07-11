@@ -53,7 +53,7 @@
 
     <div class="relative">
       <button onclick="toggleProfileCard()" class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-800 transition-all cursor-pointer">
-        <span id="topAdminName" class="text-xs font-bold text-slate-300 hidden sm:inline-block">লোড হচ্ছে...</span>
+        <span id="topAdminName" class="text-xs font-bold text-slate-300 hidden sm:inline-block">로드 হচ্ছে...</span>
         <div class="w-9 h-9 rounded-full border border-[#00b4d8] p-0.5 bg-slate-950 overflow-hidden">
           <img id="topAdminAvatar" src="https://via.placeholder.com/150" alt="Avatar" class="w-full h-full object-cover rounded-full">
         </div>
@@ -208,6 +208,9 @@
   </div>
 
   <script>
+    // 🌐 আপনার দেওয়া গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ ইউআরএল
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxOlmU7WLGX1gW_p_ojhHGq6pQ9nXMt3pgHYw823SRheU29R9YPhfi8KGjv36ZFtAYyBw/exec";
+
     let currentAdmin = null;
     let allUsersData = [];
 
@@ -215,7 +218,6 @@
     let pieChartObj = null;
     let barChartObj = null;
 
-    // সিকোয়েন্স ফিক্সড: ডোমে স্ট্রাকচার ইনজেক্ট করার পর ডাটা রিকোয়েস্ট হবে
     window.addEventListener('DOMContentLoaded', async () => {
       const stored = sessionStorage.getItem('currentAdmin');
       if (!stored) { window.location.href = 'index.html'; return; }
@@ -223,12 +225,11 @@
       
       setupAdminProfile();
       
-      // ১. প্রথমে মেম্বার ম্যানেজমেন্টের লেআউট রেন্ডার হবে
       if (typeof initMemberManagementHTML === 'function') {
         initMemberManagementHTML();
       }
       
-      // ২. এরপর ডাটা নিয়ে আসা হবে
+      // গুগল স্ক্রিপ্ট থেকে রিয়েল ডাটা ফেচ করা
       await fetchDashboardData();
     });
 
@@ -248,6 +249,7 @@
     async function fetchDashboardData() {
       document.getElementById('globalLoader').style.display = 'flex';
       try {
+        // রিয়েল টাইম ডাটা আনার রিকোয়েস্ট
         const r = await fetch(WEB_APP_URL, {
           method: 'POST',
           body: JSON.stringify({ action: "getUsersData" })
@@ -261,11 +263,12 @@
           allUsersData = generateMockData();
         }
       } catch (e) {
+        console.error("ডাটা লোড করতে ব্যর্থ:", e);
         document.getElementById('globalLoader').style.display = 'none';
         allUsersData = generateMockData();
       }
 
-      // ৩. ডাটা লোড হওয়ার পর চার্ট ও টেবিল রেন্ডারিং প্রসেস শুরু হবে
+      // ডাটা অ্যাপ্লাই এবং চার্ট জেনারেশন প্রসেস
       calculateStatsAndRenderCharts(allUsersData);
       if (typeof setupRegistrationDateFilter === 'function') setupRegistrationDateFilter(allUsersData);
       if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
@@ -299,6 +302,7 @@
       users.forEach(user => {
         const status = (user.status || '').toLowerCase().trim();
         if (status === 'pending') pending++;
+        // স্ক্রিপ্ট এবং ড্যাশবোর্ড কন্ডিশন সামঞ্জস্য (Approved অথবা Active)
         else if (status === 'approved' || status === 'active') approved++;
         else if (status === 'inactive') inactive++;
         else if (status === 'suspend') suspend++;
@@ -393,14 +397,14 @@
             x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
           }
         }
-      });
+        });
     }
 
     function generateMockData() {
       const thisYear = new Date().getFullYear();
       return [
-        { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', bloodGroup: 'A+', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
-        { memberId: 'ROS-2026-0002', englishName: 'Test User 2', mobile: '01700000002', email: 'test2@gmail.com', bloodGroup: 'O+', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
+        { memberId: 'ROS-2026-0001', englishName: 'Sample User 1', mobile: '01700000001', email: 'sample1@gmail.com', bloodGroup: 'A+', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
+        { memberId: 'ROS-2026-0002', englishName: 'Sample User 2', mobile: '01700000002', email: 'sample2@gmail.com', bloodGroup: 'O+', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
       ];
     }
 
