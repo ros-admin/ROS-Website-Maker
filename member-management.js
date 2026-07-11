@@ -50,6 +50,16 @@ function initMemberManagementHTML() {
           </select>
         </div>
         <div>
+          <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">রক্তের গ্রুপ ফিল্টার</label>
+          <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+            <option value="all">সব গ্রুপ</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender ফিল্টার</label>
           <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-[#00b4d8] cursor-pointer">
             <option value="all">সব জেন্ডার</option>
@@ -75,12 +85,12 @@ function initMemberManagementHTML() {
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
-              <th class="py-4 px-4 text-center w-12">সিরিয়াল</th>
+              <th class="py-4 px-4 text-center w-12">সিরিয়াল নাম্বার</th>
               <th class="py-4 px-4">রেজিস্ট্রেশন নাম্বার</th>
               <th class="py-4 px-4">নাম</th>
               <th class="py-4 px-4">মোবাইল নাম্বার</th>
               <th class="py-4 px-4">ইমেইল এড্রেস</th>
-              <th class="py-4 px-4 text-center">ক্লাস / ব্যাচ</th>
+              <th class="py-4 px-4 text-center">রক্তের গ্রুপ</th>
               <th class="py-4 px-4">রেজিস্ট্রেশনের তারিখ</th>
               <th class="py-4 px-4">স্ট্যাটাস</th>
               <th class="py-4 px-4 text-center">স্ট্যাটাস পরিবর্তন অপশন</th>
@@ -98,15 +108,15 @@ function initMemberManagementHTML() {
   `;
 }
 
-// তারিখ ড্রপডাউন জেনারেট ফাংশন
+// শিটের ডাটা থেকে তারিখ নিয়ে ড্রপডাউন জেনারেট
 function setupRegistrationDateFilter(users) {
   const dateSelect = document.getElementById('filterDate');
   if (!dateSelect) return;
 
   const uniqueDates = [];
-  const sourceData = users || window.allUsersData || [];
+  const targetUsers = users || window.allUsersData || [];
   
-  sourceData.forEach(user => {
+  targetUsers.forEach(user => {
     if (user.registrationDate) {
       const datePart = user.registrationDate.split(' ')[0];
       if (!uniqueDates.includes(datePart)) uniqueDates.push(datePart);
@@ -124,10 +134,11 @@ function setupRegistrationDateFilter(users) {
   });
 }
 
-// মাল্টি-ফিল্টার ও টেবিল রেন্ডার মেকানিজম
+// মাল্টি-ফিল্টার ও অটো সিরিয়াল মেকানিজমসহ রেন্ডার
 function filterAndRenderMembersTable() {
   const searchQuery = document.getElementById('memberSearchInput')?.value.toLowerCase().trim() || '';
   const statusFilter = document.getElementById('filterStatus')?.value.toLowerCase() || 'all';
+  const bloodFilter = document.getElementById('filterBlood')?.value || 'all';
   const genderFilter = document.getElementById('filterGender')?.value || 'all';
   const dateFilter = document.getElementById('filterDate')?.value || 'all';
 
@@ -137,10 +148,9 @@ function filterAndRenderMembersTable() {
 
   tbody.innerHTML = '';
 
-  // html ফাইল থেকে গ্লোবাল ডেটা অবজেক্ট স্কোপিং নিশ্চিত করা হলো
-  const sourceData = window.allUsersData || [];
+  const dataToFilter = window.allUsersData || [];
 
-  currentFilteredList = sourceData.filter(user => {
+  currentFilteredList = dataToFilter.filter(user => {
     const name = (user.englishName || '').toLowerCase();
     const id = (user.memberId || '').toLowerCase();
     const email = (user.email || '').toLowerCase();
@@ -157,11 +167,13 @@ function filterAndRenderMembersTable() {
       }
     }
 
+    const userBlood = user.bloodGroup || 'N/A';
+    const bloodMatch = (bloodFilter === 'all') || (userBlood === bloodFilter);
     const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
     const userDatePart = user.registrationDate ? user.registrationDate.split(' ')[0] : '';
     const dateMatch = (dateFilter === 'all') || (userDatePart === dateFilter);
 
-    return searchMatch && statusMatch && genderMatch && dateMatch;
+    return searchMatch && statusMatch && bloodMatch && genderMatch && dateMatch;
   });
 
   const countEl = document.getElementById('filtered-count');
@@ -197,7 +209,7 @@ function filterAndRenderMembersTable() {
       <td class="py-3 px-4 font-semibold text-white">${user.englishName || 'Unknown'}</td>
       <td class="py-3 px-4 font-mono">${user.mobile || 'N/A'}</td>
       <td class="py-3 px-4 text-slate-400 font-mono">${user.email || 'N/A'}</td>
-      <td class="py-3 px-4 text-center font-semibold text-amber-400">${user.class || 'N/A'}</td>
+      <td class="py-3 px-4 text-center font-bold text-rose-400">${user.bloodGroup || 'N/A'}</td>
       <td class="py-3 px-4 font-mono text-slate-400">${formattedRegDate}</td>
       <td class="py-3 px-4">${statusBadge}</td>
       <td class="py-3 px-4 text-center">
@@ -218,7 +230,7 @@ function filterAndRenderMembersTable() {
   });
 }
 
-// স্ট্যাটাস আপডেট করার ফাংশন
+// মেম্বার স্ট্যাটাস আপডেট লজিক
 async function updateMemberStatus(memberId, newStatus) {
   if (!memberId) return;
   const confirmAction = confirm(`আপনি কি নিশ্চিতভাবে সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`);
@@ -235,7 +247,7 @@ async function updateMemberStatus(memberId, newStatus) {
     const result = await response.json();
 
     if (result.success) {
-      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!");
+      alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে! নির্ধারিত গুগল স্ক্রিপ্ট নোটিফিকেশন ইমেইল চলে গেছে।");
       if (typeof fetchDashboardData === 'function') await fetchDashboardData();
     } else {
       if (loader) loader.style.display = 'none';
@@ -249,10 +261,10 @@ async function updateMemberStatus(memberId, newStatus) {
   }
 }
 
-// বিস্তারিত মডাল উইন্ডো কন্ট্রোলার
+// মডাল কন্ট্রোলার
 function openDetailsModal(memberId) {
-  const sourceData = window.allUsersData || [];
-  activePopupUser = sourceData.find(u => u.memberId === memberId);
+  const dataToSearch = window.allUsersData || [];
+  activePopupUser = dataToSearch.find(u => u.memberId === memberId);
   if (!activePopupUser) return;
   
   document.getElementById('modalContentArea').innerHTML = `
@@ -266,12 +278,12 @@ function openDetailsModal(memberId) {
         <div>${activePopupUser.mobile || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Email Address:</span></div>
         <div class="break-all">${activePopupUser.email || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Class / Batch:</span></div>
-        <div class="text-amber-400 font-bold">${activePopupUser.class || 'N/A'}</div>
+        <div><span class="text-slate-500 font-bold">Blood Group:</span></div>
+        <div class="text-rose-400 font-bold">${activePopupUser.bloodGroup || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Gender Status:</span></div>
         <div>${activePopupUser.gender || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Current Status:</span></div>
-        <div class="capitalize text-emerald-400 font-bold">${activePopupUser.status || 'N/A'}</div>
+        <div class="capitalize text-amber-400">${activePopupUser.status || 'N/A'}</div>
       </div>
     </div>
   `;
@@ -289,7 +301,7 @@ function exportToExcel() {
     "নাম": user.englishName || 'N/A',
     "মোবাইল নাম্বার": user.mobile || 'N/A',
     "ইমেইল এড্রেস": user.email || 'N/A',
-    "ক্লাস / ব্যাচ": user.class || 'N/A',
+    "রক্তের গ্রুপ": user.bloodGroup || 'N/A',
     "জেন্ডার (Gender)": user.gender || 'N/A',
     "রেজিস্ট্রেশনের তারিখ": user.registrationDate || 'N/A',
     "স্ট্যাটাস": user.status || 'N/A'
@@ -318,17 +330,17 @@ function exportToPDF() {
   pdfDoc.text("Member Management System", 105, 51, { align: "center" });
 
   const reportTableRows = currentFilteredList.map((user, index) => [
-    "[]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.class || 'N/A', ""
+    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.bloodGroup || 'N/A', ""
   ]);
 
   pdfDoc.autoTable({
     startY: 58,
-    head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Class', 'Comment Box']],
+    head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Blood', 'Comment Box']],
     body: reportTableRows,
     theme: 'grid',
     headStyles: { fillColor: [15, 23, 42], fontSize: 9, halign: 'center', fontStyle: 'bold' },
     bodyStyles: { fontSize: 8, font: "Helvetica", textColor: [30, 41, 59] },
-    columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 25 }, 6: { cellWidth: 20, halign: 'center' }, 7: { cellWidth: 25 } },
+    columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 20 }, 6: { cellWidth: 15, halign: 'center' }, 7: { cellWidth: 25 } },
     margin: { left: 10, right: 10 }
   });
 
@@ -344,4 +356,5 @@ function exportToPDF() {
   }
 
   pdfDoc.save(`ROS_Official_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-}
+  }
+
