@@ -90,7 +90,7 @@ function initMemberManagementHTML() {
               <th class="py-4 px-4">নাম</th>
               <th class="py-4 px-4">মোবাইল নাম্বার</th>
               <th class="py-4 px-4">ইমেইল এড্রেস</th>
-              <th class="py-4 px-4 text-center">রক্তের গ্রুপ</th>
+              <th class="py-4 px-4 text-center">ক্লাস / ব্যাচ</th>
               <th class="py-4 px-4">রেজিস্ট্রেশনের তারিখ</th>
               <th class="py-4 px-4">স্ট্যাটাস</th>
               <th class="py-4 px-4 text-center">স্ট্যাটাস পরিবর্তন অপশন</th>
@@ -153,7 +153,6 @@ function filterAndRenderMembersTable() {
     const mobile = (user.mobile || '').toLowerCase();
     const searchMatch = !searchQuery || name.includes(searchQuery) || id.includes(searchQuery) || email.includes(searchQuery) || mobile.includes(searchQuery);
 
-    // গুগল স্ক্রিপ্টের 'active' বা 'approved' ভ্যালু হ্যান্ডলিং ম্যাচ
     const currentStatus = (user.status || 'pending').toLowerCase().trim();
     let statusMatch = (statusFilter === 'all');
     if (!statusMatch) {
@@ -164,7 +163,6 @@ function filterAndRenderMembersTable() {
       }
     }
 
-    // ব্যাকএন্ড অবজেক্ট কি-নাম 'bloodGroup' দিয়ে সিঙ্ক করা হলো
     const userBlood = user.bloodGroup || 'N/A';
     const bloodMatch = (bloodFilter === 'all') || (userBlood === bloodFilter);
     const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
@@ -207,7 +205,7 @@ function filterAndRenderMembersTable() {
       <td class="py-3 px-4 font-semibold text-white">${user.englishName || 'Unknown'}</td>
       <td class="py-3 px-4 font-mono">${user.mobile || 'N/A'}</td>
       <td class="py-3 px-4 text-slate-400 font-mono">${user.email || 'N/A'}</td>
-      <td class="py-3 px-4 text-center font-bold text-rose-400">${user.bloodGroup || 'N/A'}</td>
+      <td class="py-3 px-4 text-center font-semibold text-amber-400">${user.class || 'N/A'}</td>
       <td class="py-3 px-4 font-mono text-slate-400">${formattedRegDate}</td>
       <td class="py-3 px-4">${statusBadge}</td>
       <td class="py-3 px-4 text-center">
@@ -238,6 +236,7 @@ async function updateMemberStatus(memberId, newStatus) {
   if (loader) loader.style.display = 'flex';
 
   try {
+    // ড্যাশবোর্ডের মূল WEB_APP_URL এর মাধ্যমে API কল করা হচ্ছে
     const response = await fetch(WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ action: "updateStatus", memberId: memberId, status: newStatus })
@@ -246,7 +245,7 @@ async function updateMemberStatus(memberId, newStatus) {
 
     if (result.success) {
       alert("স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে! নির্ধারিত গুগল স্ক্রিপ্ট নোটিফিকেশন ইমেইল চলে গেছে।");
-      // ব্যাকএন্ড কল করে সম্পূর্ণ ডেটা ও চার্ট রিফ্রেশ করা হবে
+      // ড্যাশবোর্ডের ডাটা রিয়েল টাইম আপডেট করার গ্লোবাল ফাংশন কল
       if (typeof fetchDashboardData === 'function') await fetchDashboardData();
     } else {
       if (loader) loader.style.display = 'none';
@@ -276,12 +275,12 @@ function openDetailsModal(memberId) {
         <div>${activePopupUser.mobile || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Email Address:</span></div>
         <div class="break-all">${activePopupUser.email || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Blood Group:</span></div>
-        <div class="text-rose-400 font-bold">${activePopupUser.bloodGroup || 'N/A'}</div>
+        <div><span class="text-slate-500 font-bold">Class / Batch:</span></div>
+        <div class="text-amber-400 font-bold">${activePopupUser.class || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Gender Status:</span></div>
         <div>${activePopupUser.gender || 'N/A'}</div>
         <div><span class="text-slate-500 font-bold">Current Status:</span></div>
-        <div class="capitalize text-amber-400">${activePopupUser.status || 'N/A'}</div>
+        <div class="capitalize text-emerald-400 font-bold">${activePopupUser.status || 'N/A'}</div>
       </div>
     </div>
   `;
@@ -299,7 +298,7 @@ function exportToExcel() {
     "নাম": user.englishName || 'N/A',
     "মোবাইল নাম্বার": user.mobile || 'N/A',
     "ইমেইল এড্রেস": user.email || 'N/A',
-    "রক্তের গ্রুপ": user.bloodGroup || 'N/A',
+    "ক্লাস / ব্যাচ": user.class || 'N/A',
     "জেন্ডার (Gender)": user.gender || 'N/A',
     "রেজিস্ট্রেশনের তারিখ": user.registrationDate || 'N/A',
     "স্ট্যাটাস": user.status || 'N/A'
@@ -328,17 +327,17 @@ function exportToPDF() {
   pdfDoc.text("Member Management System", 105, 51, { align: "center" });
 
   const reportTableRows = currentFilteredList.map((user, index) => [
-    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.bloodGroup || 'N/A', ""
+    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.class || 'N/A', ""
   ]);
 
   pdfDoc.autoTable({
     startY: 58,
-    head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Blood', 'Comment Box']],
+    head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Class', 'Comment Box']],
     body: reportTableRows,
     theme: 'grid',
     headStyles: { fillColor: [15, 23, 42], fontSize: 9, halign: 'center', fontStyle: 'bold' },
     bodyStyles: { fontSize: 8, font: "Helvetica", textColor: [30, 41, 59] },
-    columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 20 }, 6: { cellWidth: 15, halign: 'center' }, 7: { cellWidth: 25 } },
+    columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 1: { cellWidth: 10, halign: 'center' }, 2: { cellWidth: 25 }, 6: { cellWidth: 20, halign: 'center' }, 7: { cellWidth: 25 } },
     margin: { left: 10, right: 10 }
   });
 
@@ -354,4 +353,4 @@ function exportToPDF() {
   }
 
   pdfDoc.save(`ROS_Official_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-                 }
+}
