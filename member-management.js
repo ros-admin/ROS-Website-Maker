@@ -26,7 +26,7 @@ function initMemberManagementHTML() {
       <div class="flex flex-col md:flex-row gap-3 items-center">
         <div class="relative flex-1 w-full">
           <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500 text-xs"></i>
-          <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]" placeholder="নাম, মোবাইল নাম্বার, ইমেইল এড্রেস বা রেজিস্ট্রেশন নাম্বার লিখে সার্চ দিন...">
+          <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00b4d8]" placeholder="নাম (ইংরেজি), মোবাইল নাম্বার, ইমেইল বা রেজিস্ট্রেশন নাম্বার লিখে সার্চ দিন...">
         </div>
         <div class="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
           <button onclick="exportToExcel()" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center">
@@ -87,7 +87,7 @@ function initMemberManagementHTML() {
             <tr class="bg-slate-950/60 border-b border-slate-800 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
               <th class="py-4 px-4 text-center w-12">সিরিয়াল নাম্বার</th>
               <th class="py-4 px-4">রেজিস্ট্রেশন নাম্বার</th>
-              <th class="py-4 px-4">নাম</th>
+              <th class="py-4 px-4">নাম (English)</th>
               <th class="py-4 px-4">মোবাইল নাম্বার</th>
               <th class="py-4 px-4">ইমেইল এড্রেস</th>
               <th class="py-4 px-4 text-center">রক্তের গ্রুপ</th>
@@ -114,11 +114,11 @@ function setupRegistrationDateFilter(users) {
   if (!dateSelect) return;
 
   const uniqueDates = [];
-  const targetUsers = users || window.allUsersData || [];
-  
-  targetUsers.forEach(user => {
-    if (user.registrationDate) {
-      const datePart = user.registrationDate.split(' ')[0];
+  users.forEach(user => {
+    // row[22] = Created at
+    const dateVal = user[22] || user.registrationDate;
+    if (dateVal) {
+      const datePart = String(dateVal).split(' ')[0];
       if (!uniqueDates.includes(datePart)) uniqueDates.push(datePart);
     }
   });
@@ -148,16 +148,27 @@ function filterAndRenderMembersTable() {
 
   tbody.innerHTML = '';
 
-  const dataToFilter = window.allUsersData || [];
+  const dataToFilter = allUsersData && allUsersData.length > 0 ? allUsersData : (window.allUsersData || []);
 
-  currentFilteredList = dataToFilter.filter(user => {
-    const name = (user.englishName || '').toLowerCase();
-    const id = (user.memberId || '').toLowerCase();
-    const email = (user.email || '').toLowerCase();
-    const mobile = (user.mobile || '').toLowerCase();
-    const searchMatch = !searchQuery || name.includes(searchQuery) || id.includes(searchQuery) || email.includes(searchQuery) || mobile.includes(searchQuery);
+  currentFilteredList = dataToFilter.filter(row => {
+    if (!row) return false;
 
-    const currentStatus = (user.status || 'pending').toLowerCase().trim();
+    // কলাম ইনডেক্স ম্যাপিং
+    const id = String(row[0] || '').toLowerCase();
+    const nameEng = String(row[2] || '').toLowerCase();
+    const mobile = String(row[5] || '').toLowerCase();
+    const email = String(row[6] || '').toLowerCase();
+    const blood = String(row[7] || 'all').trim();
+    const gender = String(row[8] || 'all').trim();
+    const currentStatus = String(row[20] || 'pending').toLowerCase().trim();
+    const createdAt = String(row[22] || '');
+
+    const searchMatch = !searchQuery || 
+                        nameEng.includes(searchQuery) || 
+                        id.includes(searchQuery) || 
+                        email.includes(searchQuery) || 
+                        mobile.includes(searchQuery);
+
     let statusMatch = (statusFilter === 'all');
     if (!statusMatch) {
       if (statusFilter === 'active' || statusFilter === 'approved') {
@@ -167,10 +178,9 @@ function filterAndRenderMembersTable() {
       }
     }
 
-    const userBlood = user.bloodGroup || 'N/A';
-    const bloodMatch = (bloodFilter === 'all') || (userBlood === bloodFilter);
-    const genderMatch = (genderFilter === 'all') || (user.gender === genderFilter);
-    const userDatePart = user.registrationDate ? user.registrationDate.split(' ')[0] : '';
+    const bloodMatch = (bloodFilter === 'all') || (blood === bloodFilter);
+    const genderMatch = (genderFilter === 'all') || (gender === genderFilter);
+    const userDatePart = createdAt ? createdAt.split(' ')[0] : '';
     const dateMatch = (dateFilter === 'all') || (userDatePart === dateFilter);
 
     return searchMatch && statusMatch && bloodMatch && genderMatch && dateMatch;
@@ -185,35 +195,42 @@ function filterAndRenderMembersTable() {
   }
   fallback.classList.add('hidden');
 
-  currentFilteredList.forEach((user, index) => {
-    const row = document.createElement('tr');
-    row.className = "hover:bg-slate-800/30 transition-colors border-b border-slate-800/60 font-medium";
+  currentFilteredList.forEach((row, index) => {
+    const tableRow = document.createElement('tr');
+    tableRow.className = "hover:bg-slate-800/30 transition-colors border-b border-slate-800/60 font-medium";
+
+    const mId = row[0] || 'N/A';
+    const mName = row[2] || row[1] || 'Unknown'; // ইংলিশ না থাকলে বাংলা নাম ব্যাকআপ
+    const mMobile = row[5] || 'N/A';
+    const mEmail = row[6] || 'N/A';
+    const mBlood = row[7] || 'N/A';
+    const mStatus = String(row[20] || 'pending').toLowerCase().trim();
+    const mCreatedAt = row[22] || 'N/A';
 
     let statusBadge = '';
-    const currentStatus = (user.status || 'pending').toLowerCase();
-    if (currentStatus === 'pending') {
+    if (mStatus === 'pending') {
       statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
-    } else if (currentStatus === 'approved' || currentStatus === 'active') {
+    } else if (mStatus === 'approved' || mStatus === 'active') {
       statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Approved</span>`;
-    } else if (currentStatus === 'inactive') {
+    } else if (mStatus === 'inactive') {
       statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/30 text-slate-400 border border-slate-700/50">Inactive</span>`;
-    } else if (currentStatus === 'suspend') {
+    } else if (mStatus === 'suspend') {
       statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Suspended</span>`;
     }
 
-    const formattedRegDate = user.registrationDate ? user.registrationDate.split(' ')[0].split('-').reverse().join('/') : 'N/A';
+    const formattedRegDate = mCreatedAt !== 'N/A' ? mCreatedAt.split(' ')[0].split('-').reverse().join('/') : 'N/A';
 
-    row.innerHTML = `
+    tableRow.innerHTML = `
       <td class="py-3 px-4 text-center font-bold text-slate-400">${index + 1}</td>
-      <td class="py-3 px-4 font-mono font-bold text-[#00b4d8]">${user.memberId || 'N/A'}</td>
-      <td class="py-3 px-4 font-semibold text-white">${user.englishName || 'Unknown'}</td>
-      <td class="py-3 px-4 font-mono">${user.mobile || 'N/A'}</td>
-      <td class="py-3 px-4 text-slate-400 font-mono">${user.email || 'N/A'}</td>
-      <td class="py-3 px-4 text-center font-bold text-rose-400">${user.bloodGroup || 'N/A'}</td>
+      <td class="py-3 px-4 font-mono font-bold text-[#00b4d8]">${mId}</td>
+      <td class="py-3 px-4 font-semibold text-white">${mName}</td>
+      <td class="py-3 px-4 font-mono">${mMobile}</td>
+      <td class="py-3 px-4 text-slate-400 font-mono">${mEmail}</td>
+      <td class="py-3 px-4 text-center font-bold text-rose-400">${mBlood}</td>
       <td class="py-3 px-4 font-mono text-slate-400">${formattedRegDate}</td>
       <td class="py-3 px-4">${statusBadge}</td>
       <td class="py-3 px-4 text-center">
-        <select onchange="updateMemberStatus('${user.memberId}', this.value)" class="bg-slate-950 border border-slate-800 text-[11px] text-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:border-[#00b4d8] cursor-pointer">
+        <select onchange="updateMemberStatus('${mId}', this.value)" class="bg-slate-950 border border-slate-800 text-[11px] text-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:border-[#00b4d8] cursor-pointer">
           <option value="" disabled selected>পরিবর্তন</option>
           <option value="active">Approve করুন</option>
           <option value="inactive">Inactive করুন</option>
@@ -221,16 +238,16 @@ function filterAndRenderMembersTable() {
         </select>
       </td>
       <td class="py-3 px-4 text-center">
-        <button onclick="openDetailsModal('${user.memberId}')" class="w-7 h-7 bg-slate-800 hover:bg-[#00b4d8]/20 hover:text-[#00b4d8] text-slate-400 rounded-lg flex items-center justify-center transition-all cursor-pointer">
+        <button onclick="openDetailsModal('${mId}')" class="w-7 h-7 bg-slate-800 hover:bg-[#00b4d8]/20 hover:text-[#00b4d8] text-slate-400 rounded-lg flex items-center justify-center transition-all cursor-pointer">
           <i class="fa-solid fa-eye text-xs"></i>
         </button>
       </td>
     `;
-    tbody.appendChild(row);
+    tbody.appendChild(tableRow);
   });
 }
 
-// মেম্বার স্ট্যাটাস আপডেট লজিক
+// গুগল স্ক্রিপ্ট API কানেকশন দিয়ে মেম্বার স্ট্যাটাস আপডেট লজিক
 async function updateMemberStatus(memberId, newStatus) {
   if (!memberId) return;
   const confirmAction = confirm(`আপনি কি নিশ্চিতভাবে সদস্য আইডি ${memberId} এর স্ট্যাটাস আপডেট করতে চান?`);
@@ -261,29 +278,78 @@ async function updateMemberStatus(memberId, newStatus) {
   }
 }
 
-// মডাল কন্ট্রোলার
+// মডাল কন্ট্রোলার (২৩টি কলামের সব গুরুত্বপূর্ণ ডাটা সুন্দর করে দেখাবে)
 function openDetailsModal(memberId) {
-  const dataToSearch = window.allUsersData || [];
-  activePopupUser = dataToSearch.find(u => u.memberId === memberId);
+  activePopupUser = allUsersData.find(row => (row[0] || row.memberId) === memberId);
   if (!activePopupUser) return;
   
+  // কলাম ইনডেক্স ডাটা ভ্যারিয়েবল অ্যাসাইনমেন্ট
+  const regNo = activePopupUser[0] || 'N/A';
+  const nameBn = activePopupUser[1] || 'N/A';
+  const nameEn = activePopupUser[2] || 'N/A';
+  const father = activePopupUser[3] || 'N/A';
+  const mother = activePopupUser[4] || 'N/A';
+  const mobile = activePopupUser[5] || 'N/A';
+  const email = activePopupUser[6] || 'N/A';
+  const blood = activePopupUser[7] || 'N/A';
+  const gender = activePopupUser[8] || 'N/A';
+  const dob = activePopupUser[9] || 'N/A';
+  const present = activePopupUser[10] || 'N/A';
+  const permanent = activePopupUser[11] || 'N/A';
+  const edu = activePopupUser[12] || 'N/A';
+  const passingYear = activePopupUser[13] || 'N/A';
+  const profession = activePopupUser[14] || 'N/A';
+  const acadYear = activePopupUser[15] || 'N/A';
+  const avatarUrl = activePopupUser[16] || '';
+  const whatsapp = activePopupUser[17] || 'N/A';
+  const fbLink = activePopupUser[18] || 'N/A';
+  const nid = activePopupUser[19] || 'N/A';
+  const status = activePopupUser[20] || 'pending';
+  const mType = activePopupUser[21] || 'N/A';
+
   document.getElementById('modalContentArea').innerHTML = `
-    <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-3 font-mono text-[11px] text-slate-300">
-      <div class="grid grid-cols-2 gap-2">
-        <div><span class="text-slate-500 font-bold">Registration No:</span></div>
-        <div class="text-[#00b4d8] font-bold">${activePopupUser.memberId || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Full Name:</span></div>
-        <div class="text-white">${activePopupUser.englishName || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Mobile Number:</span></div>
-        <div>${activePopupUser.mobile || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Email Address:</span></div>
-        <div class="break-all">${activePopupUser.email || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Blood Group:</span></div>
-        <div class="text-rose-400 font-bold">${activePopupUser.bloodGroup || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Gender Status:</span></div>
-        <div>${activePopupUser.gender || 'N/A'}</div>
-        <div><span class="text-slate-500 font-bold">Current Status:</span></div>
-        <div class="capitalize text-amber-400">${activePopupUser.status || 'N/A'}</div>
+    <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+      ${avatarUrl ? `
+      <div class="flex justify-center mb-2">
+        <img src="${avatarUrl}" alt="Photo" class="w-24 h-24 object-cover rounded-xl border border-slate-700 shadow-md">
+      </div>` : ''}
+      
+      <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5 font-sans text-xs text-slate-300">
+        <div class="grid grid-cols-3 gap-y-2 gap-x-1 border-b border-slate-800 pb-2">
+          <span class="text-slate-500 font-bold col-span-1">Reg No:</span>
+          <span class="text-[#00b4d8] font-mono font-bold col-span-2">${regNo}</span>
+          <span class="text-slate-500 font-bold col-span-1">Status:</span>
+          <span class="capitalize text-amber-400 font-bold col-span-2">${status}</span>
+          <span class="text-slate-500 font-bold col-span-1">Type:</span>
+          <span class="text-indigo-400 font-bold col-span-2">${mType}</span>
+        </div>
+        
+        <div class="space-y-2 pt-1">
+          <div><span class="text-slate-500 font-semibold block text-[10px] uppercase">Name (English)</span><span class="text-white font-medium">${nameEn}</span></div>
+          <div><span class="text-slate-500 font-semibold block text-[10px] uppercase">নাম (বাংলা)</span><span class="text-slate-300">${nameBn}</span></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><span class="text-slate-500 block text-[10px] uppercase">Father's Name</span><span class="text-slate-300">${father}</span></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">Mother's Name</span><span class="text-slate-300">${mother}</span></div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><span class="text-slate-500 block text-[10px] uppercase">Mobile Number</span><span class="text-slate-200 font-mono">${mobile}</span></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">WhatsApp</span><span class="text-slate-200 font-mono">${whatsapp}</span></div>
+          </div>
+          <div><span class="text-slate-500 block text-[10px] uppercase">Email Address</span><span class="text-slate-300 font-mono break-all">${email}</span></div>
+          <div class="grid grid-cols-3 gap-1 text-center bg-slate-900 p-2 rounded-lg my-1">
+            <div><span class="text-slate-500 block text-[9px] uppercase">Blood</span><span class="text-rose-400 font-bold">${blood}</span></div>
+            <div><span class="text-slate-500 block text-[9px] uppercase">Gender</span><span class="text-slate-300">${gender}</span></div>
+            <div><span class="text-slate-500 block text-[9px] uppercase">DOB</span><span class="text-slate-300 font-mono">${dob.split('T')[0]}</span></div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><span class="text-slate-500 block text-[10px] uppercase">Education</span><span class="text-slate-300">${edu} (${passingYear})</span></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">Profession / Acad Year</span><span class="text-slate-300">${profession} (${acadYear})</span></div>
+          </div>
+          <div><span class="text-slate-500 block text-[10px] uppercase">NID / Birth Cert</span><span class="text-slate-300 font-mono">${nid}</span></div>
+          <div><span class="text-slate-500 block text-[10px] uppercase">Facebook Profile</span><a href="${fbLink}" target="_blank" class="text-[#00b4d8] hover:underline block truncate font-mono">${fbLink}</a></div>
+          <div><span class="text-slate-500 block text-[10px] uppercase">Present Address</span><span class="text-slate-400 text-[11px]">${present}</span></div>
+          <div><span class="text-slate-500 block text-[10px] uppercase">Permanent Address</span><span class="text-slate-400 text-[11px]">${permanent}</span></div>
+        </div>
       </div>
     </div>
   `;
@@ -295,16 +361,30 @@ function closeDetailsModal() { document.getElementById('detailsModal').style.dis
 // এক্সেল রিপোর্ট জেনারেটর
 function exportToExcel() {
   if (currentFilteredList.length === 0) { alert("এক্সপোর্ট করার জন্য কোনো ডাটা অবশিষ্ট নেই।"); return; }
-  const excelDataRows = currentFilteredList.map((user, index) => ({
+  const excelDataRows = currentFilteredList.map((row, index) => ({
     "সিরিয়াল নাম্বার": index + 1,
-    "রেজিস্ট্রেশন নাম্বার": user.memberId || 'N/A',
-    "নাম": user.englishName || 'N/A',
-    "মোবাইল নাম্বার": user.mobile || 'N/A',
-    "ইমেইল এড্রেস": user.email || 'N/A',
-    "রক্তের গ্রুপ": user.bloodGroup || 'N/A',
-    "জেন্ডার (Gender)": user.gender || 'N/A',
-    "রেজিস্ট্রেশনের তারিখ": user.registrationDate || 'N/A',
-    "স্ট্যাটাস": user.status || 'N/A'
+    "রেজিস্ট্রেশন নাম্বার": row[0] || 'N/A',
+    "নাম (বাংলা)": row[1] || 'N/A',
+    "নাম (English)": row[2] || 'N/A',
+    "পিতার নাম": row[3] || 'N/A',
+    "মাতার নাম": row[4] || 'N/A',
+    "মোবাইল নাম্বার": row[5] || 'N/A',
+    "ইমেইল এড্রেস": row[6] || 'N/A',
+    "রক্তের গ্রুপ": row[7] || 'N/A',
+    "জেন্ডার (Gender)": row[8] || 'N/A',
+    "জন্ম তারিখ": row[9] || 'N/A',
+    "বর্তমান ঠিকানা": row[10] || 'N/A',
+    "স্থায়ী ঠিকানা": row[11] || 'N/A',
+    "শিক্ষা": row[12] || 'N/A',
+    "পাসের বছর": row[13] || 'N/A',
+    "পেশা": row[14] || 'N/A',
+    "শিক্ষাবর্ষ": row[15] || 'N/A',
+    "হোয়াটসঅ্যাপ নাম্বার": row[17] || 'N/A',
+    "ফেসবুক লিংক": row[18] || 'N/A',
+    "NID/জন্ম নিবন্ধন": row[19] || 'N/A',
+    "স্ট্যাটাস": row[20] || 'N/A',
+    "টাইপ": row[21] || 'N/A',
+    "রেজিস্ট্রেশনের তারিখ": row[22] || 'N/A'
   }));
   const sheet = XLSX.utils.json_to_sheet(excelDataRows);
   const book = XLSX.utils.book_new();
@@ -312,7 +392,7 @@ function exportToExcel() {
   XLSX.writeFile(book, `ROS_Filtered_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// পিডিএফ রিপোর্ট জেনারেটর
+// অফিসিয়াল পিডিএফ রিপোর্ট জেনারেটর
 function exportToPDF() {
   if (currentFilteredList.length === 0) { alert("ডাউনলোড করার মত কোনো মেম্বার ডাটা নেই।"); return; }
   const { jsPDF } = window.jspdf;
@@ -329,13 +409,13 @@ function exportToPDF() {
   pdfDoc.setFontSize(12);
   pdfDoc.text("Member Management System", 105, 51, { align: "center" });
 
-  const reportTableRows = currentFilteredList.map((user, index) => [
-    "[  ]", index + 1, user.memberId || 'N/A', user.englishName || 'N/A', user.mobile || 'N/A', user.email || 'N/A', user.bloodGroup || 'N/A', ""
+  const reportTableRows = currentFilteredList.map((row, index) => [
+    "[  ]", index + 1, row[0] || 'N/A', row[2] || row[1] || 'N/A', row[5] || 'N/A', row[6] || 'N/A', row[7] || 'N/A', ""
   ]);
 
   pdfDoc.autoTable({
     startY: 58,
-    head: [['[ ]', 'SL', 'Reg No', 'Name', 'Mobile', 'Email Address', 'Blood', 'Comment Box']],
+    head: [['[ ]', 'SL', 'Reg No', 'Name (English)', 'Mobile', 'Email Address', 'Blood', 'Comment Box']],
     body: reportTableRows,
     theme: 'grid',
     headStyles: { fillColor: [15, 23, 42], fontSize: 9, halign: 'center', fontStyle: 'bold' },
@@ -356,5 +436,4 @@ function exportToPDF() {
   }
 
   pdfDoc.save(`ROS_Official_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-  }
-
+}
