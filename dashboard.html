@@ -211,10 +211,10 @@
 
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyI6wOKLbKPXA9wodK3AjbnDu8XXaNl5PRYZ9UL8hK4IAW3BZYoPHbHYjbn7f4saFN12g/exec";
-
+    
     let currentAdmin = null;
     
-    // গ্লোবাল উইন্ডো স্কোপ ডিফাইন নিশ্চিত করা হলো 
+    // এটিকে গ্লোবাল উইন্ডো স্কোপে রাখা হলো যাতে বাহ্যিক .js ফাইল রিড করতে পারে
     window.allUsersData = [];
 
     let lineChartObj = null;
@@ -228,14 +228,12 @@
       
       setupAdminProfile();
       
-      // HTML লেআউট ইনজেক্ট করা হচ্ছে
+      // ১. প্রথমে মেম্বার ম্যানেজমেন্টের লেআউট রেন্ডার হবে
       if (typeof initMemberManagementHTML === 'function') {
         initMemberManagementHTML();
-      } else {
-        console.error("initMemberManagementHTML function is not defined.");
       }
       
-      // ড্যাশবোর্ড ডেটা ফেচ শুরু হচ্ছে
+      // ২. এরপর ডাটা নিয়ে আসা হবে
       await fetchDashboardData();
     });
 
@@ -262,28 +260,20 @@
         const res = await r.json();
         document.getElementById('globalLoader').style.display = 'none';
 
-        // আপনার কাঙ্ক্ষিত উইন্ডো বাইন্ডিং লজিক
         if (res.success && res.data && res.data.length > 0) {
           window.allUsersData = res.data;
         } else {
           window.allUsersData = generateMockData();
         }
       } catch (e) {
-        console.error("Data fetch error:", e);
         document.getElementById('globalLoader').style.display = 'none';
         window.allUsersData = generateMockData();
       }
 
-      // চার্ট রেন্ডার
+      // ৩. ডাটা লোড হওয়ার পর চার্ট ও টেবিল রেন্ডারিং প্রসেস শুরু হবে
       calculateStatsAndRenderCharts(window.allUsersData);
-      
-      // মেম্বার ম্যানেজমেন্ট টেবিল এবং ফিল্টার সচল করা
-      if (typeof setupRegistrationDateFilter === 'function') {
-        setupRegistrationDateFilter(window.allUsersData);
-      }
-      if (typeof filterAndRenderMembersTable === 'function') {
-        filterAndRenderMembersTable();
-      }
+      if (typeof setupRegistrationDateFilter === 'function') setupRegistrationDateFilter(window.allUsersData);
+      if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
     }
 
     function calculateStatsAndRenderCharts(users) {
@@ -305,7 +295,7 @@
 
       const currentYear = new Date().getFullYear();
       const last5Years = [];
-      for (let i = 4; i >= 4; i--) {
+      for (let i = 4; i >= 0; i--) {
         const y = (currentYear - i).toString();
         yearCounts[y] = 0;
         last5Years.push(y);
@@ -385,7 +375,7 @@
         }
       });
 
-      // 📊 Bar Chart
+        // 📊 Bar Chart
       const barCtx = document.getElementById('chart-year-wise').getContext('2d');
       if (barChartObj) barChartObj.destroy();
       barChartObj = new Chart(barCtx, {
@@ -411,12 +401,11 @@
       });
     }
 
-    // Mock ডাটাতে জেনুইন ফিল্ড ক্লাস/ব্যাচ যোগ করা হলো
     function generateMockData() {
       const thisYear = new Date().getFullYear();
       return [
-        { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', class: 'Batch 24', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
-        { memberId: 'ROS-2026-0002', englishName: 'Test User 2', mobile: '01700000002', email: 'test2@gmail.com', class: 'Batch 25', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
+        { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', bloodGroup: 'A+', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
+        { memberId: 'ROS-2026-0002', englishName: 'Test User 2', mobile: '01700000002', email: 'test2@gmail.com', bloodGroup: 'O+', gender: 'Female', status: 'active', registrationDate: `${thisYear}-07-08 10:00:00` }
       ];
     }
 
