@@ -207,8 +207,10 @@
     </div>
   </div>
 
+                 <script src="member-management.js"></script>
+
   <script>
-    // এখানে আপনার লাইভ গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ URL লিংকটি ডিফাইন করা হলো
+    // আপনার লাইভ গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ URL
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyI6wOKLbKPXA9wodK3AjbnDu8XXaNl5PRYZ9UL8hK4IAW3BZYoPHbHYjbn7f4saFN12g/exec";
 
     let currentAdmin = null;
@@ -218,6 +220,7 @@
     let pieChartObj = null;
     let barChartObj = null;
 
+    // DOM পুরোপুরি লোড হওয়ার পর রান হবে
     window.addEventListener('DOMContentLoaded', async () => {
       const stored = sessionStorage.getItem('currentAdmin');
       if (!stored) { window.location.href = 'index.html'; return; }
@@ -225,10 +228,14 @@
       
       setupAdminProfile();
       
+      // ১. মেম্বার ম্যানেজমেন্টের HTML লেআউট আগে ইনজেক্ট করুন
       if (typeof initMemberManagementHTML === 'function') {
         initMemberManagementHTML();
+      } else {
+        console.error("initMemberManagementHTML function is not defined. Check member-management.js path.");
       }
       
+      // ২. এবার ড্যাশবোর্ড ও মেম্বার ডেটা ফেচ করুন
       await fetchDashboardData();
     });
 
@@ -261,13 +268,21 @@
           allUsersData = generateMockData();
         }
       } catch (e) {
+        console.error("Data fetch error:", e);
         document.getElementById('globalLoader').style.display = 'none';
         allUsersData = generateMockData();
       }
 
+      // ড্যাশবোর্ডের চার্ট ও স্ট্যাটাস রেন্ডার
       calculateStatsAndRenderCharts(allUsersData);
-      if (typeof setupRegistrationDateFilter === 'function') setupRegistrationDateFilter(allUsersData);
-      if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
+      
+      // ৩. মেম্বার ম্যানেজমেন্টের ফিল্টার ও টেবিল ডেটা রেন্ডার (নিশ্চিত করা হলো যেন ডাটা আসার পর কল হয়)
+      if (typeof setupRegistrationDateFilter === 'function') {
+        setupRegistrationDateFilter(allUsersData);
+      }
+      if (typeof filterAndRenderMembersTable === 'function') {
+        filterAndRenderMembersTable();
+      }
     }
 
     function calculateStatsAndRenderCharts(users) {
@@ -395,7 +410,7 @@
       });
     }
 
-     function generateMockData() {
+    function generateMockData() {
       const thisYear = new Date().getFullYear();
       return [
         { memberId: 'ROS-2026-0001', englishName: 'Test User 1', mobile: '01700000001', email: 'test1@gmail.com', bloodGroup: 'A+', gender: 'Male', status: 'pending', registrationDate: `${thisYear}-07-09 12:00:00` },
@@ -453,6 +468,7 @@
       } catch (e) { document.getElementById('globalLoader').style.display = 'none'; }
     }
   </script>
+  
   
   <script src="member-management.js"></script>
 </body>
