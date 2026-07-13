@@ -4,17 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ROS Admin Panel - Dashboard</title>
+  
+  <!-- 🛡️ স্ট্রিক্ট সেশন গার্ড প্রোটেকশন (বডি রেন্ডার হওয়ার আগে সিকিউরিটি চেক) -->
+  <script>
+    if (!sessionStorage.getItem('currentAdmin')) {
+      window.location.replace('index.html');
+    }
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- চার্ট ইঞ্জিন এবং এক্সপোর্ট লাইব্রেরি -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght=400;600;700&family=Poppins:wght=400;500;600&display=swap');
     body { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
+    
+    /* 🌀 গ্লোবাল ড্যাশড লোডার সিএসএস */
     .ros-global-loader {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(3, 10, 22, 0.95); display: none;
@@ -32,18 +41,20 @@
 </head>
 <body class="bg-[#030a16] text-slate-100 min-h-screen flex flex-col">
 
+  <!-- গ্লোবাল স্পিনার লোডার -->
   <div id="globalLoader" class="ros-global-loader">
     <div class="ros-spinner-container">
       <div class="ros-dashed-spinner"></div>
       <img src="https://rosociety.vercel.app/ros%20logo.png" alt="ROS Logo" class="ros-spinner-logo">
     </div>
-    <p class="text-[#ffd700] text-sm mt-4">ডাটা লোড হচ্ছে...</p>
+    <p class="text-[#ffd700] text-sm mt-4 tracking-wider">গুগল শীট থেকে রিয়েল-টাইম ডাটা লোড হচ্ছে...</p>
   </div>
 
+  <!-- টপ হেডার বার -->
   <header class="bg-slate-900 border-b border-slate-800 h-16 px-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-3">
       <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl hover:bg-slate-800 flex items-center justify-center text-xl cursor-pointer transition-all text-[#00b4d8]">
-        <i class="fa-solid fa-ellipsis-vertical"></i>
+        <i class="fa-solid fa-bars"></i>
       </button>
       <div class="flex items-center gap-2">
         <img src="https://rosociety.vercel.app/ros%20logo.png" alt="Logo" class="w-8 h-8 object-cover">
@@ -51,17 +62,19 @@
       </div>
     </div>
 
+    <!-- প্রোফাইল এরিয়া -->
     <div class="relative">
       <button onclick="toggleProfileCard()" class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-800 transition-all cursor-pointer">
         <span id="topAdminName" class="text-xs font-bold text-slate-300 hidden sm:inline-block">লোড হচ্ছে...</span>
         <div class="w-9 h-9 rounded-full border border-[#00b4d8] p-0.5 bg-slate-950 overflow-hidden">
-          <img id="topAdminAvatar" src="https://via.placeholder.com/150" alt="Avatar" class="w-full h-full object-cover rounded-full">
+          <img id="topAdminAvatar" src="https://rosociety.vercel.app/ros%20logo.png" alt="Avatar" class="w-full h-full object-cover rounded-full">
         </div>
       </button>
 
+      <!-- প্রোফাইল কার্ড ড্রপডাউন -->
       <div id="profileDropdownCard" class="hidden absolute right-0 mt-3 w-72 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl p-5 z-50 flex flex-col items-center text-center">
-        <div class="w-20 h-20 rounded-full border-2 border-[#ffd700] p-0.5 mb-3 bg-slate-900">
-          <img id="popupAdminAvatar" src="https://via.placeholder.com/150" alt="Avatar" class="w-full h-full object-cover rounded-full">
+        <div class="w-20 h-20 rounded-full border-2 border-[#ffd700] p-0.5 mb-3 bg-slate-900 overflow-hidden">
+          <img id="popupAdminAvatar" src="https://rosociety.vercel.app/ros%20logo.png" alt="Avatar" class="w-full h-full object-cover rounded-full">
         </div>
         <h4 id="popupAdminName" class="text-base font-bold text-white">Admin Name</h4>
         <p id="popupAdminRole" class="text-xs text-[#ffd700] font-bold mb-3">Role</p>
@@ -74,8 +87,8 @@
         <div class="w-full border-t border-slate-800/80 pt-3 mb-4 text-left">
           <span class="text-xs font-bold text-slate-400 block mb-1.5">পাসওয়ার্ড পরিবর্তন</span>
           <div class="space-y-2">
-            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none" placeholder="নতুন পাসওয়ার্ড">
-            <button onclick="changeProfilePassword()" class="w-full py-1.5 bg-emerald-600 text-white font-bold rounded-lg text-xs transition-all cursor-pointer">পাসওয়ার্ড সেভ করুন</button>
+            <input type="password" id="profileNewPass" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#00b4d8]" placeholder="নতুন পাসওয়ার্ড">
+            <button onclick="changeProfilePassword()" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition-all cursor-pointer">পাসওয়ার্ড সেভ করুন</button>
           </div>
         </div>
 
@@ -87,7 +100,8 @@
   </header>
 
   <div class="flex flex-1 relative overflow-hidden">
-    <aside id="sidebarMenu" class="hidden w-64 bg-slate-900/90 border-r border-slate-800 p-5 flex-col shrink-0 absolute left-0 top-0 h-full z-30 backdrop-blur-xl transition-all duration-300 shadow-2xl">
+    <!-- সাইডবার নেভিগেশন -->
+    <aside id="sidebarMenu" class="hidden md:flex w-64 bg-slate-900/90 border-r border-slate-800 p-5 flex-col shrink-0 absolute md:relative left-0 top-0 h-full z-30 backdrop-blur-xl transition-all duration-300 shadow-2xl">
       <div class="space-y-4 w-full">
         <div class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">প্যানেল মেনু</div>
         <nav class="space-y-1">
@@ -104,11 +118,14 @@
       </div>
     </aside>
 
+    <!-- মেইন কন্টেন্ট বডি -->
     <main class="flex-1 p-4 sm:p-6 overflow-y-auto">
       
+      <!-- ১. মেইন ড্যাশবোর্ড সেকশন -->
       <section id="main_dashboard-section" class="space-y-8">
+        <!-- স্ট্যাটিস্টিকস কাউন্টার কার্ডসমূহ -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="bg-gradient-to-br from-slate-900 to-indigo-950/40 border border-indigo-500/20 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-slate-900 to-indigo-950/40 border border-indigo-500/20 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
             <div>
               <span class="text-slate-400 text-xs font-semibold">মোট রেজিস্ট্রেশন</span>
               <h3 id="stat-total" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0</h3>
@@ -118,7 +135,7 @@
             </button>
           </div>
 
-          <div class="bg-gradient-to-br from-slate-900 to-amber-950/40 border border-amber-500/20 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-slate-900 to-amber-950/40 border border-amber-500/20 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
             <div>
               <span class="text-slate-400 text-xs font-semibold">পেন্ডিং</span>
               <h3 id="stat-pending" class="text-2xl sm:text-3xl font-extrabold text-amber-400 mt-1">0</h3>
@@ -128,7 +145,7 @@
             </button>
           </div>
 
-          <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/20 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Approved</span>
               <h3 id="stat-approved" class="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">0</h3>
@@ -138,7 +155,7 @@
             </button>
           </div>
 
-          <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/30 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/30 rounded-2xl p-4 flex flex-col justify-between shadow-lg">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Inactive</span>
               <h3 id="stat-inactive" class="text-2xl sm:text-3xl font-extrabold text-slate-400 mt-1">0</h3>
@@ -148,7 +165,7 @@
             </button>
           </div>
 
-          <div class="bg-gradient-to-br from-slate-900 to-rose-950/40 border border-rose-500/20 rounded-2xl p-4 flex flex-col justify-between col-span-2 md:col-span-1">
+          <div class="bg-gradient-to-br from-slate-900 to-rose-950/40 border border-rose-500/20 rounded-2xl p-4 flex flex-col justify-between col-span-2 md:col-span-1 shadow-lg">
             <div>
               <span class="text-slate-400 text-xs font-semibold">Suspend</span>
               <h3 id="stat-suspend" class="text-2xl sm:text-3xl font-extrabold text-rose-500 mt-1">0</h3>
@@ -159,9 +176,12 @@
           </div>
         </div>
 
+        <!-- 📊 চার্ট গ্রাফিক্স এরিয়া -->
         <div class="space-y-6">
           <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Last 7 Days Registration</h4>
+            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-[#ec4899]"></i> Last 7 Days Registration
+            </h4>
             <div class="h-64 w-full">
               <canvas id="chart-last-7-days"></canvas>
             </div>
@@ -169,14 +189,18 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col items-center">
-              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider self-start mb-4">Gender Wise Registration</h4>
+              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider self-start mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pie-chart text-[#00b4d8]"></i> Gender Wise Registration
+              </h4>
               <div class="h-60 w-60 relative flex items-center justify-center">
                 <canvas id="chart-gender-wise"></canvas>
               </div>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
-              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4">Year Wise Registration (Last 5 Years)</h4>
+              <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-bar-chart text-[#f59e0b]"></i> Year Wise Registration (Last 5 Years)
+              </h4>
               <div class="h-60 w-full">
                 <canvas id="chart-year-wise"></canvas>
               </div>
@@ -185,50 +209,52 @@
         </div>
       </section>
 
-      <section id="member_management-section" class="hidden space-y-6"></section>
-
-      <section id="admin_management-section" class="hidden">
-        <h2 class="text-xl font-bold mb-4">Admin Management</h2>
+      <!-- ২. মেম্বার ম্যানেজমেন্ট সেকশন -->
+      <section id="member_management-section" class="hidden space-y-6">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-users text-[#00b4d8]"></i> Member Management
+        </h2>
         <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
-          [এখানে অ্যাডমিন তৈরি এবং প্রিভিলেজ সেট করার কোড বসবে]
+          [এখানে পরবর্তীতে মেম্বার তালিকা, ফিল্টার এবং স্ট্যাটাস আপডেটের টেবিল বসবে]
+        </div>
+      </section>
+
+      <!-- ৩. অ্যাডমিন ম্যানেজমেন্ট সেকশন -->
+      <section id="admin_management-section" class="hidden">
+        <h2 class="text-xl font-bold mb-4 text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-shield text-[#ffd700]"></i> Admin Management
+        </h2>
+        <div class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 text-xs">
+          [এখানে পরবর্তীতে অ্যাডমিন তৈরি এবং প্রিভিলেজ সেট করার কোড বসবে]
         </div>
       </section>
 
     </main>
   </div>
 
-  <div id="detailsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
-      <div class="bg-slate-950 px-5 py-4 border-b border-slate-800 flex justify-between items-center">
-        <h3 class="font-bold text-sm text-white">সদস্যের বিস্তারিত তথ্য</h3>
-        <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div id="modalContentArea" class="p-5"></div>
-    </div>
-  </div>
-
   <script>
+    // 🔗 আপনার অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ ইউআরএল
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
+    
     let currentAdmin = null;
     let allUsersData = [];
 
+    // চার্ট অবজেক্ট রেফারেন্স
     let lineChartObj = null;
     let pieChartObj = null;
     let barChartObj = null;
 
+    // সেশন ভেরিফিকেশন এবং প্রাথমিক ডাটা ফেচিং
     window.addEventListener('DOMContentLoaded', async () => {
       const stored = sessionStorage.getItem('currentAdmin');
       if (!stored) { window.location.href = 'index.html'; return; }
       currentAdmin = JSON.parse(stored);
       
       setupAdminProfile();
-      
-      if (typeof initMemberManagementHTML === 'function') {
-        initMemberManagementHTML();
-      }
-      
       await fetchDashboardData();
     });
 
+    // অ্যাডমিন প্রোফাইল UI আপডেট
     function setupAdminProfile() {
       document.getElementById('topAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
       document.getElementById('popupAdminName').innerText = currentAdmin.englishName || currentAdmin.username;
@@ -242,32 +268,34 @@
       }
     }
 
+    // গুগল অ্যাপস স্ক্রিপ্ট ডাটা ইঞ্জিন
     async function fetchDashboardData() {
       document.getElementById('globalLoader').style.display = 'flex';
       try {
-        const r = await fetch(WEB_APP_URL, {
+        const response = await fetch(WEB_APP_URL, {
           method: 'POST',
+          mode: 'cors',
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ action: "getUsersData" })
         });
-        const res = await r.json();
+        const res = await response.json();
         document.getElementById('globalLoader').style.display = 'none';
 
-        if (res.success && res.data && res.data.length > 0) {
+        if (res.success && res.data) {
           allUsersData = res.data;
         } else {
           allUsersData = generateMockData();
         }
       } catch (e) {
         document.getElementById('globalLoader').style.display = 'none';
+        console.warn("গুগল শিট থেকে তথ্য পাওয়া যায়নি, ফলব্যাক মক ডাটা ব্যবহার করা হচ্ছে।");
         allUsersData = generateMockData();
       }
 
       calculateStatsAndRenderCharts(allUsersData);
-      if (typeof setupRegistrationDateFilter === 'function') setupRegistrationDateFilter(allUsersData);
-      if (typeof filterAndRenderMembersTable === 'function') filterAndRenderMembersTable();
     }
 
-    // ড্যাশবোর্ডের চার্ট ও সংখ্যা গণনা লজিক (সম্পূর্ণ গুগল শিট রো ইনডেক্স ভিত্তিক)
+    // গুগল শীট থেকে আসা রিয়েল-টাইম ডাটা প্রসেসিং ও চার্ট রেন্ডারিং
     function calculateStatsAndRenderCharts(users) {
       let total = users.length;
       let pending = 0, approved = 0, inactive = 0, suspend = 0;
@@ -276,6 +304,7 @@
       const dateCounts = {};
       const yearCounts = {};
 
+      // বিগত ৭ দিনের লেবেল জেনারেটর
       const last7Days = [];
       for (let i = 6; i >= 0; i--) {
         const d = new Date();
@@ -285,6 +314,7 @@
         last7Days.push(dateStr);
       }
 
+      // বিগত ৫ বছরের লেবেল জেনারেটর
       const currentYear = new Date().getFullYear();
       const last5Years = [];
       for (let i = 4; i >= 0; i--) {
@@ -293,18 +323,21 @@
         last5Years.push(y);
       }
 
+      // লুপ প্রসেসিং ইঞ্জিন (সরাসরি অ্যারে ও অবজেক্ট উভয় স্ট্রাকচার সাপোর্ট করবে)
       users.forEach(user => {
-        // row[20] = Status, row[8] = Gender, row[22] = Created at
-        const status = String(user[20] || user.status || '').toLowerCase().trim();
+        // স্ট্যাটাস ফিল্টারিং
+        const status = String(user.status || user[20] || '').toLowerCase().trim();
         if (status === 'pending') pending++;
         else if (status === 'approved' || status === 'active') approved++;
         else if (status === 'inactive') inactive++;
         else if (status === 'suspend') suspend++;
 
-        const gender = user[8] || user.gender || 'Male';
+        // জেন্ডার কাউন্ট
+        const gender = user.gender || user[8] || 'Male';
         if (genderCounts[gender] !== undefined) genderCounts[gender]++;
 
-        const regDateVal = user[22] || user.registrationDate;
+        // রেজিস্ট্রেশন টাইম গ্রাফিং
+        const regDateVal = user.registrationDate || user[22];
         if (regDateVal) {
           const regDate = String(regDateVal).split(' ')[0]; 
           if (dateCounts[regDate] !== undefined) dateCounts[regDate]++;
@@ -314,13 +347,14 @@
         }
       });
 
+      // UI কার্ড ভ্যালু আপডেট
       document.getElementById('stat-total').innerText = total;
       document.getElementById('stat-pending').innerText = pending;
       document.getElementById('stat-approved').innerText = approved;
       document.getElementById('stat-inactive').innerText = inactive;
       document.getElementById('stat-suspend').innerText = suspend;
 
-      // 📊 Line Chart
+      // 📊 ১. লাইন চার্ট (Last 7 Days)
       const lineCtx = document.getElementById('chart-last-7-days').getContext('2d');
       if (lineChartObj) lineChartObj.destroy();
       lineChartObj = new Chart(lineCtx, {
@@ -331,11 +365,12 @@
             label: 'রেজিস্ট্রেশন',
             data: last7Days.map(d => dateCounts[d]),
             borderColor: '#ec4899',
-            backgroundColor: 'rgba(236, 72, 153, 0.15)',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
             fill: true,
             tension: 0.4,
             borderWidth: 3,
-            pointBackgroundColor: '#ec4899'
+            pointBackgroundColor: '#ec4899',
+            pointRadius: 4
           }]
         },
         options: {
@@ -349,7 +384,7 @@
         }
       });
 
-      // 📊 Pie Chart
+   // 📊 ২. পাই চার্ট (Gender Wise)
       const pieCtx = document.getElementById('chart-gender-wise').getContext('2d');
       if (pieChartObj) pieChartObj.destroy();
       pieChartObj = new Chart(pieCtx, {
@@ -369,7 +404,7 @@
         }
       });
 
-      // 📊 Bar Chart
+      // 📊 ৩. বার চার্ট (Year Wise)
       const barCtx = document.getElementById('chart-year-wise').getContext('2d');
       if (barChartObj) barChartObj.destroy();
       barChartObj = new Chart(barCtx, {
@@ -379,8 +414,8 @@
           datasets: [{
             data: last5Years.map(y => yearCounts[y]),
             backgroundColor: ['#3b82f6', '#10b981', '#00b4d8', '#f59e0b', '#8b5cf6'],
-            borderRadius: 8,
-            barThickness: 28
+            borderRadius: 6,
+            barThickness: 24
           }]
         },
         options: {
@@ -395,24 +430,16 @@
       });
     }
 
+    // ফলব্যাক ব্যাকআপ মক ডাটা জেনারেটর (সার্ভার ডাউন বা প্রথম ইন্সটলেশনে ক্যাশ এরর প্রটেকশন)
     function generateMockData() {
-      const thisYear = new Date().getFullYear();
-      // মক ডাটাকেও টু-ডাইমেনশনাল অ্যারে স্ট্রাকচারে রাখা হলো যাতে সার্ভার অফ থাকলেও এরর না আসে
+      const todayStr = new Date().toISOString().split('T')[0];
       return [
-        ['ROS-2026-0001', 'টেস্ট ইউজার ১', 'Test User 1', 'Father 1', 'Mother 1', '01700000001', 'test1@gmail.com', 'A+', 'Male', '2000-01-01', 'Rajshahi', 'Rajshahi', 'BSc', '2024', 'Student', '2020-21', '', '01700000001', 'fb.com', '123456', 'pending', 'General', `${thisYear}-07-09 12:00:00`],
-        ['ROS-2026-0002', 'টেস্ট ইউজার ২', 'Test User 2', 'Father 2', 'Mother 2', '01700000002', 'test2@gmail.com', 'O+', 'Female', '2001-02-02', 'Dhaka', 'Dhaka', 'MSc', '2025', 'Job', '2021-22', '', '01700000002', 'fb.com', '789012', 'active', 'General', `${thisYear}-07-08 10:00:00`]
+        { status: 'pending', gender: 'Male', registrationDate: `${todayStr} 12:00:00` },
+        { status: 'active', gender: 'Female', registrationDate: `${todayStr} 14:30:00` }
       ];
     }
 
-    function viewMembersWithFilter(status) {
-      switchTab('member_management');
-      const selectFilter = document.getElementById('filterStatus');
-      if (selectFilter) {
-        selectFilter.value = status;
-        filterAndRenderMembersTable();
-      }
-    }
-
+    // ট্যাব সুইচ মেকানিজম
     function switchTab(tabId) {
       document.getElementById('main_dashboard-section').classList.add('hidden');
       document.getElementById('member_management-section').classList.add('hidden');
@@ -427,14 +454,23 @@
       document.getElementById(`${tabId}-section`).classList.remove('hidden');
       const activeBtn = document.getElementById(`btn-${tabId}`);
       if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
-
-      document.getElementById('sidebarMenu').classList.add('hidden');
+      
+      // মোবাইল স্ক্রিনে অটো সাইডবার হাইড
+      if(window.innerWidth < 768) document.getElementById('sidebarMenu').classList.add('hidden');
     }
 
+    // ফিল্টার বাটন লিঙ্ক প্রোটেকশন
+    function viewMembersWithFilter(status) {
+      switchTab('member_management');
+      // মেম্বার টেবিল লোড করার জন্য স্ক্রিপ্ট এখানে কল করতে পারেন
+    }
+
+    // হেডার অ্যাকশন কন্ট্রোলসমূহ
     function toggleSidebar() { document.getElementById('sidebarMenu').classList.toggle('hidden'); }
     function toggleProfileCard() { document.getElementById('profileDropdownCard').classList.toggle('hidden'); }
-    function handleLogout() { sessionStorage.clear(); window.location.href = 'index.html'; }
+    function handleLogout() { sessionStorage.clear(); window.location.replace('index.html'); }
 
+    // ডিরেক্ট বাইপাস পাসওয়ার্ড আপডেট ইন্টিগ্রেশন
     async function changeProfilePassword() {
       const newPass = document.getElementById('profileNewPass').value;
       if (!newPass || newPass.length < 6) { alert("পাসওয়ার্ড কমপক্ষে ৬ ডিজিট হতে হবে।"); return; }
@@ -450,11 +486,12 @@
           alert("পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে!");
           document.getElementById('profileNewPass').value = '';
           toggleProfileCard();
-        } else { alert(res.error); }
-      } catch (e) { document.getElementById('globalLoader').style.display = 'none'; }
+        } else { alert(res.error || "আপডেট ব্যর্থ হয়েছে।"); }
+      } catch (e) { 
+        document.getElementById('globalLoader').style.display = 'none';
+        alert("সার্ভার ত্রুটি। আবার চেষ্টা করুন।");
+      }
     }
   </script>
-  
-  <script src="member-management.js"></script>
 </body>
 </html>
