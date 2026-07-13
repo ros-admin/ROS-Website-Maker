@@ -6,23 +6,18 @@
   <title>ROS Admin Panel - Login</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
     body { font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
-    
-    /* 🌀 আপনার নির্দিষ্ট করে দেওয়া গ্লোবাল ড্যাশড লোডার সিএসএস */
     .ros-global-loader {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(3, 10, 22, 0.9); display: none;
       flex-direction: column; align-items: center; justify-content: center; z-index: 99999;
-      font-family: 'Poppins', 'Hind Siliguri', sans-serif;
     }
     .ros-spinner-container {
       position: relative; width: 110px; height: 110px;
       display: flex; align-items: center; justify-content: center;
     }
-    /* কাটা কাটা (Dashed) থিম স্পিনার - নীল এবং হলুদ রং */
     .ros-dashed-spinner {
       position: absolute; width: 100%; height: 100%;
       border: 4px dashed #00b4d8; border-top-color: #ffd700; border-bottom-color: #ffd700;
@@ -41,32 +36,12 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    /* টাইমার এবং রিসেন্ড টেক্সট স্টাইল */
-    .otp-timer-container {
-      margin: 15px 0 5px 0; font-size: 14px; color: #ffd700; font-weight: 500; text-align: center;
-    }
-    .resend-otp-btn {
-      background: none; border: none; color: #52667d; font-weight: 600;
-      cursor: not-allowed; text-decoration: underline; font-size: 13px; margin-top: 5px; transition: 0.3s;
-    }
-    .resend-otp-btn.active {
-      color: #00a4cc; cursor: pointer;
-    }
-    .spam-notice-box {
-      background: rgba(255, 215, 0, 0.06); border: 1px dashed #ffd700;
-      border-radius: 6px; padding: 10px; font-size: 12px; color: #f1f5f9;
-      margin: 12px 0; text-align: center; line-height: 1.5;
-    }
-
-    /* পপআপ নোটিফিকেশন অ্যানিমেশন */
-    @keyframes slideIn {
-      0% { transform: translateY(-20px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
-    }
-    .animate-popup {
-      animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
+    .otp-timer-container { margin: 15px 0 5px 0; font-size: 14px; color: #ffd700; font-weight: 500; text-align: center; }
+    .resend-otp-btn { background: none; border: none; color: #52667d; font-weight: 600; cursor: not-allowed; text-decoration: underline; font-size: 13px; margin-top: 5px; transition: 0.3s; }
+    .resend-otp-btn.active { color: #00a4cc; cursor: pointer; }
+    .spam-notice-box { background: rgba(255, 215, 0, 0.06); border: 1px dashed #ffd700; border-radius: 6px; padding: 10px; font-size: 12px; color: #f1f5f9; margin: 12px 0; text-align: center; line-height: 1.5; }
+    @keyframes slideIn { 0% { transform: translateY(-20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+    .animate-popup { animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
   </style>
 </head>
 <body class="bg-[#030a16] flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
@@ -92,9 +67,7 @@
     </button>
   </div>
 
-
   <div id="mainCard" class="w-full max-w-md bg-slate-900/40 border border-slate-700/40 backdrop-blur-xl rounded-2xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
-    
     <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#00b4d8]/10 rounded-full blur-2xl"></div>
     <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-[#ffd700]/5 rounded-full blur-2xl"></div>
 
@@ -106,6 +79,7 @@
       <p class="text-sm text-slate-400 mt-1">প্যানেলে প্রবেশ করতে আপনার তথ্য দিন</p>
     </div>
 
+    <!-- Login Form -->
     <form id="loginForm" class="space-y-5 relative z-10">
       <div>
         <label class="block text-sm font-semibold text-slate-300 mb-2">ইউজারনেম (Username)</label>
@@ -113,9 +87,7 @@
           <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
             <i class="fa-solid fa-user"></i>
           </span>
-          <input type="text" id="loginUsername" required autocomplete="username"
-            class="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
-            placeholder="যেমন: rosadmin">
+          <input type="text" id="loginUsername" required autocomplete="username" class="w-full pl-10 pr-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm" placeholder="যেমন: rosadmin">
         </div>
       </div>
 
@@ -128,42 +100,35 @@
           <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
             <i class="fa-solid fa-lock"></i>
           </span>
-          <input type="password" id="loginPassword" required autocomplete="current-password"
-            class="w-full pl-10 pr-10 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
-            placeholder="••••••••">
+          <input type="password" id="loginPassword" required autocomplete="current-password" class="w-full pl-10 pr-10 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm" placeholder="••••••••">
           <button type="button" onclick="togglePasswordVisibility('loginPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
             <i class="fa-solid fa-eye"></i>
           </button>
         </div>
       </div>
 
-      <button type="submit" id="loginBtn"
-        class="w-full py-3 px-4 bg-gradient-to-r from-[#00b4d8] to-indigo-600 hover:from-[#0096b4] hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-[#00b4d8]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-[#00b4d8] transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
+      <button type="submit" id="loginBtn" class="w-full py-3 px-4 bg-gradient-to-r from-[#00b4d8] to-indigo-600 hover:from-[#0096b4] hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-[#00b4d8]/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-[#00b4d8] transition-all text-sm flex items-center justify-center gap-2 cursor-pointer">
         <span>লগইন করুন</span>
         <i class="fa-solid fa-arrow-right"></i>
       </button>
     </form>
 
+    <!-- Forgot Password/Reset Wrapper -->
     <div id="forgotPasswordWrapper" class="hidden space-y-5 relative z-10">
       <div class="border-b border-slate-700/50 pb-3 mb-2">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i class="fa-solid fa-key text-[#ffd700]"></i> প্রথমবার সেট বা রিসেট প্রসেস
         </h3>
       </div>
-      
       <div class="spam-notice-box">
         ⚠️ ওটিপি খুঁজে না পেলে অনুগ্রহ করে আপনার ইমেইলের <strong>Spam (স্প্যাম)</strong> ফোল্ডারটি চেক করুন।
       </div>
-      
       <form id="requestOtpForm" class="space-y-4">
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-2">আপনার ইউজারনেম দিন</label>
-          <input type="text" id="resetUsername" required
-            class="w-full px-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm"
-            placeholder="যেমন: rosadmin">
+          <input type="text" id="resetUsername" required class="w-full px-4 py-3 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 focus:border-[#00b4d8] transition-all text-sm" placeholder="যেমন: rosadmin">
         </div>
-        <button type="submit" id="otpBtn"
-          class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+        <button type="submit" id="otpBtn" class="w-full py-2.5 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
           <span>ইমেইলে ওটিপি (OTP) পাঠান</span>
         </button>
       </form>
@@ -171,85 +136,58 @@
       <form id="resetPasswordForm" class="hidden mt-4 pt-4 border-t border-slate-700/50 space-y-4">
         <div>
           <label class="block text-sm font-semibold text-emerald-400 mb-1.5 text-center">৬ ডিজিট ওটিপি কোড</label>
-          <input type="text" id="otpCode" required maxlength="6" pattern="\d{6}"
-            class="w-full px-4 py-2.5 bg-slate-950/60 border border-emerald-600/40 rounded-xl text-white tracking-widest text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-            placeholder="000000">
+          <input type="text" id="otpCode" required maxlength="6" pattern="\d{6}" class="w-full px-4 py-2.5 bg-slate-950/60 border border-emerald-600/40 rounded-xl text-white tracking-widest text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="000000">
         </div>
-
         <div id="otpTimerWrapper" class="hidden">
-          <div class="otp-timer-container">
-            ⏱ ওটিপির মেয়াদ বাকি: <span id="otpCountdownTimer" style="font-weight:700; font-family:monospace; font-size:16px;">05:00</span> মিনিট
-          </div>
-          <div style="text-align:center;">
-            <button id="resendOtpBtn" class="resend-otp-btn" type="button" disabled>Resend OTP</button>
-          </div>
+          <div class="otp-timer-container">⏱ ওটিপির মেয়াদ বাকি: <span id="otpCountdownTimer" style="font-weight:700; font-family:monospace; font-size:16px;">05:00</span> মিনিট</div>
+          <div style="text-align:center;"><button id="resendOtpBtn" class="resend-otp-btn" type="button" disabled>Resend OTP</button></div>
         </div>
-
         <div>
           <label class="block text-sm font-semibold text-slate-300 mb-1.5">নতুন পাসওয়ার্ড সেট করুন</label>
           <div class="relative">
-            <input type="password" id="newPassword" required minlength="6"
-              class="w-full pl-4 pr-10 py-2.5 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 text-sm"
-              placeholder="কমপক্ষে ৬ ডিজিট">
-            <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <input type="password" id="newPassword" required minlength="6" class="w-full pl-4 pr-10 py-2.5 bg-slate-950/60 border border-slate-700/60 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#00b4d8]/50 text-sm" placeholder="কমপক্ষে ৬ ডিজিট">
+            <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-300"><i class="fa-solid fa-eye"></i></button>
           </div>
         </div>
-        <button type="submit" id="submitResetBtn"
-          class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">
-          পাসওয়ার্ড নিশ্চিত করুন
-        </button>
+        <button type="submit" id="submitResetBtn" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">পাসওয়ার্ড নিশ্চিত করুন</button>
       </form>
 
       <div class="text-center pt-2">
-        <button type="button" onclick="toggleView('loginForm')" class="text-xs text-slate-400 hover:text-white transition-colors">
-          <i class="fa-solid fa-arrow-left-long mr-1"></i> লগইন ফর্মে ফিরে যান
-        </button>
+        <button type="button" onclick="toggleView('loginForm')" class="text-xs text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-arrow-left-long mr-1"></i> লগইন ফর্মে ফিরে যান</button>
       </div>
     </div>
-
   </div>
 
   <script>
-    // 🔗 আপনার নির্দিষ্ট করে দেওয়া গ্লোবাল গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ ইউআরএল
+    // আপনার এক্সিকিউটেবল গুগল অ্যাপস স্ক্রিপ্ট ইউআরএল
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwkVyzvs-rSpNF8gF5Ic_2ED1qw0elTrYJSuJP0gm963bMvSa4kOOJdRT-6W18Tt5ghww/exec";
     
-    let toastTimer;
-    let countdownInterval = null;
-    let resendCount = 0;
+    let toastTimer, countdownInterval = null, resendCount = 0;
 
+    // সিকিউরিটি গার্ড: ইতিমধ্যে সেশন ভ্যালিড থাকলে সরাসরি ড্যাশবোর্ডে ফরওয়ার্ড করবে
     if (sessionStorage.getItem('currentAdmin')) {
       window.location.href = 'dashboard.html';
     }
 
-    // গ্লোবাল ড্যাশড স্পিনার লোডার কন্ট্রোল ফাংশন
     function showLoader(status, customText = "প্রসেসিং হচ্ছে, দয়া করে অপেক্ষা করুন...") {
       const loader = document.getElementById('globalLoader');
       const card = document.getElementById('mainCard');
       const loaderText = document.getElementById('loaderText');
-      
       if(status) {
-        loaderText.innerText = customText;
-        loader.style.display = 'flex'; 
+        loaderText.innerText = customText; loader.style.display = 'flex'; 
         card.classList.add('opacity-30', 'blur-[3px]', 'pointer-events-none');
       } else {
-        loader.style.display = 'none';
-        card.classList.remove('opacity-30', 'blur-[3px]', 'pointer-events-none');
+        loader.style.display = 'none'; card.classList.remove('opacity-30', 'blur-[3px]', 'pointer-events-none');
       }
     }
 
-    // প্রিমিয়াম পপআপ নোটিফিকেশন টোস্ট ফাংশন
     function showNotification(title, message, type = 'error') {
       clearTimeout(toastTimer);
       const toast = document.getElementById('notificationToast');
       const iconContainer = document.getElementById('toastIconContainer');
       const icon = document.getElementById('toastIcon');
-      const titleElem = document.getElementById('toastTitle');
-      const msgElem = document.getElementById('toastMessage');
-
-      titleElem.innerText = title;
-      msgElem.innerText = message;
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMessage').innerText = message;
 
       if (type === 'success') {
         iconContainer.className = "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-emerald-500/10 border border-emerald-500/20";
@@ -261,87 +199,50 @@
         iconContainer.className = "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-rose-500/10 border border-rose-500/20";
         icon.className = "fa-solid fa-circle-xmark text-rose-400";
       }
-
       toast.classList.remove('hidden');
       toastTimer = setTimeout(() => { hideNotification(); }, 5000);
     }
 
-    function hideNotification() {
-      document.getElementById('notificationToast').classList.add('hidden');
-    }
+    function hideNotification() { document.getElementById('notificationToast').classList.add('hidden'); }
 
-    // ওটিপি কাউন্টডাউন টাইমার ইঞ্জিন (৫ মিনিট)
     function startOtpEngine(username) {
       if (countdownInterval) clearInterval(countdownInterval);
-      
       const timerWrapper = document.getElementById('otpTimerWrapper');
       const timerDisplay = document.getElementById('otpCountdownTimer');
       const resendBtn = document.getElementById('resendOtpBtn');
-      
       timerWrapper.classList.remove('hidden');
-      let totalSeconds = 5 * 60; 
-      resendBtn.disabled = true;
-      resendBtn.classList.remove('active');
-      
-      if(resendCount >= 1) {
-        resendBtn.innerText = "Resend OTP (Limit reached)";
-      } else {
-        resendBtn.innerText = "Resend OTP (Available in 03:00)";
-      }
+      let totalSeconds = 5 * 60; resendBtn.disabled = true; resendBtn.classList.remove('active');
+      resendBtn.innerText = resendCount >= 1 ? "Resend OTP (Limit reached)" : "Resend OTP (Available in 03:00)";
 
       countdownInterval = setInterval(() => {
         totalSeconds--;
-        
         if (totalSeconds <= 0) {
-          clearInterval(countdownInterval);
-          timerDisplay.innerText = "Time Expired!";
-          resendBtn.disabled = true;
-          resendBtn.classList.remove('active');
-          showNotification("মেয়াদ শেষ!", "ওটিপির ৫ মিনিট মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার ট্রাই করুন।", "error");
-          return;
+          clearInterval(countdownInterval); timerDisplay.innerText = "Time Expired!";
+          resendBtn.disabled = true; resendBtn.classList.remove('active');
+          showNotification("মেয়াদ শেষ!", "ওটিপির মেয়াদ শেষ হয়েছে। আবার ট্রাই করুন।", "error"); return;
         }
-
         const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
         const secs = String(totalSeconds % 60).padStart(2, '0');
         if (timerDisplay) timerDisplay.innerText = `${mins}:${secs}`;
 
         if (totalSeconds <= 120 && resendCount < 1) {
-          resendBtn.disabled = false;
-          resendBtn.classList.add('active');
-          resendBtn.innerText = "Resend OTP";
+          resendBtn.disabled = false; resendBtn.classList.add('active'); resendBtn.innerText = "Resend OTP";
         } else if (resendCount < 1) {
           const waitTime = totalSeconds - 120;
-          const waitMins = String(Math.floor(waitTime / 60)).padStart(2, '0');
-          const waitSecs = String(waitTime % 60).padStart(2, '0');
-          resendBtn.innerText = `Resend OTP (Available in ${waitMins}:${waitSecs})`;
+          resendBtn.innerText = `Resend OTP (Available in ${String(Math.floor(waitTime / 60)).padStart(2, '0')}:${String(waitTime % 60).padStart(2, '0')})`;
         }
       }, 1000);
 
       if(!resendBtn.dataset.listenerAttached) {
         resendBtn.addEventListener('click', async () => {
           if (resendCount >= 1) return;
-          
           showLoader(true, "ওটিপি পুনরায় পাঠানো হচ্ছে...");
-          
           try {
-            const response = await fetch(WEB_APP_URL, {
-              method: 'POST',
-              body: JSON.stringify({ action: "sendAdminResetOtp", username: username })
-            });
-            const resData = await response.json();
-            showLoader(false);
-            
-            if (resData.success) {
-              resendCount++;
-              showNotification("সফল!", "ওটিপি সফলভাবে পুনরায় পাঠানো হয়েছে!", "success");
-              startOtpEngine(username); 
-            } else {
-              showNotification("ব্যর্থ!", resData.error || "ওটিপি পুনরায় পাঠাতে ব্যর্থ হয়েছে।", "error");
-            }
-          } catch (err) {
-            showLoader(false);
-            showNotification("ত্রুটি!", "নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।", "warning");
-          }
+            const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: "sendAdminResetOtp", username: username }) });
+            const resData = await response.json(); showLoader(false);
+            if (resData.success) { resendCount++; showNotification("সফল!", "ওটিপি পাঠানো হয়েছে!", "success"); startOtpEngine(username); } 
+            else { showNotification("ব্যর্থ!", resData.error || "ওটিপি পাঠাতে ব্যর্থ হয়েছে।", "error"); }
+          } catch (err) { showLoader(false); showNotification("ত্রুটি!", "নেটওয়ার্ক সমস্যা।", "warning"); }
         });
         resendBtn.dataset.listenerAttached = true;
       }
@@ -350,136 +251,89 @@
     function toggleView(targetId) {
       hideNotification();
       if(targetId === 'forgotPasswordWrapper') {
-        document.getElementById('loginForm').classList.add('hidden');
-        document.getElementById('forgotPasswordWrapper').classList.remove('hidden');
+        document.getElementById('loginForm').classList.add('hidden'); document.getElementById('forgotPasswordWrapper').classList.remove('hidden');
       } else {
-        document.getElementById('forgotPasswordWrapper').classList.add('hidden');
-        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('forgotPasswordWrapper').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden');
         if (countdownInterval) clearInterval(countdownInterval);
       }
     }
 
     function togglePasswordVisibility(inputId, btn) {
-      const input = document.getElementById(inputId);
-      const icon = btn.querySelector('i');
-      if (input.type === "password") {
-        input.type = "text";
-        icon.className = "fa-solid fa-eye-slash";
-      } else {
-        input.type = "password";
-        icon.className = "fa-solid fa-eye";
-      }
+      const input = document.getElementById(inputId); const icon = btn.querySelector('i');
+      input.type = input.type === "password" ? "text" : "password";
+      icon.className = input.type === "text" ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
     }
 
-    // ১. মূল লগইন সাবমিট ইভেন্ট হ্যান্ডলার (Action: adminLogin)
+    // মূল লগইন ইভেন্ট
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideNotification();
+      e.preventDefault(); hideNotification();
       const user = document.getElementById('loginUsername').value.trim();
       const pass = document.getElementById('loginPassword').value;
-
       showLoader(true, "ক্রিডেনশিয়াল যাচাই করা হচ্ছে...");
 
       try {
         const response = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'text/plain' },
+          method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ action: "adminLogin", username: user, password: pass })
         });
-
-        const result = await response.json();
-        showLoader(false);
-        
+        const result = await response.json(); showLoader(false);
         if (result.success) {
-          showNotification("লগইন সফল!", "ড্যাশবোর্ডে প্রবেশ করা হচ্ছে, দয়া করে অপেক্ষা করুন...", "success");
+          showNotification("লগইন সফল!", "ড্যাশবোর্ডে প্রবেশ করা হচ্ছে...", "success");
           sessionStorage.setItem('currentAdmin', JSON.stringify(result.adminData));
-          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
         } else {
           showNotification("লগইন ব্যর্থ!", result.error || "ভুল ইউজারনেম অথবা পাসওয়ার্ড!", "error");
         }
       } catch (error) {
-        showLoader(false);
-        showNotification("নেটওয়ার্ক ত্রুটি!", "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। ডাটাবেজ বা ইউআরএল চেক করুন।", "warning");
+        showLoader(false); showNotification("নেটওয়ার্ক ত্রুটি!", "সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না।", "warning");
       }
     });
 
-    // ২. ওটিপি কোড পাঠানোর রিকোয়েস্ট হ্যান্ডলার (Action: sendAdminResetOtp)
+    // ওটিপি রিকোয়েস্ট
     document.getElementById('requestOtpForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideNotification();
+      e.preventDefault(); hideNotification();
       const user = document.getElementById('resetUsername').value.trim();
-
       showLoader(true, "সিকিউর ওটিপি পাঠানো হচ্ছে...");
-
       try {
         const response = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'text/plain' },
+          method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ action: "sendAdminResetOtp", username: user })
         });
-
-        const result = await response.json();
-        showLoader(false);
-        
-         if (result.success) {
-          showNotification("ওটিপি পাঠানো হয়েছে!", "আপনার রেজিস্টার্ড অ্যাডমিন ইমেইল অ্যাকাউন্টে কোডটি চলে গেছে।", "success");
+        const result = await response.json(); showLoader(false);
+        if (result.success) {
+          showNotification("ওটিপি পাঠানো হয়েছে!", "আপনার ইমেইল চেক করুন।", "success");
           document.getElementById('resetPasswordForm').classList.remove('hidden');
           document.getElementById('otpBtn').classList.add('hidden');
           document.getElementById('resetUsername').disabled = true;
-          
-          resendCount = 0;
-          startOtpEngine(user);
-        } else {
-          showNotification("ওটিপি পাঠানো যায়নি!", result.error || "সিস্টেম ত্রুটি।", "error");
-        }
-      } catch (error) {
-        showLoader(false);
-        showNotification("সার্ভার ত্রুটি!", "ওটিপি রিকোয়েস্ট প্রসেস করা সম্ভব হয়নি। আবার চেষ্টা করুন।", "warning");
-      }
+          resendCount = 0; startOtpEngine(user);
+        } else { showNotification("ওটিপি পাঠানো যায়নি!", result.error, "error"); }
+      } catch (error) { showLoader(false); showNotification("সার্ভার ত্রুটি!", "আবার চেষ্টা করুন।", "warning"); }
     });
 
-    // ৩. ওটিপি ভেরিফিকেশন ও নতুন পাসওয়ার্ড সাবমিট হ্যান্ডলার (Action: resetAdminPassword)
+    // পাসওয়ার্ড আপডেট
     document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      hideNotification();
+      e.preventDefault(); hideNotification();
       const user = document.getElementById('resetUsername').value.trim();
       const otp = document.getElementById('otpCode').value.trim();
       const newPass = document.getElementById('newPassword').value;
-
-      showLoader(true, "ডাটাবেজ প্রোফাইল আপডেট করা হচ্ছে...");
-
+      showLoader(true, "প্রোফাইল আপডেট করা হচ্ছে...");
       try {
         const response = await fetch(WEB_APP_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'text/plain' },
+          method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({ action: "resetAdminPassword", username: user, otp: otp, newPassword: newPass })
         });
-
-        const result = await response.json();
-        showLoader(false);
-        
+        const result = await response.json(); showLoader(false);
         if (result.success) {
           if (countdownInterval) clearInterval(countdownInterval);
-          showNotification("সফল হয়েছে!", "পাসওয়ার্ড সফলভাবে সেভ হয়েছে! এখন মূল ফর্মে লগইন করুন।", "success");
+          showNotification("সফল হয়েছে!", "পাসওয়ার্ড সফলভাবে সেভ হয়েছে!", "success");
           setTimeout(() => {
-            document.getElementById('resetPasswordForm').reset();
-            document.getElementById('requestOtpForm').reset();
-            document.getElementById('resetUsername').disabled = false;
-            document.getElementById('otpBtn').classList.remove('hidden');
-            document.getElementById('resetPasswordForm').classList.add('hidden');
-            document.getElementById('otpTimerWrapper').classList.add('hidden');
+            document.getElementById('resetPasswordForm').reset(); document.getElementById('requestOtpForm').reset();
+            document.getElementById('resetUsername').disabled = false; document.getElementById('otpBtn').classList.remove('hidden');
+            document.getElementById('resetPasswordForm').classList.add('hidden'); document.getElementById('otpTimerWrapper').classList.add('hidden');
             toggleView('loginForm');
-          }, 2000);
-        } else {
-          showNotification("ভেরিফিকেশন ব্যর্থ!", result.error || "ওটিপি কোড ম্যাচ করেনি বা মেয়াদ শেষ।", "error");
-        }
-      } catch (error) {
-        showLoader(false);
-        showNotification("হালনাগাদ ব্যর্থ!", "পাসওয়ার্ড রিসেট করা যায়নি। নেটওয়ার্ক চেক করে আবার চেষ্টা করুন।", "warning");
-      }
+          }, 1500);
+        } else { showNotification("ভেরিফিকেশন ব্যর্থ!", result.error, "error"); }
+      } catch (error) { showLoader(false); showNotification("হালনাগাদ ব্যর্থ!", "আবার চেষ্টা করুন।", "warning"); }
     });
   </script>
 </body>
