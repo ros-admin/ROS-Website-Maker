@@ -1,54 +1,573 @@
-<div style="width:535pt; font-family:'Arial', sans-serif; position:relative; box-sizing:border-box; padding:25pt; border:2.5pt double #0077b6; background:#ffffff; color:#000000;">
-  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-30deg); opacity:0.03; font-size:38px; font-weight:bold; color:#000; text-align:center; width:100%; pointer-events:none; white-space:nowrap; z-index:1;">
-    RAJSHAHI OLIMPIAD SOCIETY
-  </div>
-  <div style="text-align:center; border-bottom:2px solid #0077b6; padding-bottom:8px; margin-bottom:12px; position:relative; z-index:2;">
-    <img src="https://ros-admin.github.io/Rajshahi-Olimpiad-Society/ros%20logo%20transparent.png" style="width:50px; height:50px; margin-bottom:2px;">
-    <h1 style="font-size:17px; font-weight:700; color:#0056b3; margin:0;">রাজশাহী অলিম্পিয়াড সোসাইটি</h1>
-    <p style="font-size:8.5px; color:#555; margin:1px 0 0 0; text-transform:uppercase; letter-spacing:0.5px;">Rajshahi Olympiad Society</p>
-    <div style="display:inline-block; background:#0077b6; color:#fff; padding:2px 10px; font-size:9.5px; font-weight:bold; border-radius:3px; margin-top:5px;">সদস্য নিবন্ধন ফরম</div>
-  </div>
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px; position:relative; z-index:2; width:100%;">
-    <div style="font-size:10px; line-height:1.6;">
-      <p style="margin:2px 0;"><strong>নিবন্ধন নাম্বার:</strong> <span style="color:#0077b6; font-weight:bold;">{{memberId}}</span></p>
-      <p style="margin:2px 0;"><strong>নিবন্ধনের তারিখ:</strong> <span>{{createdAt}}</span></p>
-      <p style="margin:2px 0;"><strong>সদস্যের ধরন:</strong> <span style="color:#0056b3; font-weight:bold;">{{role}}</span></p>
-    </div>
-    <div style="width:85px; height:100px; border:1px dashed #0077b6; box-sizing:border-box; background:#fafafa; overflow:hidden;">
-      {{photoHtml}}
-    </div>
-  </div>
-  <h3 style="font-size:11px; color:#0077b6; border-left:3px solid #0077b6; padding-left:6px; margin-bottom:6px;">১. সদস্যের বিস্তারিত তথ্যাবলী</h3>
-  <table style="width:100%; border-collapse:collapse; font-size:9.5px; margin-bottom:12px; position:relative; z-index:2;">
-    <tr><td style="padding:5px; border:1px solid #ccc; width:18%; background:#fcfcfc; font-weight:bold;">নাম (বাংলা):</td><td style="padding:5px; border:1px solid #ccc;" colspan="3">{{banglaName}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">Name (English):</td><td style="padding:5px; border:1px solid #ccc;" colspan="3"><strong>{{englishName}}</strong></td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">বাবার নাম:</td><td style="padding:5px; border:1px solid #ccc; width:32%;">{{fatherName}}</td><td style="padding:5px; border:1px solid #ccc; width:16%; background:#fcfcfc; font-weight:bold;">মায়ের নাম:</td><td style="padding:5px; border:1px solid #ccc; width:34%;">{{motherName}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">মোবাইল নম্বর:</td><td style="padding:5px; border:1px solid #ccc;">{{mobile}}</td><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">ইমেইল এড্রেস:</td><td style="padding:5px; border:1px solid #ccc; font-size:8.5px;">{{email}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">জন্মতারিখ:</td><td style="padding:5px; border:1px solid #ccc;">{{dob}}</td><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">রক্তের গ্রুপ:</td><td style="padding:5px; border:1px solid #ccc; font-weight:bold; color:#d90429;">{{blood}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">লিঙ্গ:</td><td style="padding:5px; border:1px solid #ccc;">{{gender}}</td><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">পেশা:</td><td style="padding:5px; border:1px solid #ccc;">{{prof}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">প্রতিষ্ঠান/कर्मস্থল:</td><td style="padding:5px; border:1px solid #ccc;" colspan="3">{{inst}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">শিক্ষাগত যোগ্যতা:</td><td style="padding:5px; border:1px solid #ccc;">{{edu}}</td><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">শিক্ষাবর্ষ:</td><td style="padding:5px; border:1px solid #ccc;">{{session}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">বর্তমান ঠিকানা:</td><td style="padding:5px; border:1px solid #ccc;" colspan="3">{{curAddr}}</td></tr>
-    <tr><td style="padding:5px; border:1px solid #ccc; background:#fcfcfc; font-weight:bold;">স্থায়ী ঠিকানা:</td><td style="padding:5px; border:1px solid #ccc;" colspan="3">{{perAddr}}</td></tr>
-  </table>
-  <h3 style="font-size:11px; color:#0077b6; border-left:3px solid #0077b6; padding-left:6px; margin-bottom:5px;">২. সদস্যপদ বহাল থাকার শর্তাবলী ও ঘোষণা</h3>
-  <div style="font-size:8.5px; line-height:1.4; color:#222; text-align:justify; background:#f9f9f9; padding:8px; border:1px solid #e0e0e0; border-radius:4px; margin-bottom:25px;">
-    ১. <strong>কর্তৃপক্ষের সর্বোচ্চ ক্ষমতা:</strong> সংগঠনের শৃঙ্খলা, ভাবমূর্তি ও আদর্শ পরিপন্থী কোনো কাজে লিপ্ত হলে, রাজশাহী অলিম্পিয়াড সোসাইটি (ROS) কর্তৃপক্ষ যেকোনো সময় পূর্ব নোটিশ ছাড়াই যেকোনো সদস্যের সদস্যপদ সম্পূর্ণ বাতিল বা স্থগিত করার একক ও চূড়ান্ত ক্ষমতা সংরক্ষণ করে।<br>
-    ২. আমি এই মর্মে অঙ্গীকার করছি যে, উপরে প্রদত্ত সকল তথ্য সম্পূর্ণ সত্য ও সঠিক। আমি অনলাইন ড্যাশবোর্ডের মাধ্যমে ডিজিটালভাবে এই সকল শর্তাবলীতে সম্মতি প্রদান করে এই মেম্বারশিপ কপিটি জেনারেট করেছি।
-  </div>
-  <div style="margin-top:40px; display:flex; justify-content:space-between; font-size:9.5px; padding:0 5px;">
-    <div style="text-align:center; width:130px; border-top:1px solid #333; padding-top:4px;">আবেদনকারীর স্বাক্ষর</div>
-    <div style="text-align:center; width:150px;">
-      <div style="font-size:9px; font-weight:bold; color:#2a9d8f; text-transform:uppercase; border:2px dashed #2a9d8f; padding:2px 6px; display:inline-block; margin-bottom:4px; transform:rotate(-4deg); border-radius:4px;">✓ SIGNED VERIFIED</div>
-      <div style="border-top:1px solid #0077b6; padding-top:4px; color:#0077b6; font-weight:bold;">কর্তৃপক্ষের স্বাক্ষর</div>
-    </div>
-  </div>
-  <div style="text-align:center; font-size:8px; color:#e63946; font-weight:bold; background:#fff5f5; padding:4px; border:1px dashed #e63946; border-radius:4px; margin-top:20px;">
-    * বিশেষ দ্রষ্টব্য: এটি একটি সিস্টেম জেনারেটেড ডিজিটাল ভেরিফাইড কপি। অনলাইন ডাটাবেজে রিয়েল-টাইম ভেরিফিকেশনের ব্যবস্থা থাকায় এতে কোনো ম্যানুয়াল স্বাক্ষর বা সিলের প্রয়োজন নেই।
-  </div>
-  <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; font-size:8px; color:#666; border-top:1px solid #eee; padding-top:5px;">
-    <div>{{formattedTimeStr}}</div>
-    <div style="font-weight:600; color:#333;">Developed by: Utsab Sarker</div>
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ROS Online Digital Member Form</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+    @page {
+        size: A4;
+        margin: 10mm 10mm 8mm 10mm;
+    }
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Arial', sans-serif;
+        color: #1a1a1a;
+        background-color: #ffffff;
+    }
+    
+    /* Page Container - Single Page Fit without action bars */
+    .page-container {
+        width: 175mm;
+        max-height: 297mm;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 4mm 0mm;
+    }
 
+    /* Double Border Design from Offline Form */
+    .border-outer {
+        border: 1px solid #0077b6;
+        padding: 2px;
+    }
+    .border-inner {
+        border: 1px solid #0077b6;
+        padding: 12px;
+        position: relative;
+    }
+    
+    /* Watermark */
+    .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-25deg);
+        font-size: 26pt;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 1;
+        opacity: 0.035;
+        color: #000;
+    }
+
+    .logo-container {
+        text-align: center;
+        border-bottom: 2px solid #0077b6;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+    }
+    .title-logo {
+        width: 250px;
+        height: auto;
+        display: block;
+        margin: 0 auto 4px auto;
+    }
+    .form-badge {
+        display: inline-block;
+        background: #0077b6;
+        color: #fff;
+        padding: 3px 12px;
+        font-size: 8.5pt;
+        font-weight: bold;
+        border-radius: 3px;
+        text-align: center;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+    
+    /* Grid Layout for Top Fields and Photo */
+    .meta-grid {
+        display: table;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .meta-fields {
+        display: table-cell;
+        vertical-align: middle;
+    }
+    .meta-photo-box {
+        display: table-cell;
+        width: 75px;
+        height: 85px;
+        border: 1px dashed #0077b6;
+        background: #fafafa;
+        text-align: center;
+        vertical-align: middle;
+        overflow: hidden;
+    }
+    .meta-photo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Styled Registration & Date Boxes */
+    .meta-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+        font-size: 9pt;
+        font-weight: bold;
+    }
+    .meta-label {
+        width: 115px;
+    }
+    .reg-box {
+        border: 1.5px solid #0077b6;
+        border-radius: 3px;
+        padding: 3px 8px;
+        display: inline-block;
+        text-align: center;
+        background: #fff;
+        min-height: 24px;
+        color: #0077b6;
+        font-family: 'Arial', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 10.5pt !important;
+    }
+    .reg-dash {
+        margin: 0 4px;
+        font-weight: 800;
+        color: #0077b6;
+    }
+    
+    /* Date digit boxes */
+    .date-box-container {
+        display: flex;
+        align-items: center;
+    }
+    .date-digit {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #cccccc;
+        text-align: center;
+        line-height: 18px;
+        font-size: 8.5pt;
+        background: #fff;
+        margin-right: 1px;
+        font-weight: bold;
+    }
+    .date-dot {
+        margin: 0 3px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    /* Active Status Badge Design */
+    .status-badge {
+        background: #2a9d8f;
+        color: #ffffff;
+        padding: 3px 10px;
+        font-size: 8pt;
+        font-weight: bold;
+        border-radius: 4px;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+    
+    /* Main Table Layout */
+    .section-title {
+        font-size: 9.5pt;
+        color: #0077b6;
+        border-left: 3px solid #0077b6;
+        padding-left: 6px;
+        margin: 8px 0 6px 0;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 8.5pt;
+        margin-bottom: 8px;
+        table-layout: fixed;
+    }
+    .data-table td {
+        padding: 5px 6px;
+        border: 1px solid #cccccc;
+        height: 25px;
+        vertical-align: middle;
+    }
+    .bg-label {
+        background: #f8f9fa !important;
+        font-weight: bold;
+        color: #333;
+        white-space: nowrap;
+        width: 17%; 
+    }
+    
+    /* Declarations Box */
+    .terms-box {
+        font-size: 7.5pt;
+        line-height: 1.4;
+        color: #222;
+        background: #fdfdfd;
+        padding: 6px 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        text-align: justify;
+    }
+    
+    /* Signatures and QR Code Grid */
+    .footer-grid {
+        display: table;
+        width: 100%;
+        margin-top: 30px;
+    }
+    .footer-cell {
+        display: table-cell;
+        width: 33.33%;
+        vertical-align: bottom;
+        text-align: center;
+    }
+    .sig-line {
+        width: 130px;
+        margin: 0 auto 4px auto;
+        border-top: 1px solid #333;
+    }
+
+    /* QR Code Ultra HD Wrapper */
+    .qr-wrapper {
+        position: relative;
+        width: 70px;
+        height: 70px;
+        margin: 0 auto;
+    }
+    /* Force the high-res library canvas to match exact size crisply */
+    #qrcode img, #qrcode canvas {
+        width: 70px !important;
+        height: 70px !important;
+        display: block;
+    }
+    .qr-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 18px;
+        height: 18px;
+        background: #ffffff;
+        padding: 1px;
+        border-radius: 2px;
+        z-index: 10;
+    }
+
+    /* System Generated Alert Banner - Red Styled */
+    .alert-banner {
+        text-align: center;
+        font-size: 8px;
+        color: #e63946;
+        background: #fff5f5;
+        padding: 4px;
+        border: 1px dashed #e63946;
+        border-radius: 4px;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    
+    /* Footer Social and Developer Bar */
+    .org-info-footer {
+        display: table;
+        width: 100%;
+        margin-top: 8px;
+        padding-top: 5px;
+        border-top: 1px solid #eee;
+        font-size: 7.5pt;
+        color: #566573;
+    }
+    .info-cell {
+        display: table-cell;
+        width: 33.33%;
+    }
+
+    .system-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 8px;
+        color: #666;
+        margin-top: 20px;
+        border-top: 1px solid #eee;
+        padding-top: 5px;
+    }
+
+    @media print {
+        .page-container { width: 100%; margin: 0; padding: 0; box-shadow: none; }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+</head>
+<body>
+
+    <div class="page-container">
+        <div class="border-outer">
+            <div class="border-inner">
+                <div class="watermark">RAJSHAHI OLIMPIAD SOCIETY</div>
+                
+                <div class="logo-container">
+                    <img src="https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png" class="title-logo" alt="ROS Logo Title">
+                    <div class="form-badge">Digital Membership Form (Member Copy)</div>
+                </div>
+                
+                <div class="meta-grid">
+                    <div class="meta-fields">
+                        <div class="meta-row">
+                            <div class="meta-label">Registration No:</div>
+                            <div class="reg-box" id="reg-part1">ROS</div>
+                            <div class="reg-dash">-</div>
+                            <div class="reg-box" id="reg-part2" style="width: 55px; text-align: left;">20</div>
+                            <div class="reg-dash">-</div>
+                            <div class="reg-box" id="reg-part3" style="width: 80px;">-</div>
+                        </div>
+                        
+                        <div class="meta-row">
+                            <div class="meta-label">Registration Date:</div>
+                            <div class="date-box-container" id="date-container">
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-dot">.</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-dot">.</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                            </div>
+                        </div>
+
+                        <div class="meta-row">
+                            <div class="meta-label">Membership Status:</div>
+                            <div>
+                                <span class="status-badge">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-photo-box">
+                        {{photoHtml}}
+                    </div>
+                </div>
+                
+                <div class="section-title">1. Member's Personal Information</div>
+                <table class="data-table">
+                    <colgroup>
+                        <col style="width: 18%;">
+                        <col style="width: 32%;">
+                        <col style="width: 16%;">
+                        <col style="width: 34%;">
+                    </colgroup>
+                    
+                    <tr>
+                        <td class="bg-label">Name (Bangla):</td>
+                        <td colspan="3" id="field-banglaName">{{banglaName}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Name (English):</td>
+                        <td colspan="3" id="field-englishName" style="font-weight: bold; text-transform: uppercase;">{{englishName}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Father's Name:</td>
+                        <td id="field-fatherName">{{fatherName}}</td>
+                        <td class="bg-label">Mother's Name:</td>
+                        <td id="field-motherName">{{motherName}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Mobile Number:</td>
+                        <td id="field-mobile">{{mobile}}</td>
+                        <td class="bg-label">Email Address:</td>
+                        <td id="field-email">{{email}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Date of Birth:</td>
+                        <td id="field-dob">{{dob}}</td>
+                        <td class="bg-label">Blood Group:</td>
+                        <td id="field-blood" style="font-weight: bold; color: #d90429;">{{blood}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Gender:</td>
+                        <td id="field-gender">{{gender}}</td>
+                        <td class="bg-label">Occupation:</td>
+                        <td id="field-prof">{{prof}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Institution:</td>
+                        <td colspan="3" id="field-inst">{{inst}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Qualification:</td>
+                        <td id="field-edu">{{edu}}</td>
+                        <td class="bg-label">Session/Year:</td>
+                        <td id="field-session">{{session}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Present Address:</td>
+                        <td colspan="3" id="field-curAddr">{{curAddr}}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="bg-label">Permanent Address:</td>
+                        <td colspan="3" id="field-perAddr">{{perAddr}}</td>
+                    </tr>
+                </table>
+                
+                <div class="section-title">2. Terms of Membership & Declaration</div>
+                <div class="terms-box">
+                    1. <strong>Supreme Authority:</strong> If any member is found involved in activities contrary to the discipline, image, or ideology of the Rajshahi Olympiad Society (ROS), the authority reserves the sole and absolute right to cancel or suspend their membership at any time without prior notice.<br>
+                    2. I hereby declare that all the information provided above is true and accurate. I have digitally agreed to these terms and conditions through the online dashboard while generating this membership copy.
+                </div>
+                
+                <div class="footer-grid">
+                    <div class="footer-cell">
+                        <div class="sig-line"></div>
+                        <span style="font-size: 8.5pt;">Applicant's Signature</span>
+                    </div>
+                    
+                    <div class="footer-cell">
+                        <div class="qr-wrapper">
+                            <div id="qrcode"></div>
+                            <img src="https://rosociety.vercel.app/ros%20logo%20transparent.png" class="qr-logo" alt="Logo">
+                        </div>
+                        <div style="font-size: 6.5pt; color: #555; margin-top: 4px; font-weight: bold;">SCAN TO VERIFY</div>
+                    </div>
+                    
+                    <div class="footer-cell">
+                        <div style="font-size: 9px; font-weight: bold; color: #2a9d8f; text-transform: uppercase; border: 1.5px dashed #2a9d8f; padding: 2px 6px; display: inline-block; margin-bottom: 4px; transform: rotate(-4deg); border-radius: 4px;">
+                            ✓ SIGNED VERIFIED
+                        </div>
+                        <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8.5pt; width: 150px; margin: 0 auto;">
+                            Authorized Signature & Seal
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-banner">
+                    *特别提示 / NOTE: This is a system-generated, digitally verified document. Since it supports real-time verification via database, no physical signature or seal is required.
+                </div>
+                
+                <div class="org-info-footer">
+                    <div class="info-cell" style="text-align: left;">
+                        🌐 rosociety.vercel.app
+                    </div>
+                    <div class="info-cell" style="text-align: center;">
+                        📧 helpline.ros@gmail.com
+                    </div>
+                    <div class="info-cell" style="text-align: right;">
+                        📞 +8801745-668545
+                    </div>
+                </div>
+
+                <div class="system-footer">
+                    <div id="system-time">{{formattedTimeStr}}</div>
+                    <div>Developed by: <strong>Utsab Sarker</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Dynamic Split Logic for Registration No {{memberId}}
+            let rawRegNo = "{{memberId}}";
+            if (rawRegNo.includes("{{memberId}}") || !rawRegNo.trim()) {
+                rawRegNo = "ROS-20-8914"; 
+            }
+
+            const regParts = rawRegNo.split("-");
+            if (regParts.length >= 3) {
+                document.getElementById("reg-part1").innerHTML = regParts[0].toUpperCase();
+                document.getElementById("reg-part2").innerHTML = regParts[1];
+                document.getElementById("reg-part3").innerHTML = regParts[2];
+            } else {
+                document.getElementById("reg-part3").innerHTML = rawRegNo;
+            }
+
+            // 2. Dynamic Split Logic for Date {{createdAt}}
+            let rawDateStr = "{{createdAt}}";
+            if (rawDateStr.includes("{{createdAt}}") || !rawDateStr.trim()) {
+                rawDateStr = "14/07/2026"; 
+            }
+
+            const cleanDigits = rawDateStr.replace(/[^0-9]/g, "");
+
+            if (cleanDigits.length >= 8) {
+                const digitsArray = cleanDigits.substring(0, 8).split("");
+                const dateContainer = document.getElementById("date-container");
+                
+                dateContainer.innerHTML = `
+                    <div class="date-digit">${digitsArray[0]}</div>
+                    <div class="date-digit">${digitsArray[1]}</div>
+                    <div class="date-dot">.</div>
+                    <div class="date-digit">${digitsArray[2]}</div>
+                    <div class="date-digit">${digitsArray[3]}</div>
+                    <div class="date-dot">.</div>
+                    <div class="date-digit">${digitsArray[4]}</div>
+                    <div class="date-digit">${digitsArray[5]}</div>
+                    <div class="date-digit">${digitsArray[6]}</div>
+                    <div class="date-digit">${digitsArray[7]}</div>
+                `;
+            }
+
+            // 3. Ultra HD Dynamic QR Code Generator (600x600 px high density render downscaled to 70px)
+            function extractText(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el) return "";
+                const content = el.innerText || el.textContent;
+                return content.includes("{{") ? "" : content.trim();
+            }
+
+            const qrPayload = {
+                regNo: rawRegNo,
+                regDate: rawDateStr,
+                status: "ACTIVE",
+                name: extractText("field-englishName"),
+                mobile: extractText("field-mobile"),
+                email: extractText("field-email"),
+                dob: extractText("field-dob"),
+                bloodGroup: extractText("field-blood"),
+                qualification: extractText("field-edu"),
+                institution: extractText("field-inst")
+            };
+
+            let qrTextString = `--- ROS MEMBER VERIFICATION ---\n`;
+            qrTextString += `Reg No: ${qrPayload.regNo}\n`;
+            qrTextString += `Date: ${qrPayload.regDate}\n`;
+            qrTextString += `Status: ${qrPayload.status}\n`;
+            qrTextString += `Name: ${qrPayload.name}\n`;
+            qrTextString += `Mobile: ${qrPayload.mobile}\n`;
+            qrTextString += `Email: ${qrPayload.email}\n`;
+            qrTextString += `Blood: ${qrPayload.bloodGroup}\n`;
+            qrTextString += `Institution: ${qrPayload.institution}`;
+
+              // Initializing with massive dimensions for pure vector sharp look
+            new QRCode(document.getElementById("qrcode"), {
+                text: qrTextString,
+                width: 600,
+                height: 600,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        });
+    </script>
+</body>
+</html>
