@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>ROS Online Digital Member Form</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
     @page {
         size: A4;
@@ -99,6 +100,7 @@
         display: inline-block;
         width: 120px;
     }
+    
     .reg-box {
         border: 1.5px solid #0077b6;
         border-radius: 3px;
@@ -109,6 +111,9 @@
         color: #0077b6;
         font-weight: bold;
         font-size: 10pt;
+    }
+    .reg-box-fixed {
+        width: 60px;
     }
     .reg-dash {
         display: inline-block;
@@ -121,16 +126,17 @@
         display: inline-block;
         vertical-align: middle;
     }
+    
     .date-digit {
         display: inline-block;
-        width: 18px;
+        width: 15px;
         height: 18px;
-        border: 1px solid #cccccc;
+        border: 1px solid #999999;
         text-align: center;
         line-height: 16px;
         font-size: 8.5pt;
         background: #fff;
-        margin-right: 1px;
+        margin-right: -1px; 
         font-weight: bold;
     }
     .date-digit.fixed-num {
@@ -139,7 +145,7 @@
     }
     .date-dot {
         display: inline-block;
-        margin: 0 2px;
+        margin: 0 1px;
         font-weight: bold;
         color: #555;
     }
@@ -231,15 +237,48 @@
         border-top: 1px solid #333;
     }
 
+    /* 🛠 আল্ট্রা শার্প ক্রিস্প কিউআর কোড কন্টেইনার */
     .qr-wrapper {
         position: relative;
-        width: 75px;
-        height: 75px;
+        width: 70px;
+        height: 70px;
         margin: 0 auto;
+        background: #ffffff;
     }
-    .qr-image {
-        width: 75px;
-        height: 75px;
+    
+    /* 🛠 ফিক্সড: ঝাপসা হওয়া রোধে ইমেজ রেন্ডারিং পিক্সেল ভিত্তিক করা হয়েছে */
+    .qr-wrapper img, .qr-wrapper canvas {
+        width: 70px !important;
+        height: 70px !important;
+        display: block;
+        image-rendering: -moz-crisp-edges;         /* Firefox */
+        image-rendering: -o-crisp-edges;           /* Opera */
+        image-rendering: -webkit-optimize-contrast;/* Webkit (Safari/Chrome) */
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;                 /* Sharp pixels */
+        -ms-interpolation-mode: nearest-neighbor;   /* IE */
+    }
+    
+    /* কিউআর এর ঠিক মাঝখানে লোগো প্লেসমেন্ট */
+    .qr-logo-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #ffffff;
+        padding: 1.5px;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+        z-index: 10;
+        box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    }
+    .qr-logo-overlay img {
+        width: 100% !important;
+        height: auto !important;
         display: block;
     }
 
@@ -291,16 +330,16 @@
                         <td class="meta-fields">
                             <div class="meta-row">
                                 <div class="meta-label">Registration No:</div>
-                                <div class="reg-box">{{regPart1}}</div>
+                                <div class="reg-box" id="regPart1">{{regPart1}}</div>
                                 <div class="reg-dash">-</div>
-                                <div class="reg-box" style="width: 55px;">{{regPart2}}</div>
+                                <div class="reg-box reg-box-fixed" id="regPart2">{{regPart2}}</div>
                                 <div class="reg-dash">-</div>
-                                <div class="reg-box" style="width: 70px;">{{regPart3}}</div>
+                                <div class="reg-box reg-box-fixed" id="regPart3">{{regPart3}}</div>
                             </div>
                             
                             <div class="meta-row">
                                 <div class="meta-label">Registration Date:</div>
-                                <div class="date-box-container">
+                                <div class="date-box-container" id="reg-date-container">
                                     <div class="date-digit">{{r0}}</div><div class="date-digit">{{r1}}</div>
                                     <div class="date-dot">.</div>
                                     <div class="date-digit">{{r2}}</div><div class="date-digit">{{r3}}</div>
@@ -334,7 +373,7 @@
                     
                     <tr>
                         <td class="bg-label">Name (English):</td>
-                        <td colspan="3" style="font-weight: bold; text-transform: uppercase;">{{englishName}}</td>
+                        <td colspan="3" id="field-englishName" style="font-weight: bold; text-transform: uppercase;">{{englishName}}</td>
                     </tr>
                     
                     <tr>
@@ -347,7 +386,7 @@
                     <tr>
                         <td class="bg-label">Mobile Number:</td>
                         <td>
-                            <div class="date-box-container">
+                            <div class="date-box-container" id="field-mobile">
                                 <div class="date-digit fixed-num">{{m0}}</div>
                                 <div class="date-digit">{{m1}}</div>
                                 <div class="date-digit">{{m2}}</div>
@@ -363,7 +402,7 @@
                             </div>
                         </td>
                         <td class="bg-label">Email Address:</td>
-                        <td>{{email}}</td>
+                        <td id="field-email">{{email}}</td>
                     </tr>
                     
                     <tr>
@@ -377,10 +416,10 @@
                                 <div class="date-digit">{{d4}}</div><div class="date-digit">{{d5}}</div>
                                 <div class="date-digit">{{d6}}</div><div class="date-digit">{{d7}}</div>
                             </div>
-                            <div style="font-size: 7.5pt; margin-top:2px; font-weight:bold; color:#444;">{{dobText}}</div>
+                            <div id="field-dob" style="font-size: 7.5pt; margin-top:2px; font-weight:bold; color:#444;">{{dobText}}</div>
                         </td>
                         <td class="bg-label">Blood Group:</td>
-                        <td style="font-weight: bold; color: #d90429;">{{blood}}</td>
+                        <td id="field-blood" style="font-weight: bold; color: #d90429;">{{blood}}</td>
                     </tr>
                     
                     <tr>
@@ -401,12 +440,12 @@
                     
                     <tr>
                         <td class="bg-label">Institution:</td>
-                        <td colspan="3">{{inst}}</td>
+                        <td colspan="3" id="field-inst">{{inst}}</td>
                     </tr>
                     
                     <tr>
                         <td class="bg-label">Qualification:</td>
-                        <td>{{edu}}</td>
+                        <td id="field-edu">{{edu}}</td>
                         <td class="bg-label">Session/Year:</td>
                         <td>{{session}}</td>
                     </tr>
@@ -437,7 +476,10 @@
                         
                         <td class="footer-cell" style="text-align: center;">
                             <div class="qr-wrapper">
-                                <img src="{{qrCodeUrl}}" class="qr-image" alt="QR Code">
+                                <div id="qrcode"></div>
+                                <div class="qr-logo-overlay">
+                                    <img src="https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png" alt="ROS">
+                                </div>
                             </div>
                             <div style="font-size: 6.5pt; color: #555; margin-top: 4px; font-weight: bold;">SCAN TO VERIFY</div>
                         </td>
@@ -475,5 +517,77 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function extractText(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el) return "";
+                const content = el.innerText || el.textContent;
+                return content.includes("{{") ? "" : content.trim();
+            }
+
+            // রেজি. নং ডেটা রিকনস্ট্রাকশন
+            const part1 = extractText("regPart1");
+            const part2 = extractText("regPart2");
+            const part3 = extractText("regPart3");
+            const rawRegNo = (part1 && part2 && part3) ? `${part1}-${part2}-${part3}` : "";
+
+             // রেজিস্ট্রেশন ডেট রিকনস্ট্রাকশন
+            const dateContainer = document.getElementById("reg-date-container");
+            let rawDateStr = "";
+            if (dateContainer) {
+                const digits = dateContainer.getElementsByClassName("date-digit");
+                if (digits.length >= 8) {
+                    const day = (digits[0].innerText || digits[0].textContent) + (digits[1].innerText || digits[1].textContent);
+                    const month = (digits[2].innerText || digits[2].textContent) + (digits[3].innerText || digits[3].textContent);
+                    const year = (digits[4].innerText || digits[4].textContent) + (digits[5].innerText || digits[5].textContent) + (digits[6].innerText || digits[6].textContent) + (digits[7].innerText || digits[7].textContent);
+                    rawDateStr = `${day}.${month}.${year}`;
+                }
+            }
+
+            // মোবাইল নাম্বার রিকনস্ট্রাকশন
+            const mobContainer = document.getElementById("field-mobile");
+            let rawMobile = "";
+            if (mobContainer) {
+                const digits = mobContainer.getElementsByClassName("date-digit");
+                for (let i = 0; i < digits.length; i++) {
+                    rawMobile += (digits[i].innerText || digits[i].textContent).trim();
+                }
+            }
+
+            const qrPayload = {
+                regNo: rawRegNo,
+                regDate: rawDateStr,
+                status: "ACTIVE",
+                name: extractText("field-englishName"),
+                mobile: rawMobile || extractText("field-mobile"),
+                email: extractText("field-email"),
+                dob: extractText("field-dob"),
+                bloodGroup: extractText("field-blood"),
+                qualification: extractText("field-edu"),
+                institution: extractText("field-inst")
+            };
+
+            let qrTextString = `--- ROS MEMBER VERIFICATION ---\n`;
+            qrTextString += `Reg No: ${qrPayload.regNo}\n`;
+            qrTextString += `Date: ${qrPayload.regDate}\n`;
+            qrTextString += `Status: ${qrPayload.status}\n`;
+            qrTextString += `Name: ${qrPayload.name}\n`;
+            qrTextString += `Mobile: ${qrPayload.mobile}\n`;
+            qrTextString += `Email: ${qrPayload.email}\n`;
+            qrTextString += `Blood: ${qrPayload.bloodGroup}\n`;
+            qrTextString += `Institution: ${qrPayload.institution}`;
+
+            // আল্ট্রা এইচডি রেন্ডারিং 
+            new QRCode(document.getElementById("qrcode"), {
+                text: qrTextString,
+                width: 600,
+                height: 600,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // High Error Correction যাতে মাঝখানের লোগোর পরেও ডাটা ১০০% স্ক্যান হয়
+            });
+        });
+    </script>
 </body>
 </html>
