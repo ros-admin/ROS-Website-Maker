@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আগডুম বাগডুম (পর্ব-২) - নিবন্ধন ফর্ম</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bkash-color: #d1156c;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --primary-color: #6366f1; /* রয়াল ইন্ডিগো */
+            --accent-color: #f43f5e; /* মডার্ন রোজ পিঙ্ক */
+            /* মডার্ন, ট্রেন্ডি এবং ক্রিয়েটিভ গ্রেডিয়েন্ট ব্যাকগ্রাউন্ড */
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #fdf2f8 100%);
+            /* থিম অনুযায়ী পার্পল বর্ডার কালার */
+            --border-color: #c084fc; 
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            padding: 40px 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+            margin: auto;
+        }
+
+        /* ব্যানার সেকশন সম্পূর্ণ আলাদা এবং কার্ভড কর্নারসহ */
+        .banner {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            border-radius: 18px;
+            margin-bottom: 25px; /* নিচের বক্স থেকে দূরত্ব */
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+        }
+
+        /* মূল ফর্মের বক্স */
+        .form-box {
+            background: #ffffff;
+            border-radius: 18px;
+            overflow: hidden;
+            /* বক্সের চারপাশে কোনো বর্ডার থাকবে না, শুধু উপরে পার্পল কালার থাকবে */
+            border-top: 8px solid var(--border-color); 
+            /* এলিগ্যান্ট শ্যাডো ইফেক্ট */
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), 0 5px 15px rgba(15, 23, 42, 0.04);
+        }
+
+        /* শিরোনাম সেকশন */
+        .header-section {
+            padding: 35px 35px 10px 35px;
+            position: relative;
+        }
+
+        .main-title {
+            font-size: 1.8rem;
+            color: #1e1b4b;
+            font-weight: 650;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+
+        .episode {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-left: 6px;
+            vertical-align: bottom;
+        }
+
+        .sub-title {
+            font-size: 1.35rem;
+            color: var(--primary-color);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        /* বিস্তারিত বাটন */
+        .details-btn-wrapper {
+            padding: 0 35px;
+            margin-bottom: 25px;
+        }
+        
+        .details-btn {
+            background: #eef2ff;
+            color: var(--primary-color);
+            border: 1.5px solid #c7d2fe;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .details-btn:hover {
+            background: #e0e7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        /* সেকশন এবং ফর্ম */
+        form {
+            padding: 0 35px 35px 35px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            color: #0f172a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #334155;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* বয়স অপশন বাটন স্টাইল */
+        .age-options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .age-radio-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            cursor: not-allowed;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .age-radio-label input[type="radio"] {
+            accent-color: var(--primary-color);
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+        }
+
+        .age-radio-label.selected-age {
+            background: #eef2ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.08);
+        }
+
+        /* বিকাশ পেমেন্ট সেকশন ডিজাইন */
+        .bkash-info-wrapper {
+            background: linear-gradient(to right, #fff0f6, #fff5f9);
+            border: 1px solid #fbcfe8;
+            border-left: 5px solid var(--bkash-color);
+            padding: 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .payment-highlight-box {
+            background: #ffffff;
+            border: 1.5px dashed #f472b6;
+            padding: 12px 16px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .payment-highlight-box .fee-amount {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--bkash-color);
+        }
+
+        .bkash-number-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+            background: #ffffff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 1px solid #f9a8d4;
+        }
+
+        .copy-btn {
+            background: var(--bkash-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .copy-btn:hover { 
+            background: #b00e5a; 
+            transform: scale(1.02);
+        }
+
+        .hidden-fields {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* সাবমিট বাটন */
+        .submit-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .submit-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .submit-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* স্ক্রিনের মাঝখানে ফুল-স্ক্রিন প্রিমিয়াম লোডার */
+        .screen-loader-overlay {
+            display: none; /* ডিফল্ট হাইড থাকবে */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .atom-spinner {
+            font-size: 4rem;
+            color: var(--primary-color);
+            animation: spinAtom 1.2s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e1b4b;
+        }
+
+        @keyframes spinAtom {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* পপআপ/মোডাল স্টাইল */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--border-color);
+            animation: modalFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        .close-popup {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            margin-top: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        
+        .close-popup:hover { opacity: 0.9; }
+
+        /* প্রিমিয়াম টোস্ট নোটিফিকেশন */
+        .toast-container {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #1e293b;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            min-width: 280px;
+            animation: slideIn 0.3s ease forwards, fadeOut 0.3s ease 3.7s forwards;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .toast.toast-success { border-left-color: #10b981; }
+        .toast.toast-error { border-left-color: #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(10px); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: auto;
+            font-size: 0.95rem;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        footer a:hover { border-color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+<div class="screen-loader-overlay" id="screenLoader">
+    <i class="fas fa-atom atom-spinner"></i>
+    <div class="loader-text">তথ্য জমা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="container">
+    <img src="./AgdumBagdum.png" alt="Banner" class="banner">
+    
+    <div class="form-box">
+        <div class="header-section">
+            <h1 class="main-title">আগডুম বাগডুম</h1>
+            <span class="episode">(পর্ব-২)</span>
+            <div class="sub-title">নিবন্ধন ফর্ম</div>
+        </div>
+
+        <div class="details-btn-wrapper">
+            <button type="button" class="details-btn" onclick="openDetailsModal()">
+                <i class="fas fa-info-circle"></i> বিস্তারিত
+            </button>
+        </div>
+
+        <form id="registrationForm">
+            <div class="form-section">
+                <div class="section-title"><i class="fas fa-user-circle" style="color:var(--primary-color);"></i> অংশগ্রহণকারীর তথ্য</div>
+                
+                <div class="form-group">
+                    <label>১. পূর্ণ নাম (ইংরেজি):</label>
+                    <input type="text" id="userName" placeholder="অংশগ্রহণকারীর পূর্ণ নাম" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>২. ইমেইল এড্রেস:</label>
+                    <input type="email" id="userEmail" placeholder="example@mail.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>৩. মোবাইল নম্বর:</label>
+                    <input type="tel" id="userMobile" placeholder="01XXXXXXXXX" pattern="[0-9]{11}" maxlength="11" title="দয়া করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর লিখুন" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>৪. জেন্ডার:</label>
+                    <select id="userGender" required>
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="ছেলে">ছেলে</option>
+                        <option value="মেয়ে">মেয়ে</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>৫. জন্ম তারিখ (বয়সসীমা: ০৭ বছর থেকে ১০ বছর পর্যন্ত):</label>
+                    <input type="date" id="userDOB" onchange="validateAndCalculateAge()" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>৬. বয়স:</label>
+                    <div class="age-options-container">
+                        <label class="age-radio-label" id="labelAge7">
+                            <input type="radio" name="userAgeRadio" id="age7" value="7 Years"> ৭ বছর
+                        </label>
+                        <label class="age-radio-label" id="labelAge8">
+                            <input type="radio" name="userAgeRadio" id="age8" value="8 Years"> ৮ বছর
+                        </label>
+                        <label class="age-radio-label" id="labelAge9">
+                            <input type="radio" name="userAgeRadio" id="age9" value="9 Years"> ৯ বছর
+                        </label>
+                        <label class="age-radio-label" id="labelAge10">
+                            <input type="radio" name="userAgeRadio" id="age10" value="10 Years"> ১০ বছর
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title"><i class="fas fa-credit-card" style="color:var(--accent-color);"></i> পেমেন্ট সেকশন</div>
+                
+                <div class="bkash-info-wrapper">
+                    <div class="payment-highlight-box">
+                        <i class="fas fa-coins" style="color: #eab308; font-size: 1.3rem;"></i>
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block; font-weight: bold;">নিবন্ধন ফি (বিকাশ খরচসহ):</span>
+                            <span class="fee-amount">2040 tk only</span>
+                        </div>
+                    </div>
+                    <br>
+                    <strong style="color: var(--bkash-color); font-size: 0.95rem;"><i class="fas fa-wallet"></i> পেমেন্ট পদ্ধতি:</strong>
+                    <p style="font-size:0.85rem; margin-top:5px; color: var(--text-muted);">উক্ত ফি নিচের বিকাশ নম্বরে অবশ্যই <b>'Payment'</b> করতে হবে।</p>
+                    <div class="bkash-number-row">
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); display:block;">বিকাশ পেমেন্ট নম্বর</span>
+                            <strong style="font-size:1.1rem; color:var(--text-dark);" id="bkashNumber">01730716522</strong>
+                        </div>
+                        <button type="button" class="copy-btn" onclick="copyBkashNumber(event)">
+                            <i class="far fa-copy"></i> নম্বর কপি করুন
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>৭. বিকাশে পেমেন্ট করেছেন?</label>
+                    <select id="paymentStatus" onchange="togglePaymentFields()" required>
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="হ্যাঁ">হ্যাঁ</option>
+                        <option value="না">না</option>
+                    </select>
+                </div>
+
+                <div id="conditionalPaymentFields" class="hidden-fields">
+                    <div class="form-group">
+                        <label>৮. বিকাশ নাম্বার:</label>
+                        <input type="tel" id="bkashSenderNumber" placeholder="যে নাম্বার থেকে টাকা পাঠানো হয়েছে" pattern="[0-9]{11}" maxlength="11" title="দয়া করে একটি সঠিক ১১ ডিজিটের বিকাশ নম্বর লিখুন">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>৯. ট্রানজেকশন আইডি (Txn ID):</label>
+                        <input type="text" id="txnId" placeholder="বিকাশের ফিরতি মেসেজের TxnID দিন">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>১০. মন্তব্য (ঐচ্ছিক):</label>
+                        <textarea id="userComment" rows="3" placeholder="কোনো তথ্য জানার বা জানানোর থাকলে এখানে লিখুন..."></textarea>
+                    </div>
+                </div>
+                
+                <div id="defaultCommentField" class="form-group">
+                    <label id="commentLabel">৮. মন্তব্য (ঐচ্ছিক):</label>
+                    <textarea id="userCommentDefault" rows="3" placeholder="কোনো তথ্য জানার বা জানানোর থাকলে এখানে লিখুন..."></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">নিবন্ধন সম্পন্ন করুন</button>
+        </form>
+    </div>
+</div>
+
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin-bottom: 15px; color: var(--primary-color);" id="modalTitle">ইভেন্টের বিস্তারিত তথ্য</h2>
+        <div id="detailsPlaceholder" style="text-align: left; font-size: 0.95rem; color: #475569; max-height: 250px; overflow-y: auto; line-height: 1.6;"></div>
+        <button class="close-popup" onclick="closeDetailsModal()">বন্ধ করুন</button>
+    </div>
+</div>
+
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <i class="fas fa-check-circle modal-icon"></i>
+        <h2 style="color: #1e293b; margin-bottom: 10px;">নিবন্ধন সফল হয়েছে!</h2>
+        <p style="color: #475569; font-size: 1.1rem; line-height: 1.6;">আপনার প্রদানকৃত তথ্য সফলভাবে জমা হয়েছে। আমাদের প্রতিনিধি খুব শীঘ্রই আপনার সাথে যোগাযোগ করবেন। ধন্যবাদ!</p>
+        <button class="close-popup" style="background:var(--primary-color);" onclick="closeAndRefresh()">ঠিক আছে</button>
+    </div>
+</div>
+
+<footer>
+    Developed by, <a href="https://facebook.com/utsabsarker.arup" target="_blank">UTSAB SARKER</a>
+</footer>
+
+<script src="popup.js"></script>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmQnr8D-fiyJrIWvQsyrVZkYhoPEGVRKP7A-9SOn00p85ADbcxB8EOCsF4wl0NSW0pxQ/exec'; 
+
+    function showToast(message, type = 'info', icon = 'fa-info-circle') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 4000);
+    }
+
+    function copyBkashNumber(event) {
+        if(event) event.preventDefault(); 
+        const numText = document.getElementById('bkashNumber').innerText.trim();
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(numText)
+            .then(() => { showToast('বিকাশ নম্বরটি কপি করা হয়েছে: ' + numText, 'success', 'fa-clipboard-check'); })
+            .catch(() => { fallbackCopy(numText); });
+        } else { fallbackCopy(numText); }
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed"; textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus(); textArea.select();
+        try {
+            document.execCommand('copy');
+            showToast('বিকাশ নম্বরটি কপি করা হয়েছে: ' + text, 'success', 'fa-clipboard-check');
+        } catch (err) {
+            showToast('দুংখিত! নাম্বারটি কপি করা যায়নি!', 'error', 'fa-exclamation-triangle');
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function togglePaymentFields() {
+        const status = document.getElementById('paymentStatus').value;
+        const conditionalFields = document.getElementById('conditionalPaymentFields');
+        const defaultCommentField = document.getElementById('defaultCommentField');
+        
+        if (status === 'হ্যাঁ') {
+            conditionalFields.style.display = 'block';
+            defaultCommentField.style.display = 'none';
+            document.getElementById('bkashSenderNumber').required = true;
+            document.getElementById('txnId').required = true;
+            showToast('অনুগ্রহ করে বিকাশ পেমেন্টের তথ্যসমূহ প্রদান করুন।', 'info', 'fa-wallet');
+        } else {
+            conditionalFields.style.display = 'none';
+            defaultCommentField.style.display = 'block';
+            document.getElementById('commentLabel').innerText = "৮. মন্তব্য (ঐচ্ছিক):";
+            document.getElementById('bkashSenderNumber').required = false;
+            document.getElementById('txnId').required = false;
+        }
+    }
+
+    function validateAndCalculateAge() {
+        const dobInput = document.getElementById('userDOB').value;
+        if (!dobInput) return;
+
+        const dob = new Date(dobInput);
+        const today = new Date();
+        let ageDouble = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) { ageDouble--; }
+
+        const allRadios = document.querySelectorAll('input[name="userAgeRadio"]');
+        allRadios.forEach(radio => {
+            radio.checked = false;
+            radio.parentElement.classList.remove('selected-age');
+        });
+
+        if (ageDouble < 7 || ageDouble > 10) {
+            showToast("দুঃখিত, অংশগ্রহণের জন্য বয়সসীমা ৭ থেকে ১০ বছর হতে হবে।", "error", "fa-user-times");
+            document.getElementById('userDOB').value = "";
+            return;
+        }
+
+        let finalAgeClass = ageDouble.toString(); 
+        const targetRadio = document.getElementById('age' + finalAgeClass);
+        if(targetRadio) {
+            targetRadio.checked = true;
+            targetRadio.parentElement.classList.add('selected-age');
+        }
+        showToast(`অভিনন্দন, বয়স ${finalAgeClass} বছর এবং সে উপযুক্ত।`, "success", "fa-user-check");
+    }
+
+    // ঠিক আছে বাটনে ক্লিক করলে সাকসেস পপআপ বন্ধ হয়ে পেজ রিফ্রেশ হবে
+    function closeAndRefresh() {
+        if (typeof closeSuccessModal === 'function') {
+            closeSuccessModal();
+        } else {
+            document.getElementById('successModal').style.display = 'none';
+        }
+        // পেজ রিলোড করা
+        location.reload();
+    }
+
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const isPaid = document.getElementById('paymentStatus').value;
+        let comment = ""; let bKashNum = "-"; let txn = "-";
+
+        if(isPaid === 'হ্যাঁ') {
+            bKashNum = document.getElementById('bkashSenderNumber').value;
+            txn = document.getElementById('txnId').value;
+            comment = document.getElementById('userComment').value;
+        } else {
+            comment = document.getElementById('userCommentDefault').value;
+        }
+
+        const selectedAgeRadio = document.querySelector('input[name="userAgeRadio"]:checked');
+        const userAgeValue = selectedAgeRadio ? selectedAgeRadio.value : "-";
+
+        if(userAgeValue === "-") {
+            showToast("অনুগ্রহ করে জন্ম তারিখ দিয়ে বয়স নিশ্চিত করুন।", "error", "fa-exclamation-triangle");
+            return;
+        }
+
+        const payload = {
+            action: "register",
+            name: document.getElementById('userName').value,
+            email: document.getElementById('userEmail').value,
+            mobile: document.getElementById('userMobile').value,
+            gender: document.getElementById('userGender').value,
+            dob: document.getElementById('userDOB').value,
+            age: userAgeValue,
+            bkash_paid: isPaid,
+            bkash_number: bKashNum,
+            txn_id: txn,
+            comment: comment
+        };
+
+        const submitBtn = document.getElementById('submitBtn');
+        const screenLoader = document.getElementById('screenLoader');
+        
+        // ১. সাবমিট বাটন লক করা এবং স্ক্রিনের মাঝখানে ফুল স্ক্রিন লোডার অন করা
+        submitBtn.disabled = true;
+        screenLoader.style.display = "flex";
+
+        // ২. ডেটা গুগলে পাঠানো
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            // ৩. লোডিং স্পিড বাড়ানোর জন্য লোডিং টাইম কমিয়ে মাত্র ৮০০ মিলিসেকেন্ড করা হয়েছে
+            setTimeout(() => {
+                screenLoader.style.display = "none";
+                submitBtn.disabled = false;
+                
+                // ফর্ম রিসেট
+                document.getElementById('registrationForm').reset();
+                document.querySelectorAll('.age-radio-label').forEach(lbl => lbl.classList.remove('selected-age'));
+                togglePaymentFields();
+                
+                // সাকসেস পপআপ শো করা
+                if(typeof openSuccessModal === 'function') {
+                    openSuccessModal();
+                } else {
+                    const successModal = document.getElementById('successModal');
+                    if(successModal) successModal.style.display = 'flex';
+                }
+            }, 800); 
+        })
+        .catch(err => {
+            console.error(err);
+            screenLoader.style.display = "none";
+            submitBtn.disabled = false;
+            showToast("দুঃখিত! নেটওয়ার্ক সংযোগে সমস্যা হয়েছে! আবার চেষ্টা করুন।", "error", "fa-wifi");
+        });
+    });
+</script>
+</body>
+</html>
