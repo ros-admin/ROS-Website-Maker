@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>ROS Online Digital Member Form</title>
+<!-- QR Code Generation Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
     @page {
@@ -20,7 +21,7 @@
         background-color: #ffffff;
     }
     
-    /* Page Container - Single Page Fit without action bars */
+    /* Page Container - Single Page Fit */
     .page-container {
         width: 175mm;
         max-height: 297mm;
@@ -154,6 +155,10 @@
         margin-right: 1px;
         font-weight: bold;
     }
+    .date-digit.fixed-num {
+        background: #f0f0f0;
+        color: #1a1a1a;
+    }
     .date-dot {
         margin: 0 3px;
         font-weight: bold;
@@ -241,7 +246,6 @@
         height: 70px;
         margin: 0 auto;
     }
-    /* Force the high-res library canvas to match exact size crisply */
     #qrcode img, #qrcode canvas {
         width: 70px !important;
         height: 70px !important;
@@ -310,11 +314,20 @@
 </head>
 <body>
 
+    <!-- Hidden Bridge container for Sheet Engines to populate data safely -->
+    <div style="display: none !important;">
+        <span id="sheet-memberId">{{memberId}}</span>
+        <span id="sheet-createdAt">{{createdAt}}</span>
+        <span id="sheet-mobile">{{mobile}}</span>
+        <span id="sheet-dob">{{dob}}</span>
+    </div>
+
     <div class="page-container">
         <div class="border-outer">
             <div class="border-inner">
                 <div class="watermark">RAJSHAHI OLIMPIAD SOCIETY</div>
                 
+                <!-- Logo & Badge Header -->
                 <div class="logo-container">
                     <img src="https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png" class="title-logo" alt="ROS Logo Title">
                     <div class="form-badge">Digital Membership Form (Member Copy)</div>
@@ -322,15 +335,17 @@
                 
                 <div class="meta-grid">
                     <div class="meta-fields">
+                        <!-- Splitted Reg No Box Design -->
                         <div class="meta-row">
                             <div class="meta-label">Registration No:</div>
-                            <div class="reg-box" id="reg-part1">ROS</div>
+                            <div class="reg-box" id="reg-part1">-</div>
                             <div class="reg-dash">-</div>
-                            <div class="reg-box" id="reg-part2" style="width: 55px; text-align: left;">20</div>
+                            <div class="reg-box" id="reg-part2" style="width: 55px; text-align: left;">-</div>
                             <div class="reg-dash">-</div>
                             <div class="reg-box" id="reg-part3" style="width: 80px;">-</div>
                         </div>
                         
+                        <!-- Splitted Date Design -->
                         <div class="meta-row">
                             <div class="meta-label">Registration Date:</div>
                             <div class="date-box-container" id="date-container">
@@ -347,6 +362,7 @@
                             </div>
                         </div>
 
+                        <!-- Status Badge Block -->
                         <div class="meta-row">
                             <div class="meta-label">Membership Status:</div>
                             <div>
@@ -355,11 +371,13 @@
                         </div>
                     </div>
                     
+                    <!-- Dynamic Member Photo -->
                     <div class="meta-photo-box">
                         {{photoHtml}}
                     </div>
                 </div>
                 
+                <!-- 1. Detailed Member Information -->
                 <div class="section-title">1. Member's Personal Information</div>
                 <table class="data-table">
                     <colgroup>
@@ -388,14 +406,48 @@
                     
                     <tr>
                         <td class="bg-label">Mobile Number:</td>
-                        <td id="field-mobile">{{mobile}}</td>
+                        <td>
+                            <!-- 11 Digit Custom Distribution Box (0 + 10 Sheet Digits) -->
+                            <div class="date-box-container" id="mobile-box-container">
+                                <div class="date-digit fixed-num">0</div>
+                                <div class="date-dot">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-dot">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                            </div>
+                            <!-- Hidden clean container for scanner validation -->
+                            <span id="clean-mobile-field" style="display:none;"></span>
+                        </td>
                         <td class="bg-label">Email Address:</td>
                         <td id="field-email">{{email}}</td>
                     </tr>
                     
                     <tr>
                         <td class="bg-label">Date of Birth:</td>
-                        <td id="field-dob">{{dob}}</td>
+                        <td>
+                            <!-- Dynamic DOB Splitted Boxes -->
+                            <div class="date-box-container" id="dob-box-container">
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-dot">.</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-dot">.</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                                <div class="date-digit">-</div>
+                            </div>
+                            <!-- Plain Text Representation inside table -->
+                            <div id="field-dob" style="font-size: 7.5pt; margin-top:3px; font-weight:bold; color:#444;"></div>
+                        </td>
                         <td class="bg-label">Blood Group:</td>
                         <td id="field-blood" style="font-weight: bold; color: #d90429;">{{blood}}</td>
                     </tr>
@@ -430,26 +482,33 @@
                     </tr>
                 </table>
                 
+                <!-- 2. Terms and Declarations -->
                 <div class="section-title">2. Terms of Membership & Declaration</div>
                 <div class="terms-box">
                     1. <strong>Supreme Authority:</strong> If any member is found involved in activities contrary to the discipline, image, or ideology of the Rajshahi Olympiad Society (ROS), the authority reserves the sole and absolute right to cancel or suspend their membership at any time without prior notice.<br>
                     2. I hereby declare that all the information provided above is true and accurate. I have digitally agreed to these terms and conditions through the online dashboard while generating this membership copy.
                 </div>
                 
+                <!-- Signatures & Centered Dynamic QR Code Grid -->
                 <div class="footer-grid">
+                    <!-- Applicant Signature (Left) -->
                     <div class="footer-cell">
                         <div class="sig-line"></div>
                         <span style="font-size: 8.5pt;">Applicant's Signature</span>
                     </div>
                     
+                    <!-- Dynamic HD QR Code Container (Middle) -->
                     <div class="footer-cell">
                         <div class="qr-wrapper">
+                            <!-- Target container for QR library -->
                             <div id="qrcode"></div>
+                            <!-- Small overlay logo in center of QR -->
                             <img src="https://rosociety.vercel.app/ros%20logo%20transparent.png" class="qr-logo" alt="Logo">
                         </div>
                         <div style="font-size: 6.5pt; color: #555; margin-top: 4px; font-weight: bold;">SCAN TO VERIFY</div>
                     </div>
                     
+                    <!-- Verified Authority Stamp/Signature (Right) -->
                     <div class="footer-cell">
                         <div style="font-size: 9px; font-weight: bold; color: #2a9d8f; text-transform: uppercase; border: 1.5px dashed #2a9d8f; padding: 2px 6px; display: inline-block; margin-bottom: 4px; transform: rotate(-4deg); border-radius: 4px;">
                             ✓ SIGNED VERIFIED
@@ -460,10 +519,12 @@
                     </div>
                 </div>
 
+                <!-- Digital System Banner - Red Note -->
                 <div class="alert-banner">
-                    *特别提示 / NOTE: This is a system-generated, digitally verified document. Since it supports real-time verification via database, no physical signature or seal is required.
+                    * NOTE: This is a system-generated, digitally verified document. Since it supports real-time verification via database, no physical signature or seal is required.
                 </div>
                 
+                <!-- Social & Contact Footer -->
                 <div class="org-info-footer">
                     <div class="info-cell" style="text-align: left;">
                         🌐 rosociety.vercel.app
@@ -476,6 +537,7 @@
                     </div>
                 </div>
 
+                <!-- System Metadata (Developer & Download Time) -->
                 <div class="system-footer">
                     <div id="system-time">{{formattedTimeStr}}</div>
                     <div>Developed by: <strong>Utsab Sarker</strong></div>
@@ -484,50 +546,138 @@
         </div>
     </div>
 
+    <!-- Script to handle all Dynamic Sheets parser & Ultra HD QR parameters -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. Dynamic Split Logic for Registration No {{memberId}}
-            let rawRegNo = "{{memberId}}";
-            if (rawRegNo.includes("{{memberId}}") || !rawRegNo.trim()) {
-                rawRegNo = "ROS-20-8914"; 
+            // Safe function to parse the innerHTML modified by Sheet Engine
+            function getCleanSheetValue(elementId) {
+                const el = document.getElementById(elementId);
+                if (!el) return "";
+                const val = el.innerText || el.textContent;
+                if (val.includes("{"+"{" || val.trim() === "") {
+                    return ""; // If placeholder is unreplaced, return blank
+                }
+                return val.trim();
             }
 
-            const regParts = rawRegNo.split("-");
-            if (regParts.length >= 3) {
-                document.getElementById("reg-part1").innerHTML = regParts[0].toUpperCase();
-                document.getElementById("reg-part2").innerHTML = regParts[1];
-                document.getElementById("reg-part3").innerHTML = regParts[2];
-            } else {
-                document.getElementById("reg-part3").innerHTML = rawRegNo;
+            // 1. Dynamic Split Logic for Registration No
+            const rawRegNo = getCleanSheetValue("sheet-memberId");
+            if (rawRegNo) {
+                const regParts = rawRegNo.split("-");
+                if (regParts.length >= 3) {
+                    document.getElementById("reg-part1").innerHTML = regParts[0].toUpperCase();
+                    document.getElementById("reg-part2").innerHTML = regParts[1];
+                    document.getElementById("reg-part3").innerHTML = regParts[2];
+                } else {
+                    document.getElementById("reg-part3").innerHTML = rawRegNo;
+                }
             }
 
-            // 2. Dynamic Split Logic for Date {{createdAt}}
-            let rawDateStr = "{{createdAt}}";
-            if (rawDateStr.includes("{{createdAt}}") || !rawDateStr.trim()) {
-                rawDateStr = "14/07/2026"; 
+            // 2. Dynamic Split Logic for Registration Date
+            let rawRegDateStr = getCleanSheetValue("sheet-createdAt");
+            if (rawRegDateStr) {
+                let cleanRegDigits = rawRegDateStr.replace(/[^0-9]/g, "");
+                // Safe check if DB returned standard long timezone output
+                if (cleanRegDigits.length < 8 || rawRegDateStr.includes("GMT")) {
+                    const parsedRegDate = new Date(rawRegDateStr);
+                    if (!isNaN(parsedRegDate)) {
+                        const d = String(parsedRegDate.getDate()).padStart(2, '0');
+                        const m = String(parsedRegDate.getMonth() + 1).padStart(2, '0');
+                        const y = parsedRegDate.getFullYear();
+                        rawRegDateStr = `${d}/${m}/${y}`;
+                        cleanRegDigits = `${d}${m}${y}`;
+                    }
+                }
+                if (cleanRegDigits.length >= 8) {
+                    const digitsArray = cleanRegDigits.substring(0, 8).split("");
+                    document.getElementById("date-container").innerHTML = `
+                        <div class="date-digit">${digitsArray[0]}</div>
+                        <div class="date-digit">${digitsArray[1]}</div>
+                        <div class="date-dot">.</div>
+                        <div class="date-digit">${digitsArray[2]}</div>
+                        <div class="date-digit">${digitsArray[3]}</div>
+                        <div class="date-dot">.</div>
+                        <div class="date-digit">${digitsArray[4]}</div>
+                        <div class="date-digit">${digitsArray[5]}</div>
+                        <div class="date-digit">${digitsArray[6]}</div>
+                        <div class="date-digit">${digitsArray[7]}</div>
+                    `;
+                }
             }
 
-            const cleanDigits = rawDateStr.replace(/[^0-9]/g, "");
-
-            if (cleanDigits.length >= 8) {
-                const digitsArray = cleanDigits.substring(0, 8).split("");
-                const dateContainer = document.getElementById("date-container");
+            // 3. Dynamic 11-Digit Mobile Splitting Box Logic (Always starts with 0)
+            const rawMobile = getCleanSheetValue("sheet-mobile");
+            let cleanPhoneForQR = "";
+            if (rawMobile) {
+                let cleanMobileDigits = rawMobile.replace(/[^0-9]/g, "");
+                // Strip the leading zero if the sheet value already includes it (to avoid double zeros)
+                if (cleanMobileDigits.startsWith("0")) {
+                    cleanMobileDigits = cleanMobileDigits.substring(1);
+                }
+                // Pad to exact 10 remaining characters safely
+                cleanMobileDigits = cleanMobileDigits.padEnd(10, "-");
+                const mobArr = cleanMobileDigits.split("");
                 
-                dateContainer.innerHTML = `
-                    <div class="date-digit">${digitsArray[0]}</div>
-                    <div class="date-digit">${digitsArray[1]}</div>
-                    <div class="date-dot">.</div>
-                    <div class="date-digit">${digitsArray[2]}</div>
-                    <div class="date-digit">${digitsArray[3]}</div>
-                    <div class="date-dot">.</div>
-                    <div class="date-digit">${digitsArray[4]}</div>
-                    <div class="date-digit">${digitsArray[5]}</div>
-                    <div class="date-digit">${digitsArray[6]}</div>
-                    <div class="date-digit">${digitsArray[7]}</div>
+                // First Digit '0' fixed, 4 digits, dash separator, next 6 digits
+                document.getElementById("mobile-box-container").innerHTML = `
+                    <div class="date-digit fixed-num">0</div>
+                    <div class="date-digit">${mobArr[0]}</div>
+                    <div class="date-digit">${mobArr[1]}</div>
+                    <div class="date-digit">${mobArr[2]}</div>
+                    <div class="date-digit">${mobArr[3]}</div>
+                    <div class="date-dot">-</div>
+                    <div class="date-digit">${mobArr[4]}</div>
+                    <div class="date-digit">${mobArr[5]}</div>
+                    <div class="date-digit">${mobArr[6]}</div>
+                    <div class="date-digit">${mobArr[7]}</div>
+                    <div class="date-digit">${mobArr[8]}</div>
+                    <div class="date-digit">${mobArr[9]}</div>
                 `;
+                cleanPhoneForQR = "0" + cleanMobileDigits.replace(/-/g, "");
+                document.getElementById("clean-mobile-field").innerText = cleanPhoneForQR;
             }
 
-            // 3. Ultra HD Dynamic QR Code Generator (600x600 px high density render downscaled to 70px)
+            // 4. Standardizing Birth Date String (Converting 'Sat Jul 11 2026...' to Box Distribution)
+            const rawDobStr = getCleanSheetValue("sheet-dob");
+            let cleanDobDisplay = ""; 
+            if (rawDobStr) {
+                let dobDigits = rawDobStr.replace(/[^0-9]/g, "");
+                cleanDobDisplay = rawDobStr;
+
+                // Parse GMT or standard timezone objects to DD/MM/YYYY
+                if (rawDobStr.includes("GMT") || (isNaN(Number(rawDobStr)) && !rawDobStr.includes("/"))) {
+                    const parsedDate = new Date(rawDobStr);
+                    if (!isNaN(parsedDate)) {
+                        const day = String(parsedDate.getDate()).padStart(2, '0');
+                        const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+                        const year = parsedDate.getFullYear();
+                        cleanDobDisplay = `${day}/${month}/${year}`;
+                        dobDigits = `${day}${month}${year}`;
+                    }
+                }
+
+                // Show formatted clean string below boxes inside table
+                document.getElementById("field-dob").innerText = cleanDobDisplay;
+
+                // Distribute to 8 boxes
+                if (dobDigits.length >= 8) {
+                    const dobArr = dobDigits.substring(0, 8).split("");
+                    document.getElementById("dob-box-container").innerHTML = `
+                        <div class="date-digit">${dobArr[0]}</div>
+                        <div class="date-digit">${dobArr[1]}</div>
+                        <div class="date-dot">.</div>
+                        <div class="date-digit">${dobArr[2]}</div>
+                        <div class="date-digit">${dobArr[3]}</div>
+                        <div class="date-dot">.</div>
+                        <div class="date-digit">${dobArr[4]}</div>
+                        <div class="date-digit">${dobArr[5]}</div>
+                        <div class="date-digit">${dobArr[6]}</div>
+                        <div class="date-digit">${dobArr[7]}</div>
+                    `;
+                }
+            }
+
+            // 5. Ultra HD Dynamic QR Code Generator Vector Scaling (600x600 px high density render downscaled)
             function extractText(elementId) {
                 const el = document.getElementById(elementId);
                 if (!el) return "";
@@ -537,15 +687,15 @@
 
             const qrPayload = {
                 regNo: rawRegNo,
-                regDate: rawDateStr,
+                regDate: rawRegDateStr,
                 status: "ACTIVE",
                 name: extractText("field-englishName"),
-                mobile: extractText("field-mobile"),
+                mobile: cleanPhoneForQR || extractText("clean-mobile-field"),
                 email: extractText("field-email"),
-                dob: extractText("field-dob"),
+                dob: cleanDobDisplay,
                 bloodGroup: extractText("field-blood"),
                 qualification: extractText("field-edu"),
-                institution: extractText("field-inst")
+                institution: extractText("field-inst"]
             };
 
             let qrTextString = `--- ROS MEMBER VERIFICATION ---\n`;
@@ -555,10 +705,11 @@
             qrTextString += `Name: ${qrPayload.name}\n`;
             qrTextString += `Mobile: ${qrPayload.mobile}\n`;
             qrTextString += `Email: ${qrPayload.email}\n`;
+            qrTextString += `DOB: ${qrPayload.dob}\n`;
             qrTextString += `Blood: ${qrPayload.bloodGroup}\n`;
             qrTextString += `Institution: ${qrPayload.institution}`;
 
-              // Initializing with massive dimensions for pure vector sharp look
+            // Initialize Premium HD QR Engine
             new QRCode(document.getElementById("qrcode"), {
                 text: qrTextString,
                 width: 600,
