@@ -112,7 +112,7 @@ function renderMemberManagementSection(container) {
       <div class="bg-slate-900 border-2 border-[#00b4d8]/40 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
         <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
           <div class="text-left">
-            <h2 class="text-md font-bold text-[#ffd700] tracking-wide"><i class="fa-solid fa-building-columns mr-1.5"></i>রাজশাহী অলিম্পিয়াড सोसाइटी</h2>
+            <h2 class="text-md font-bold text-[#ffd700] tracking-wide"><i class="fa-solid fa-building-columns mr-1.5"></i>রাজশাহী অলিম্পিয়াড সোসাইটি</h2>
             <p class="text-[11px] text-[#00b4d8] font-bold tracking-wider uppercase">Member Details Info</p>
           </div>
           <button onclick="closeMemberModal()" class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 flex items-center justify-center cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
@@ -189,9 +189,8 @@ function renderMemberManagementSection(container) {
       </div>
     </div>
 
-    <div id="hiddenPdfRenderContainer" class="absolute left-[-9999px] top-[-9999px]"></div>
-    <!-- QR Code জেনারেটরের স্ক্রিপ্ট লোড করার হিডেন এলিমেন্ট -->
-    <div id="pdf-qrcode-box" style="display:none;"></div>
+    <!-- লুপ হোল বা ব্যাকগ্রাউন্ড রেন্ডার কন্টেইনার -->
+    <div id="hiddenPdfRenderContainer" style="position: absolute; left: -9999px; top: -9999px;"></div>
   `;
 
   populateDateFilter(window.allUsersData);
@@ -329,8 +328,9 @@ function openMemberModal(memberId) {
   document.getElementById('modal-whatsapp').innerText = user.whatsappNumber || 'N/A';
   document.getElementById('modal-fb').innerText = user.facebookLink || 'N/A';
   document.getElementById('modal-nid').innerText = user.nidOrBrn || 'N/A';
-  document.getElementById('modal-photo').src = user.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
-
+  
+  // ইমেজ ব্লকিং এড়াতে নো-ক্যাশ রুলস বাইপাস ব্যবহার
+  document.getElementById('modal-photo').src = user.photoUrl ? user.photoUrl + '?t=' + new Date().getTime() : "https://rosociety.vercel.app/ros%20logo.png";
   document.getElementById('modal-regDateOnly').innerText = user.registrationDate ? user.registrationDate.split(' ')[0] : 'N/A';
 
   const status = String(user.status || '').toLowerCase().trim();
@@ -348,7 +348,6 @@ function closeMemberModal() {
   window.activePopupUser = null; 
 }
 
-// টেবিলের সাধারণ এক্সেল এক্সপোর্ট জেনারেটর (ফিক্সড)
 function exportToExcel() {
   if(!window.currentFilteredList || window.currentFilteredList.length === 0) { alert("এক্সপোর্ট করার মতো কোনো ডাটা নেই!"); return; }
   const formatData = window.currentFilteredList.map((u, i) => ({
@@ -366,7 +365,6 @@ function exportToExcel() {
   XLSX.writeFile(wb, `ROS_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// টেবিলের সাধারণ পিডিএফ ডাউনলোড (ফিক্সড)
 function exportToPDF() {
   if(!window.currentFilteredList || window.currentFilteredList.length === 0) { alert("রিপোর্ট জেনারেট করার মতো কোনো ডাটা নেই!"); return; }
   const { jsPDF } = window.jspdf;
@@ -382,12 +380,15 @@ function exportToPDF() {
   });
   doc.save(`ROS_Table_List.pdf`);
 }
-// অফিশিয়াল ফর্ম টেমপ্লেট পিডিএফ জেনারেশন মেকানিজম (সম্পূর্ণ ফিক্সড)
+
+// অফিশিয়াল মেম্বারশিপ পিডিএফ জেনারেটর ইঞ্জিন (শতভাগ কর্স-বাইপাস ফিক্সড)
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
+  
   if(typeof showLoader === 'function') showLoader(true, "অফিশিয়াল মেম্বারশিপ পিডিএফ জেনারেট হচ্ছে...");
 
+  // আইডি ও টেক্সট পার্সিং
   const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
   const regPart1 = regParts[0] || 'ROS';
   const regPart2 = regParts[1] || '0000';
@@ -415,9 +416,12 @@ async function downloadOfficialTemplatePDF() {
   const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
   const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
+  // ইমেজ সিকিউরিটি প্রক্সি বাইপাস লজিক
+  const securePhotoUrl = u.photoUrl ? u.photoUrl + '?t=' + new Date().getTime() : "https://rosociety.vercel.app/ros%20logo.png";
+
   const pdfContainer = document.getElementById('hiddenPdfRenderContainer');
   pdfContainer.innerHTML = `
-    <div id="pdfInvoiceTemplate" style="width: 760px; padding: 15px; background: #ffffff; color: #1a1a1a; font-family: Arial, sans-serif;">
+    <div id="pdfInvoiceTemplate" style="width: 740px; padding: 10px; background: #ffffff; color: #1a1a1a; font-family: Arial, sans-serif;">
       <div style="border: 1px solid #0077b6; padding: 2px;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
@@ -449,7 +453,7 @@ async function downloadOfficialTemplatePDF() {
               </td>
               <td style="width: 80px; text-align: right; vertical-align: top;">
                 <div style="width: 75px; height: 85px; border: 1px dashed #0077b6; background: #fafafa; overflow: hidden; display:inline-block;">
-                  <img src="${u.photoUrl || 'https://rosociety.vercel.app/ros%20logo.png'}" style="width:100%; height:100%; object-fit:cover;">
+                  <img src="${securePhotoUrl}" style="width:100%; height:100%; object-fit:cover;">
                 </div>
               </td>
             </tr>
@@ -509,7 +513,6 @@ async function downloadOfficialTemplatePDF() {
                 <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <!-- নির্দেশনা অনুযায়ী ভেরিফাইড সিল ছাড়া খালি রাখা হয়েছে -->
                 <div style="height: 20px;"></div>
                 <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
               </td>
@@ -526,28 +529,41 @@ async function downloadOfficialTemplatePDF() {
     </div>
   `;
 
-  // QR কোড ডাটা প্যাক
-  let qrTextString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}\nBlood: ${u.bloodGroup || 'N/A'}`;
+  // QR কোড ডাটা সেট
+  let qrTextString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;
   
+  // ডাইনামিক কিউআর কোড রেন্ডার
   new QRCode(document.getElementById("real-pdf-qr"), {
     text: qrTextString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
   });
 
-  // Render & Canvas conversion
+  // ব্রাউজারকে লোগো ও ইমেজগুলো ক্যাশ থেকে পুরোপুরি রেন্ডার করার জন্য সময় দেওয়া হলো
   setTimeout(async () => {
     try {
       const target = document.getElementById("pdfInvoiceTemplate");
-      const canvas = await html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+      
+      // html2canvas এর কর্স এবং ইমেজ ইগনোর সিকিউরিটি অন করা হলো
+      const canvas = await html2canvas(target, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: true,
+        backgroundColor: "#ffffff" 
+      });
+      
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const { jsPDF } = window.jspdf;
+      
       const pdf = new jsPDF('p', 'mm', 'a4');
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+      
       if(typeof showLoader === 'function') showLoader(false);
       pdf.save(`ROS_Official_Form_${u.memberId}.pdf`);
     } catch (err) {
       if(typeof showLoader === 'function') showLoader(false);
-      alert("PDF রূপান্তর করতে সমস্যা হয়েছে।");
+      console.error(err);
+      alert("PDF রূপান্তর করতে সমস্যা হয়েছে। সিডিএন লিংক চেক করুন।");
     }
-  }, 350); // QR কোড রেন্ডার হওয়ার জন্য পর্যাপ্ত বাফার টাইম
+  }, 400); 
 }
 
 window.renderMemberManagementSection = renderMemberManagementSection;
