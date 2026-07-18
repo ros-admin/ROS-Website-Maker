@@ -1,9 +1,221 @@
 /**
  * member-management.js
- * মেম্বার ম্যানেজমেন্ট সেকশন, ফিল্টারিং, টেবিল ভিউ, পপআপ এবং এক্সপোর্ট ইঞ্জিনের সমস্ত লজিক
+ * মেম্বার ম্যানেজমেন্ট সেকশনের সম্পূর্ণ ডিজাইন, টেবিল রেন্ডারিং, ফিল্টার এবং এক্সপোর্ট লজিক
  */
 
-// গুগল শিটের তারিখগুলো অটোমেটিক ডাইনামিক ফিল্টারে রূপান্তরকারী
+function renderMemberManagementSection(container) {
+  // ১. এইচটিএমএল লেআউট ও পপআপ মডাল ডিজাইন ইনজেকশন
+  container.innerHTML = `
+    <section id="member_management-section" class="space-y-6 animate-fadeIn">
+      <div>
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-users text-[#00b4d8]"></i> Member Management Panel
+        </h2>
+      </div>
+
+      <!-- ফিল্টারস জোন -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="col-span-1 sm:col-span-2 relative">
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">সার্চ করুন (নাম/রেজি/মোবাইল/ইমেইল)</label>
+            <input type="text" id="memberSearchInput" oninput="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-[#00b4d8]" placeholder="টাইপ করুন...">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">স্ট্যাটাস অনুযায়ী</label>
+            <select id="filterStatus" onchange="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="suspend">Suspend</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">ক্রমানুসারে সাজান</label>
+            <select id="filterSort" onchange="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none">
+              <option value="name_asc">নামের শুরু থেকে শেষ</option>
+              <option value="name_desc">নামের শেষ থেকে শুরু</option>
+              <option value="reg_asc">রেজিস্ট্রেশন নম্বর (শুরু থেকে শেষ)</option>
+              <option value="reg_desc">রেজিস্ট্রেশন নম্বর (শেষ থেকে শুরু)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">নিবন্ধনের তারিখ</label>
+            <select id="filterDate" onchange="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none">
+              <option value="all">All Dates</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">রক্তের গ্রুপ</label>
+            <select id="filterBlood" onchange="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none">
+              <option value="all">All Blood Groups</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">জেন্ডার</label>
+            <select id="filterGender" onchange="filterAndRenderMembersTable()" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none">
+              <option value="all">All Genders</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/60">
+          <p class="text-xs text-slate-400">ফিল্টারড ডাটা সংখ্যা: <span id="filtered-count" class="font-bold text-[#00b4d8]">0</span> জন</p>
+          <div class="flex items-center gap-2">
+            <button onclick="exportToExcel()" class="px-3 py-1.5 bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/20 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-file-excel"></i> Excel Download
+            </button>
+            <button onclick="exportToPDF()" class="px-3 py-1.5 bg-rose-600/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-file-pdf"></i> PDF Download
+            </button>
+          </div>
+        </div>
+
+        <!-- টেবিল ডাটা স্ট্রাকচার -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/40">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-950 text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-slate-800">
+                <th class="py-3 px-3 text-center w-12">SL</th>
+                <th class="py-3 px-3">রেজিস্ট্রেশন নাম্বার</th>
+                <th class="py-3 px-3">ইংরেজি নাম</th>
+                <th class="py-3 px-3">মোবাইল</th>
+                <th class="py-3 px-3">ই-মেইল</th>
+                <th class="py-3 px-3 text-center">রক্তের গ্রুপ</th>
+                <th class="py-3 px-3 text-center">জেন্ডার</th>
+                <th class="py-3 px-3">নিবন্ধনের তারিখ</th>
+                <th class="py-3 px-3 text-center">স্ট্যাটাস</th>
+                <th class="py-3 px-3 text-center">স্ট্যাটাস পরিবর্তন</th>
+                <th class="py-3 px-3 text-center">বিস্তারিত</th>
+              </tr>
+            </thead>
+            <tbody id="memberTableBody" class="divide-y divide-slate-900 text-xs text-slate-300"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ডাইনামিক মেম্বার ডিটেইলস পপআপ মডাল -->
+    <div id="memberPopupModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
+        <div id="modalPrintArea" class="p-6 space-y-6 flex-1 text-center">
+          <div class="flex flex-col items-center justify-center">
+            <div class="w-28 h-28 rounded-full border-2 border-[#00b4d8] p-0.5 bg-slate-950 overflow-hidden mb-3 shadow-lg">
+              <img id="modal-photo" src="https://rosociety.vercel.app/ros%20logo.png" alt="Member Photo" class="w-full h-full object-cover rounded-full">
+            </div>
+            <div class="bg-slate-950/80 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-mono text-[#ffd700] font-bold mb-1" id="modal-memberId-title">ROS-XXXX-XXXX</div>
+            <h2 id="modal-englishName" class="text-lg font-bold text-white tracking-wide">English Name</h2>
+          </div>
+
+          <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div><span class="text-slate-500 font-semibold block mb-0.5">নিবন্ধনের তারিখ</span><span id="modal-regDateOnly" class="text-slate-200 font-mono">...</span></div>
+            <div><span class="text-slate-500 font-semibold block mb-0.5">নিবন্ধনের সময়</span><span id="modal-regTimeOnly" class="text-slate-200 font-mono">...</span></div>
+            <div><span class="text-slate-500 font-semibold block mb-0.5">বর্তমান স্ট্যাটাস</span><span id="modal-status-badge" class="font-bold uppercase px-2 py-0.5 rounded text-[10px] inline-block mt-0.5">...</span></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-3 text-left text-xs">
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-6">
+              <span class="text-slate-500 font-semibold block mb-0.5">Name (Bangla)</span>
+              <span id="modal-banglaName" class="text-slate-200 font-medium">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Father's Name</span>
+              <span id="modal-father" class="text-slate-200 font-medium">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Mother's Name</span>
+              <span id="modal-mother" class="text-slate-200 font-medium">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Mobile Number</span>
+              <span id="modal-mobile" class="text-slate-200 font-mono">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Email Address</span>
+              <span id="modal-email" class="text-slate-200 font-mono">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">জন্ম তারিখ (DOB)</span>
+              <span id="modal-dob" class="text-slate-200 font-mono">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">রক্তের গ্রুপ (Blood Group)</span>
+              <span id="modal-blood" class="text-[#00b4d8] font-bold">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">জেন্ডার (Gender)</span>
+              <span id="modal-gender" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Present Address</span>
+              <span id="modal-present" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Permanent Address</span>
+              <span id="modal-permanent" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">Education</span>
+              <span id="modal-education" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">Academic Year</span>
+              <span id="modal-academic" class="text-slate-200 font-mono">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-2">
+              <span class="text-slate-500 font-semibold block mb-0.5">Profession</span>
+              <span id="modal-profession" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Institution</span>
+              <span id="modal-institute" class="text-slate-200">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">Whatsapp Number</span>
+              <span id="modal-whatsapp" class="text-slate-200 font-mono">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">FB ID Link</span>
+              <span id="modal-fb" class="text-[#00b4d8] break-all">...</span>
+            </div>
+            <div class="bg-slate-950/30 p-3 rounded-lg border border-slate-800/40 md:col-span-3">
+              <span class="text-slate-500 font-semibold block mb-0.5">NID/Birth Certificate Number</span>
+              <span id="modal-nid" class="text-slate-200 font-mono">...</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center border-t border-slate-800 pt-4 mt-5">
+            <button onclick="downloadSingleTemplatePDF()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-file-pdf"></i> PDF ডাউনলোড
+            </button>
+            <button onclick="closeMemberModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-all cursor-pointer">
+              বন্ধ করুন
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // ২. টেবিল ফিল্টার ও রেন্ডার ইঞ্জিন ইনিশিয়ালাইজেশন
+  populateDateFilter(allUsersData);
+  filterAndRenderMembersTable();
+}
+
 function populateDateFilter(users) {
   const dateSelect = document.getElementById('filterDate');
   if (!dateSelect) return;
@@ -24,7 +236,6 @@ function populateDateFilter(users) {
   });
 }
 
-// সমন্বিত মাল্টি-ফিল্টারিং এবং ক্রমানুসারে সাজানোর কোর ইঞ্জিন
 function filterAndRenderMembersTable() {
   const searchVal = document.getElementById('memberSearchInput').value.toLowerCase().trim();
   const statusFilter = document.getElementById('filterStatus').value;
@@ -34,14 +245,12 @@ function filterAndRenderMembersTable() {
   const sortFilter = document.getElementById('filterSort').value;
 
   currentFilteredList = allUsersData.filter(user => {
-    // ১. টেক্সট সার্চ ম্যাচিং
     const id = String(user.memberId || '').toLowerCase();
     const name = String(user.englishName || '').toLowerCase();
     const mob = String(user.mobile || '').toLowerCase();
     const em = String(user.email || '').toLowerCase();
     const matchesSearch = id.includes(searchVal) || name.includes(searchVal) || mob.includes(searchVal) || em.includes(searchVal);
 
-    // ২. স্ট্যাটাস ফিল্টার ম্যাচিং
     const status = String(user.status || '').toLowerCase().trim();
     let matchesStatus = true;
     if (statusFilter !== 'all') {
@@ -49,19 +258,16 @@ function filterAndRenderMembersTable() {
       else { matchesStatus = (status === statusFilter); }
     }
 
-    // ৩. তারিখ ফিল্টার ম্যাচিং
     let matchesDate = true;
     if(dateFilter !== 'all' && user.registrationDate) {
       matchesDate = user.registrationDate.split(' ')[0] === dateFilter;
     }
 
-    // ৪. ব্লাড গ্রুপ ফিল্টার ম্যাচিং
     let matchesBlood = true;
     if(bloodFilter !== 'all') {
       matchesBlood = String(user.bloodGroup || '').trim() === bloodFilter;
     }
 
-    // ৫. জেন্ডার ফিল্টার ম্যাচিং
     let matchesGender = true;
     if(genderFilter !== 'all') {
       matchesGender = String(user.gender || '').trim() === genderFilter;
@@ -70,7 +276,6 @@ function filterAndRenderMembersTable() {
     return matchesSearch && matchesStatus && matchesDate && matchesBlood && matchesGender;
   });
 
-  // ৬. শর্ত অনুযায়ী ডাটা সর্টিং অপারেশন
   currentFilteredList.sort((a, b) => {
     if(sortFilter === 'name_asc') return String(a.englishName || '').localeCompare(String(b.englishName || ''));
     if(sortFilter === 'name_desc') return String(b.englishName || '').localeCompare(String(a.englishName || ''));
@@ -83,7 +288,6 @@ function filterAndRenderMembersTable() {
   renderTableUI(currentFilteredList);
 }
 
-// ইউজার ইন্টারফেস টেবিল জেনারেটর
 function renderTableUI(list) {
   const tbody = document.getElementById('memberTableBody');
   if (!tbody) return;
@@ -130,20 +334,20 @@ function renderTableUI(list) {
   });
 }
 
-// লাইভ স্ট্যাটাস আপডেট ইঞ্জিন
 async function liveStatusUpdateDirect(memberId, newStatus) {
   if(!newStatus) return;
   if(typeof showLoader === 'function') showLoader(true, "গুগল শীটে স্ট্যাটাস লাইভ আপডেট হচ্ছে...");
   try {
-    const response = await fetch(WEB_APP_URL, {
-      method: 'POST', mode: 'cors', headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: "updateStatus", memberId: memberId, status: newStatus })
-    });
     const res = await response.json();
     if(typeof showLoader === 'function') showLoader(false);
     if(res.success) {
       alert("সদস্যের স্ট্যাটাস লাইভ আপডেট করা হয়েছে!");
-      if (typeof fetchInitialData === 'function') await fetchInitialData();
+      
+      // লোকাল ডাটা আপডেট করুন যেন রিরেন্ডার করলে ডাটা ঠিক থাকে
+      const idx = allUsersData.findIndex(u => u.memberId === memberId);
+      if(idx !== -1) allUsersData[idx].status = newStatus;
+      
+      filterAndRenderMembersTable();
     } else { alert(res.error || "ত্রুটি ঘটেছে।"); }
   } catch (err) { 
     if(typeof showLoader === 'function') showLoader(false);
@@ -151,7 +355,6 @@ async function liveStatusUpdateDirect(memberId, newStatus) {
   }
 }
 
-// বিস্তারিত পপআপ মডাল সেটআপ ও ওপেন লজিক
 function openMemberModal(memberId) {
   const user = allUsersData.find(u => u.memberId === memberId);
   if(!user) return;
@@ -202,13 +405,11 @@ function closeMemberModal() {
   activePopupUser = null; 
 }
 
-// সিঙ্গেল মেম্বার কাস্টম পিডিএফ ডাউনলোড ইঞ্জিন
 function downloadSingleTemplatePDF() {
   if(!activePopupUser) return;
   window.open(`https://raw.githubusercontent.com/ros-admin/ROS-Website-Maker/refs/heads/main/Registration/Email/ApprovedEmailPDF.html`, '_blank');
 }
 
-// এক্সেল এক্সপোর্ট জেনারেটর
 function exportToExcel() {
   if(currentFilteredList.length === 0) { alert("এক্সপোর্ট করার মতো কোনো ডাটা নেই!"); return; }
   
@@ -243,7 +444,6 @@ function exportToExcel() {
   XLSX.writeFile(wb, `ROS_Members_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// পিডিএফ জেনারেটর (Landscape মোড)
 function exportToPDF() {
   if(currentFilteredList.length === 0) { alert("রিপোর্ট জেনারেট করার মতো কোনো ডাটা নেই!"); return; }
   const { jsPDF } = window.jspdf;
