@@ -381,162 +381,163 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// ১০০% কার্যকরী অফিশিয়াল মেম্বারশিপ ফর্ম পিডিএফ জেনারেটর (DOM এর ডিপেন্ডেন্সি মুক্ত মেমোরি রেন্ডারার)
+    // সম্পূর্ণ ডোমেইন ও ইমেজ সিকিউরিটি (CORS) মুক্ত অফিশিয়াল মেম্বারশিপ পিডিএফ জেনারেটর
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
   
   if(typeof showLoader === 'function') showLoader(true, "অফিশিয়াল মেম্বারশিপ পিডিএফ জেনারেট হচ্ছে...");
 
-  // আইডি ডাটা স্প্লিটিং
-  const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
-  const regPart1 = regParts[0] || 'ROS';
-  const regPart2 = regParts[1] || '0000';
-  const regPart3 = regParts[2] || '0000';
-  
-  // ডেট ডিজিট চপার
-  let rawDate = "00000000";
-  if(u.registrationDate) {
-    const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
-    if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
+  try {
+    const { jsPDF } = window.jspdf;
+    // A4 সাইজ (Width: 210mm, Height: 297mm)
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    // ১. অফিশিয়াল থিম বর্ডার (Double Border Effect)
+    doc.setDrawColor(0, 119, 182); // #0077b6
+    doc.setLineWidth(0.5);
+    doc.rect(5, 5, 200, 287); 
+    doc.rect(6.5, 6.5, 197, 284);
+
+    // ২. হেডার টাইটেল ও টেক্সট রেন্ডারিং (ফন্ট বা ইমেজ ব্লকিং ছাড়াই চলবে)
+    doc.setFillColor(0, 119, 182);
+    doc.rect(6.5, 7, 197, 18, 'F');
+    
+    doc.setTextColor(255, 215, 0); // Gold Color (#ffd700)
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("RAJSHAHI OLYMPIAD SOCIETY", 105, 14, { align: "center" });
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("Helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("REGISTRATION OFFICAL FORM", 105, 21, { align: "center" });
+
+    // ৩. মেম্বারশিপ বেসিক আইডি জোন (বক্স স্ট্রাকচার)
+    doc.setTextColor(26, 26, 26);
+    doc.setFont("Helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("Registration No:", 15, 36);
+    
+    // ROS-XXXX-XXXX স্প্লিট বক্স ডিজাইন
+    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
+    doc.setFillColor(238, 247, 252);
+    doc.rect(50, 31, 25, 7, 'F'); doc.rect(78, 31, 20, 7, 'F'); doc.rect(101, 31, 20, 7, 'F');
+    doc.setDrawColor(0, 119, 182);
+    doc.rect(50, 31, 25, 7); doc.rect(78, 31, 20, 7); doc.rect(101, 31, 20, 7);
+    
+    doc.setFontSize(9); doc.setTextColor(0, 119, 182);
+    doc.text(regParts[0]||'ROS', 62.5, 36, { align: "center" });
+    doc.text(regParts[1]||'0000', 88, 36, { align: "center" });
+    doc.text(regParts[2]||'0000', 111, 36, { align: "center" });
+    doc.setTextColor(26, 26, 26); doc.text("-", 76, 36); doc.text("-", 99, 36);
+
+    // নিবন্ধনের তারিখ জোন
+    doc.setFontSize(10); doc.setTextColor(26, 26, 26);
+    doc.text("Registration Date:", 15, 48);
+    let rDate = String(u.registrationDate || '01-01-2026').split(' ')[0];
+    doc.setFont("Courier", "bold");
+    doc.text(rDate, 50, 48);
+
+    // স্ট্যাটাস ব্যাজ
+    doc.setFont("Helvetica", "bold");
+    doc.text("Status:", 15, 59);
+    doc.setFillColor(42, 157, 143); // Active (#2a9d8f)
+    doc.rect(50, 54, 25, 6, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(9);
+    doc.text((u.status || 'ACTIVE').toUpperCase(), 62.5, 58.5, { align: "center" });
+
+    // পাসপোট সাইজ ডামি ফটো ফ্রেম (CORS ব্লকিং এড়াতে ফ্রেম জেনারেট করা হয়েছে)
+    doc.setDrawColor(0, 119, 182); doc.setLineWidth(0.3);
+    doc.rect(165, 30, 28, 33);
+    doc.setFont("Helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(150, 150, 150);
+    doc.text("PASSPORT", 179, 45, { align: "center" });
+    doc.text("SIZE PHOTO", 179, 49, { align: "center" });
+
+    // ৪. সেকশন ১: ব্যক্তিগত তথ্য টেবিল (AutoTable Engine)
+    doc.setFont("Helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 119, 182);
+    doc.text("1. MEMBER'S PERSONAL INFORMATION", 15, 74);
+
+    const personalInfo = [
+      ["Name (English)", String(u.englishName || 'N/A').toUpperCase()],
+      ["Father's Name", u.fatherName || 'N/A'],
+      ["Mother's Name", u.motherName || 'N/A'],
+      ["Mobile Number", u.mobile || 'N/A'],
+      ["Email Address", u.email || 'N/A'],
+      ["Date of Birth", u.dob || 'N/A'],
+      ["Blood Group", u.bloodGroup || 'N/A'],
+      ["Gender", u.gender || 'N/A'],
+      ["Occupation", u.profession || 'N/A'],
+      ["Institution Name", u.institution || 'N/A'],
+      ["Qualification / Year", `${u.education || 'N/A'} (${u.academicYear || 'N/A'})`],
+      ["Present Address", u.presentAddress || 'N/A'],
+      ["Permanent Address", u.permanentAddress || 'N/A']
+    ];
+
+    doc.autoTable({
+      startY: 78,
+      margin: { left: 15, right: 15 },
+      body: personalInfo,
+      theme: 'grid',
+      styles: { font: "Helvetica", fontSize: 9, cellPadding: 2.5 },
+      columnStyles: {
+        0: { fontStyle: 'bold', fillColor: [248, 249, 250], width: 45, textColor: [50, 50, 50] },
+        1: { textColor: [20, 20, 20] }
+      },
+      gridLineWidth: 0.2,
+      gridLineColor: [200, 200, 200]
+    });
+
+    // ৫. সেকশন ২: শর্তাবলী এবং ডিক্লারেশন
+    let currentY = doc.lastAutoTable.finalY + 10;
+    doc.setFont("Helvetica", "bold"); doc.setFontSize(11); doc.setTextColor(0, 119, 182);
+    doc.text("2. TERMS & DECLARATION", 15, currentY);
+
+    currentY += 4;
+    doc.setFillColor(253, 253, 253); doc.setDrawColor(224, 224, 224);
+    doc.rect(15, currentY, 180, 20, 'FD');
+    
+    doc.setFont("Helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(50, 50, 50);
+    const term1 = "1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.";
+    const term2 = "2. I declare that all information provided is true. I have digitally agreed to these terms.";
+    doc.text(term1, 18, currentY + 6);
+    doc.text(term2, 18, currentY + 13);
+
+    // ৬. সিগনেচার এবং ভেরিফিকেশন সিল এরিয়া
+    currentY += 45;
+    doc.setDrawColor(50, 50, 50); doc.setLineWidth(0.3);
+    doc.line(20, currentY, 70, currentY); // Applicant Line
+    doc.line(140, currentY, 190, currentY); // Authorized Line
+    
+    doc.setFontSize(9); doc.setTextColor(50, 50, 50);
+    doc.text("Applicant's Signature", 45, currentY + 5, { align: "center" });
+    doc.text("Authorized Signature & Seal", 165, currentY + 5, { align: "center" });
+
+    // সিস্টেম নোটিফিকেশন নোট
+    currentY += 15;
+    doc.setFillColor(255, 245, 245); doc.setDrawColor(230, 57, 70);
+    doc.rect(15, currentY, 180, 8, 'FD');
+    doc.setTextColor(230, 57, 70); doc.setFont("Helvetica", "bold"); doc.setFontSize(8);
+    doc.text("* NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available.", 105, currentY + 5, { align: "center" });
+
+    // ফুটার ইনফো
+    doc.setFont("Helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(100, 100, 100);
+    doc.text(`Generated On: ${new Date().toLocaleString()}  |  Website: rosociety.vercel.app`, 105, 288, { align: "center" });
+
+    // সাকসেসফুলি ডাউনলোড এবং লোডার ক্লোজ
+    if(typeof showLoader === 'function') showLoader(false);
+    doc.save(`ROS_Official_Form_${u.memberId}.pdf`);
+
+  } catch (err) {
+    if(typeof showLoader === 'function') showLoader(false);
+    console.error(err);
+    alert("PDF ডাউনলোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
   }
-  const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';
+}
 
-  // বার্থডেট ডিজিট চপার
-  let dobDigits = "00000000";
-  if(u.dob) {
-    const d = u.dob.replace(/[^0-9]/g, '');
-    if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
-  }
-  const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';
+// উইন্ডো অবজেক্ট বাইন্ডিং ফিক্স
+window.downloadOfficialTemplatePDF = downloadOfficialTemplatePDF;
 
-  // মোবাইল ডিজিট চপার
-  let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');
-  if(mStr.length < 11) mStr = mStr.padStart(11, '0');
-  const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];
-
-  const g = String(u.gender || 'Male').toLowerCase();
-  const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
-  const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
-
-  // ডাইনামিক অফ-স্ক্রিন কন্টেইনার তৈরি (যা জিরো-হাইট বা আইডি মিসিং প্রবলেম করবে না)
-  const printWrapper = document.createElement('div');
-  printWrapper.style.width = "750px";
-  printWrapper.style.position = "fixed";
-  printWrapper.style.left = "0";
-  printWrapper.style.top = "0";
-  printWrapper.style.zIndex = "-999";
-  printWrapper.style.background = "#ffffff";
-  printWrapper.style.padding = "15px";
-
-  printWrapper.innerHTML = `
-    <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
-      <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
-        <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
-        <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 8px;">
-          <img src="https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png" style="width: 250px; height: auto; display: block; margin: 0 auto 4px auto;">
-          <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
-        </div>
-        <table style="width:100%; margin-bottom: 5px;">
-          <tr>
-            <td>
-              <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                <span style="display: inline-block; width: 120px;">Registration No:</span>
-                <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6;">${regPart1}</div> - 
-                <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart2}</div> - 
-                <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>
-              </div>
-              <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                <span style="display: inline-block; width: 120px;">Registration Date:</span>
-                <div style="display: inline-block; vertical-align: middle;">
-                  ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
-                  ${[r2,r3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
-                  ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
-                </div>
-              </div>
-              <div style="font-size: 9pt; font-weight: bold;">
-                <span style="display: inline-block; width: 120px;">Status:</span>
-                <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>
-              </div>
-            </td>
-            <td style="width: 80px; text-align: right; vertical-align: top;">
-              <div style="width: 75px; height: 85px; border: 1px dashed #0077b6; background: #fafafa; overflow: hidden; display:inline-block;">
-                <img src="${u.photoUrl || 'https://rosociety.vercel.app/ros%20logo.png'}" style="width:100%; height:100%; object-fit:cover;">
-              </div>
-            </td>
-          </tr>
-        </table>
-        <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
-        <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 8px;">
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold;">${u.banglaName || ''}</td></tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 30%;">${u.fatherName || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 35%;">${u.motherName || ''}</td></tr>
-          <tr>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Mobile Number:</td>
-            <td style="padding: 5px; border: 1px solid #ccc;">
-              <div style="display: inline-block; vertical-align: middle;">
-                <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>
-                ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} - 
-                ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
-              </div>
-            </td>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.email || ''}</td>
-          </tr>
-          <tr>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Date of Birth:</td>
-            <td style="padding: 5px; border: 1px solid #ccc;">
-              <div style="display: inline-block; vertical-align: middle;">
-                ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
-                ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
-                ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
-              </div>
-            </td>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="padding: 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>
-          </tr>
-          <tr>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Gender:</td>
-            <td style="padding: 5px; border: 1px solid #ccc;">
-              <div style="display: inline-block; margin-right: 10px;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>
-              <div style="display: inline-block;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>
-            </td>
-            <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Occupation:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.profession || ''}</td>
-          </tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.institution || ''}</td></tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Qualification:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.education || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Session/Year:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.academicYear || ''}</td></tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.presentAddress || ''}</td></tr>
-          <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.permanentAddress || ''}</td></tr>
-        </table>
-        <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
-        <div style="font-size: 7.2pt; line-height: 1.3; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 8px; text-align: justify;">
-          1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
-          2. I declare that all information provided is true. I have digitally agreed to these terms.
-        </div>
-        <table style="width: 100%; margin-top: 20px;">
-          <tr>
-            <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-              <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
-            </td>
-            <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-              <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>
-              <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
-            </td>
-            <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-              <div style="height: 20px;"></div>
-              <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
-            </td>
-          </tr>
-        </table>
-        <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 10px; font-weight: bold;">
-          * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
-          </div>
-          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7pt; color: #566573; padding-top: 4px;">
-            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
-          </table>
-        </div>
-      </div>
-  `;
-
-  document.body.appendChild(printWrapper);
 
   // QR কোড ডাটা ইঞ্জিন জেনারেশন
   let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;
