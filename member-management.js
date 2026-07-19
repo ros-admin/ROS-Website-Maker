@@ -374,7 +374,7 @@ function exportToExcel() {
   }));
   const ws = XLSX.utils.json_to_sheet(formatData);
   const wb = XLSX.utils.book_new();
-  X XLSX.utils.book_append_sheet(wb, ws, "Filtered_Members");
+  XLSX.utils.book_append_sheet(wb, ws, "Filtered_Members");
   XLSX.writeFile(wb, `ROS_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
