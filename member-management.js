@@ -393,7 +393,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// ১০০% ওয়ার্কিং পিওর ক্লায়েন্ট-সাইড কিউআর কোড মেকানিজম এবং অ্যালাইনমেন্ট বাগ ফিক্সড সংস্করণ
+// স্কোপ ও ডিক্লেয়ারেশন বাগ ফিক্সড অফিসিয়াল মেম্বারশিপ পিডিএফ জেনারেটর সংস্করণ
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -435,7 +435,7 @@ async function downloadOfficialTemplatePDF() {
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // ইংরেজি বয়াত (English Date-Time Format)
+    // ইংরেজি ফর্ম্যাটে ডেট-টাইম জেনারেশন
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     let hours = now.getHours();
@@ -444,17 +444,19 @@ async function downloadOfficialTemplatePDF() {
     hours = hours ? hours : 12; 
     const downloadDateTime = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} | ${pad(hours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
 
-    // ক্রনিক ইমেজ প্রিলোডার ট্রিক
+    // ভেরিয়েবল স্কোপ ফিক্সিং (HTML স্ট্রিং এর আগে জেনারেট করা নিশ্চিত করা হলো)
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
+    let googleQrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}&choe=UTF-8`;
+
     try {
       await Promise.all([
         preloadImageAsync(logoUrl),
         preloadImageAsync(userPhotoUrl)
       ]);
     } catch (e) {
-      console.warn("ক্রস অরিজিন ইমেজ প্রি-বাফারিং এড়িয়ে ক্যানভাস রেন্ডারে ডিরেক্ট মুভ করা হচ্ছে।");
+      console.warn("ক্রস অরিজিন ইমেজ লোড বাফারিং স্কিপ করা হলো।");
     }
 
-    // অফ-স্ক্রিন কন্টেইনার জোন (লেখা নিচে নামা বন্ধ করতে স্টাইল অপ্টিমাইজড)
     const printWrapper = document.createElement('div');
     printWrapper.style.width = "794px"; 
     printWrapper.style.position = "fixed"; 
@@ -498,7 +500,7 @@ async function downloadOfficialTemplatePDF() {
                 </div>
               </td>
               <td style="width: 85px; text-align: right; vertical-align: top;">
-                <div style="width: 75px; height: 85px; border: 1.5px solid #0077b6; bg: #fafafa; overflow: hidden; display:inline-block; position:relative;">
+                <div style="width: 75px; height: 85px; border: 1.5px solid #0077b6; background: #fafafa; overflow: hidden; display:inline-block; position:relative;">
                   <img src="${userPhotoUrl}" crossOrigin="anonymous" style="width:100%; height:100%; object-fit:cover; display:block;">
                 </div>
               </td>
@@ -559,7 +561,6 @@ async function downloadOfficialTemplatePDF() {
                 <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <!-- বিশুদ্ধ ক্লায়েন্ট-সাইড বেস৬৪ কিউআর হোল্ডার লোডার -->
                 <div id="canvas-pure-qr" style="width: 65px; height: 65px; margin: 0 auto; background: #fff;"></div>
                 <div style="font-size: 6pt; font-weight: bold; margin-top: 4px;">SCAN TO VERIFY</div>
               </td>
@@ -578,7 +579,7 @@ async function downloadOfficialTemplatePDF() {
             <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
           </table>
 
-          <!-- বিশেষ মেটা ফুটার (ইংরেজিতে ডাউনলোড তারিখ ও সময় এবং ক্রেডিট) -->
+          <!-- বিশেষ মেটা ফুটার -->
           <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
             <tr>
               <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
@@ -592,26 +593,25 @@ async function downloadOfficialTemplatePDF() {
 
     document.body.appendChild(printWrapper);
 
-    // ক্লায়েন্ট-সাইড কিউআর কোড জেনারেশন (কোনো এপিআই লোড ফেল করবে না)
+    // পিওর জাভাস্ক্রিপ্ট কিউআর কোড রেন্ডারার কল
     if (typeof QRCode !== 'undefined') {
       new QRCode(printWrapper.querySelector("#canvas-pure-qr"), {
         text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
       });
     } else {
-      // যদি QRCode স্ক্রিপ্ট পুরোপুরি মিসও করে, তবে আমরা ব্যাকআপ হিসেবে ইমেজ রেন্ডার ইনজেক্ট করব
-      printWrapper.querySelector("#canvas-pure-qr").innerHTML = `<img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}" style="width:65px;height:65px;">`;
+      printWrapper.querySelector("#canvas-pure-qr").innerHTML = `<img src="${googleQrUrl}" style="width:65px;height:65px;">`;
     }
 
-    // ডম ও ইমেজেস বাফারিং কমপ্লিট হওয়ার জন্য পর্যাপ্ত সময় দেওয়া হলো
+    // ডম মেমোরি লোডিং এর জন্য সামান্য অপেক্ষা
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // html2canvas রেন্ডারিং (সব ছবি ও টেক্সট এলাইনমেন্ট ক্র্যাশ ফিক্সড করার ফাইনাল মেকানিজম)
+    // html2canvas রেন্ডারিং
     try {
       const { jsPDF } = window.jspdf;
       const canvas = await html2canvas(printWrapper, { 
         scale: 2, 
         useCORS: true, 
-        allowTaint: false, // বাইরের প্রক্সি অ্যালাউড করে ইমেজ ব্লক খোলা হলো
+        allowTaint: false, 
         logging: false,
         backgroundColor: "#ffffff",
         windowWidth: 794 
