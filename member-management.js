@@ -340,7 +340,7 @@ function openMemberModal(memberId) {
   document.getElementById('memberPopupModal').classList.remove('hidden');
 }
 
-// জেএস প্রমিজ দিয়ে ব্যাকগ্রাউন্ড ইমেজ প্রি-লোডার ট্রিক (যা html2canvas কে আটকাতে দেবে না)
+// জেএস প্রমিজ দিয়ে ব্যাকগ্রাউন্ড ইমেজ প্রি-লোডার ট্রিক
 function preloadImageAsync(url) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -405,78 +405,79 @@ async function downloadOfficialTemplatePDF() {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
-    // html2canvas রান হওয়ার আগে ব্রাউজার মেমোরিতে ছবি ফোর্সমুক্ত লোড করা হলো[cite: 1]
+    // html2canvas রান হওয়ার আগে ব্রাউজার মেমোরিতে ছবি লোড করা হলো
     await Promise.all([
       preloadImageAsync(logoUrl),
       preloadImageAsync(userPhotoUrl)
     ]);
 
-    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');[cite: 1]
-    const regPart1 = regParts[0] || 'ROS';[cite: 1]
-    const regPart2 = regParts[1] || '0000';[cite: 1]
-    const regPart3 = regParts[2] || '0000';[cite: 1]
+    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
+    const regPart1 = regParts[0] || 'ROS';
+    const regPart2 = regParts[1] || '0000';
+    const regPart3 = regParts[2] || '0000';
     
-    let rawDate = "00000000";[cite: 1]
-    if(u.registrationDate) {[cite: 1]
-      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');[cite: 1]
-      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;[cite: 1]
+    let rawDate = "00000000";
+    if(u.registrationDate) {
+      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
+      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
     }
-    const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';[cite: 1]
+    const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';
 
-    let dobDigits = "00000000";[cite: 1]
-    if(u.dob) {[cite: 1]
-      const d = u.dob.replace(/[^0-9]/g, '');[cite: 1]
-      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;[cite: 1]
+    let dobDigits = "00000000";
+    if(u.dob) {
+      const d = u.dob.replace(/[^0-9]/g, '');
+      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
     }
-    const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';[cite: 1]
+    const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';
 
-    let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');[cite: 1]
-    if(mStr.length < 11) mStr = mStr.padStart(11, '0');[cite: 1]
-    const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];[cite: 1]
+    let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');
+    if(mStr.length < 11) mStr = mStr.padStart(11, '0');
+    const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];
 
-    const g = String(u.gender || 'Male').toLowerCase();[cite: 1]
-    const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';[cite: 1]
-    const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';[cite: 1]
+    const g = String(u.gender || 'Male').toLowerCase();
+    const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
+    const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // অফ-স্ক্রিন কন্টেইনার তৈরি[cite: 1]
-    const printWrapper = document.createElement('div');[cite: 1]
-    printWrapper.style.width = "750px";[cite: 1]
+    
+ // অফ-স্ক্রিন কন্টেইনার তৈরি
+    const printWrapper = document.createElement('div');
+    printWrapper.style.width = "750px";
     printWrapper.style.position = "fixed"; 
     printWrapper.style.left = "0"; 
-    printWrapper.style.top = "0";[cite: 1]
+    printWrapper.style.top = "0";
     printWrapper.style.zIndex = "-9999"; 
     printWrapper.style.opacity = "0.01";  
-    printWrapper.style.background = "#ffffff";[cite: 1]
-    printWrapper.style.padding = "15px";[cite: 1]
+    printWrapper.style.background = "#ffffff";
+    printWrapper.style.padding = "15px";
 
     printWrapper.innerHTML = `
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
-          <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>[cite: 1]
+          <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
           <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 8px;">
             <img src="${logoUrl}" crossOrigin="anonymous" style="width: 250px; height: auto; display: block; margin: 0 auto 4px auto;">
-            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>[cite: 1]
+            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
           </div>
           <table style="width:100%; margin-bottom: 5px;">
             <tr>
               <td>
                 <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Registration No:</span>[cite: 1]
+                  <span style="display: inline-block; width: 120px;">Registration No:</span>
                   <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6;">${regPart1}</div> - 
                   <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart2}</div> - 
-                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>[cite: 1]
+                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>
                 </div>
                 <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Registration Date:</span>[cite: 1]
+                  <span style="display: inline-block; width: 120px;">Registration Date:</span>
                   <div style="display: inline-block; vertical-align: middle;">
-                    ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[cite: 1]
-                    ${[r2,r3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[cite: 1]
-                    ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[cite: 1]
+                    ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                    ${[r2,r3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                    ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                   </div>
                 </div>
                 <div style="font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Status:</span>[cite: 1]
-                  <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>[cite: 1]
+                  <span style="display: inline-block; width: 120px;">Status:</span>
+                  <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>
                 </div>
               </td>
               <td style="width: 80px; text-align: right; vertical-align: top;">
@@ -486,114 +487,113 @@ async function downloadOfficialTemplatePDF() {
               </td>
             </tr>
           </table>
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>[cite: 1]
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
           <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 8px;">
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold;">${u.banglaName || ''}</td></tr>[cite: 1]
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>[cite: 1]
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 30%;">${u.fatherName || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 35%;">${u.motherName || ''}</td></tr>[cite: 1]
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold;">${u.banglaName || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 30%;">${u.fatherName || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 35%;">${u.motherName || ''}</td></tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Mobile Number:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
                 <div style="display: inline-block; vertical-align: middle;">
-                  <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>[cite: 1]
-                  ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} -[cite: 1]
-                  ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[cite: 1]
+                  <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>
+                  ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} - 
+                  ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.email || ''}</td>[cite: 1]
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.email || ''}</td>
             </tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Date of Birth:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
                 <div style="display: inline-block; vertical-align: middle;">
-                  ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[cite: 1]
-                  ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[cite: 1]
-                  ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[cite: 1]
+                  ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                  ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                  ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="padding: 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>[cite: 1]
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="padding: 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>
             </tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Gender:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
-                <div style="display: inline-block; margin-right: 10px;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>[cite: 1]
-                <div style="display: inline-block;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>[cite: 1]
+                <div style="display: inline-block; margin-right: 10px;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>
+                <div style="display: inline-block;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Occupation:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.profession || ''}</td>[cite: 1]
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Occupation:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.profession || ''}</td>
             </tr>
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.institution || ''}</td></tr>[cite: 1]
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Qualification:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.education || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Session/Year:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.academicYear || ''}</td></tr>[cite: 1]
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.presentAddress || ''}</td></tr>[cite: 1]
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.permanentAddress || ''}</td></tr>[cite: 1]
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.institution || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Qualification:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.education || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Session/Year:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.academicYear || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.presentAddress || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.permanentAddress || ''}</td></tr>
           </table>
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>[cite: 1]
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
           <div style="font-size: 7.2pt; line-height: 1.3; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 8px; text-align: justify;">
-            1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>[cite: 1]
-            2. I declare that all information provided is true. I have digitally agreed to these terms.[cite: 1]
+            1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
+            2. I declare that all information provided is true. I have digitally agreed to these terms.
           </div>
           <table style="width: 100%; margin-top: 20px;">
             <tr>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>[cite: 1]
+                <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>[cite: 1]
-                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>[cite: 1]
+                <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>
+                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="height: 20px;"></div>[cite: 1]
-                <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>[cite: 1]
+                <div style="height: 20px;"></div>
+                <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
               </td>
             </tr>
           </table>
           <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 10px; font-weight: bold;">
             * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
           </div>
-          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7pt; color: #566573; padding-top: 4px;">[cite: 1]
-            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>[cite: 1]
+          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7pt; color: #566573; padding-top: 4px;">
+            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
           </table>
         </div>
       </div>
     `;
 
-    document.body.appendChild(printWrapper);[cite: 1]
+    document.body.appendChild(printWrapper);
 
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;[cite: 1]
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;
     
-    new QRCode(printWrapper.querySelector("#real-instantly-qr"), {[cite: 1]
-      text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H[cite: 1]
+    new QRCode(printWrapper.querySelector("#real-instantly-qr"), {
+      text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
     });
 
-    // ক্যানভাস রেন্ডার ডিরেক্ট স্টার্ট (setTimeout বাদ দিয়ে প্রমিজ সিকোয়েন্স ফিক্স)
-    const { jsPDF } = window.jspdf;[cite: 1]
+    const { jsPDF } = window.jspdf;
     const canvas = await html2canvas(printWrapper, { 
       scale: 2, 
       useCORS: true, 
       allowTaint: false,
       logging: false,
-      backgroundColor: "#ffffff"[cite: 1]
+      backgroundColor: "#ffffff"
     });
     
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);[cite: 1]
-    const pdf = new jsPDF('p', 'mm', 'a4');[cite: 1]
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const pdf = new jsPDF('p', 'mm', 'a4');
     
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);[cite: 1]
+    pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
     
-    document.body.removeChild(printWrapper);[cite: 1]
-    if(typeof showLoader === 'function') showLoader(false);[cite: 1]
-    pdf.save(`ROS_Form_${u.memberId}.pdf`);[cite: 1]
+    document.body.removeChild(printWrapper);
+    if(typeof showLoader === 'function') showLoader(false);
+    pdf.save(`ROS_Form_${u.memberId}.pdf`);
 
   } catch (err) {
     if(document.body.contains(document.querySelector('div[style*="z-index: -9999"]'))) {
       document.body.removeChild(document.querySelector('div[style*="z-index: -9999"]'));
     }
-    if(typeof showLoader === 'function') showLoader(false);[cite: 1]
+    if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
     alert("পিডিএফ জেনারেশন প্রক্রিয়ায় ত্রুটি ঘটেছে। অনুগ্রহ করে পেজ রিফ্রেশ করে আবার ট্রাই করুন।");
   }
 }
 
-// উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ[cite: 1]
+// উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ
 window.renderMemberManagementSection = renderMemberManagementSection;
 window.populateDateFilter = populateDateFilter;
 window.filterAndRenderMembersTable = filterAndRenderMembersTable;
