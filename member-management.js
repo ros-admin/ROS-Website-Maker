@@ -394,7 +394,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// ১০০% ওয়ার্কিং প্রি-লোডেড অফিশিয়াল ক্যানভাস রেন্ডার পিডিএফ জেনারেটর সংস্করণ
+                    // ১০০% কার্যকরী অফিশিয়াল মেম্বারশিপ ফর্ম পিডিএফ জেনারেটর (মোবাইল নাম্বার ও ডিজিট বাগ ফিক্সড)
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -405,17 +405,13 @@ async function downloadOfficialTemplatePDF() {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
-    // html2canvas রান হওয়ার আগে ব্রাউজার মেমোরিতে ছবি লোড করা হলো
-    await Promise.all([
-      preloadImageAsync(logoUrl),
-      preloadImageAsync(userPhotoUrl)
-    ]);
-
+    // রেজিস্ট্রেশন আইডি স্প্লিটিং ফিক্স
     const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
     const regPart1 = regParts[0] || 'ROS';
     const regPart2 = regParts[1] || '0000';
     const regPart3 = regParts[2] || '0000';
     
+    // নিবন্ধনের তারিখ ফিক্স
     let rawDate = "00000000";
     if(u.registrationDate) {
       const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
@@ -423,6 +419,7 @@ async function downloadOfficialTemplatePDF() {
     }
     const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';
 
+    // জন্ম তারিখ ফিক্স
     let dobDigits = "00000000";
     if(u.dob) {
       const d = u.dob.replace(/[^0-9]/g, '');
@@ -430,16 +427,26 @@ async function downloadOfficialTemplatePDF() {
     }
     const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';
 
-    let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');
-    if(mStr.length < 11) mStr = mStr.padStart(11, '0');
-    const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];
+    // ================= [মোবাইল নাম্বার ফিক্স জোন] =================
+    // শুধুমাত্র সংখ্যাগুলো আলাদা করা হচ্ছে
+    let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
+    
+    // যদি ১০ ডিজিটের নাম্বার হয়, তাহলে শুরুতে '0' যোগ করে ১১ ডিজিট করা হচ্ছে
+    if (mStr.length === 10) {
+      mStr = '0' + mStr;
+    } else if (mStr.length < 11) {
+      mStr = mStr.padStart(11, '0'); // ১১ ডিজিটের কম হলে বাকিটা ০ দিয়ে পূরণ হবে
+    }
+    
+    // প্রতিটি ডিজিট আলাদা ভেরিয়েবলে অ্যাসাইন (এরর প্রোটেকশন সহ)
+    const m0=mStr[0]||'0', m1=mStr[1]||'0', m2=mStr[2]||'0', m3=mStr[3]||'0', m4=mStr[4]||'0', m5=mStr[5]||'0', m6=mStr[6]||'0', m7=mStr[7]||'0', m8=mStr[8]||'0', m9=mStr[9]||'0', m10=mStr[10]||'0';
+    // ============================================================
 
     const g = String(u.gender || 'Male').toLowerCase();
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    
- // অফ-স্ক্রিন কন্টেইনার তৈরি
+    // অফ-স্ক্রিন কন্টেইনার তৈরি
     const printWrapper = document.createElement('div');
     printWrapper.style.width = "750px";
     printWrapper.style.position = "fixed"; 
@@ -559,7 +566,7 @@ async function downloadOfficialTemplatePDF() {
 
     document.body.appendChild(printWrapper);
 
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
     
     new QRCode(printWrapper.querySelector("#real-instantly-qr"), {
       text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
@@ -584,14 +591,16 @@ async function downloadOfficialTemplatePDF() {
     pdf.save(`ROS_Form_${u.memberId}.pdf`);
 
   } catch (err) {
-    if(document.body.contains(document.querySelector('div[style*="z-index: -9999"]'))) {
-      document.body.removeChild(document.querySelector('div[style*="z-index: -9999"]'));
+    const badWrapper = document.querySelector('div[style*="z-index: -9999"]');
+    if(badWrapper && document.body.contains(badWrapper)) {
+      document.body.removeChild(badWrapper);
     }
     if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
     alert("পিডিএফ জেনারেশন প্রক্রিয়ায় ত্রুটি ঘটেছে। অনুগ্রহ করে পেজ রিফ্রেশ করে আবার ট্রাই করুন।");
   }
 }
+
 
 // উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ
 window.renderMemberManagementSection = renderMemberManagementSection;
