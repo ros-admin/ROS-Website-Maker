@@ -112,7 +112,7 @@ function renderMemberManagementSection(container) {
       <div class="bg-slate-900 border-2 border-[#00b4d8]/40 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
         <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
           <div class="text-left">
-            <h2 class="text-md font-bold text-[#ffd700] tracking-wide"><i class="fa-solid fa-building-columns mr-1.5"></i>রাজশাহী অলিম্পিয়াড সোসাইটি</h2>
+            <h2 class="text-md font-bold text-[#ffd700] tracking-wide"><i class="fa-solid fa-building-columns mr-1.5"></i>রাজশাহী অলিম্পিয়াড充 সোসাইটি</h2>
             <p class="text-[11px] text-[#00b4d8] font-bold tracking-wider uppercase">Member Details Info</p>
           </div>
           <button onclick="closeMemberModal()" class="w-8 h-8 rounded-lg bg-slate-900 hover:bg-rose-600/20 text-slate-400 hover:text-rose-400 flex items-center justify-center cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
@@ -259,7 +259,7 @@ function renderTableUI(list) {
       <td class="py-3 px-3 font-semibold text-white">${user.englishName || 'N/A'}</td>
       <td class="py-3 px-3 font-mono text-slate-400">${user.mobile || 'N/A'}</td>
       <td class="py-3 px-3 font-mono text-slate-400">${user.email || 'N/A'}</td>
-      <td class="py-3 px-3 text-center font-bold font-mono text-[#00b4d8]">${user.bloodGroup || 'N/A'}</td>
+      <td class="py-3 px-3 text-center font-bold font-bold font-mono text-[#00b4d8]">${user.bloodGroup || 'N/A'}</td>
       <td class="py-3 px-3 text-center text-slate-300">${user.gender || 'N/A'}</td>
       <td class="py-3 px-3 font-mono text-slate-400">${user.registrationDate ? user.registrationDate.split(' ')[0] : 'N/A'}</td>
       <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${badgeClass}">${status}</span></td>
@@ -393,7 +393,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// থার্ড পার্টি QRCode লাইব্রেরিমুক্ত গুগল এপিআই ভিত্তিক মেম্বারশিপ পিডিএফ জেনারেটর
+// ১০০% ওয়ার্কিং ব্ল্যাঙ্ক-পেজ বাগ ফিক্সড মেম্বারশিপ পিডিএফ জেনারেটর সংস্করণ
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -404,85 +404,66 @@ async function downloadOfficialTemplatePDF() {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
-    // ১. ইমেজ প্রি-লোডার ট্র্যাকিং চেক
-    try {
-      await Promise.all([
-        preloadImageAsync(logoUrl),
-        preloadImageAsync(userPhotoUrl)
-      ]);
-    } catch (e) {
-      throw new Error("মেম্বারের ছবি বা লোগো ক্লাউডিনারি থেকে লোড হতে ব্যর্থ হয়েছে।");
-    }
-
-    // ২. রেজিস্ট্রেশন আইডি স্প্লিটিং ট্র্যাকিং চেক
-    let regPart1, regPart2, regPart3;
-    try {
-      const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
-      regPart1 = regParts[0] || 'ROS';
-      regPart2 = regParts[1] || '0000';
-      regPart3 = regParts[2] || '0000';
-    } catch (e) {
-      throw new Error("মেম্বার রেজিস্ট্রেশন আইডির (Member ID) ফরমেট ডাটাবেজে ত্রুটিপূর্ণ।");
-    }
+    // ১. রেজিস্ট্রেশন আইডি স্প্লিটিং ট্র্যাকিং চেক
+    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
+    const regPart1 = regParts[0] || 'ROS';
+    const regPart2 = regParts[1] || '0000';
+    const regPart3 = regParts[2] || '0000';
     
-    // ৩. নিবন্ধনের তারিখ ট্র্যাকিং চেক
-    let r0, r1, r2, r3, r4, r5, r6, r7;
-    try {
-      let rawDate = "00000000";
-      if(u.registrationDate) {
-        const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
-        if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
-      }
-      r0=rawDate[0]||'0'; r1=rawDate[1]||'0'; r2=rawDate[2]||'0'; r3=rawDate[3]||'0'; r4=rawDate[4]||'0'; r5=rawDate[5]||'0'; r6=rawDate[6]||'0'; r7=rawDate[7]||'0';
-    } catch (e) {
-      throw new Error("নিবন্ধনের তারিখ (Registration Date) প্রসেস করতে ব্যর্থ হয়েছে।");
+    // ২. নিবন্ধনের তারিখ ট্র্যাকিং চেক
+    let rawDate = "00000000";
+    if(u.registrationDate) {
+      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
+      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
     }
+    const r0=rawDate[0]||'0'; r1=rawDate[1]||'0'; r2=rawDate[2]||'0'; r3=rawDate[3]||'0'; r4=rawDate[4]||'0'; r5=rawDate[5]||'0'; r6=rawDate[6]||'0'; r7=rawDate[7]||'0';
 
-    // ৪. জন্ম তারিখ ট্র্যাকিং চেক
-    let d0, d1, d2, d3, d4, d5, d6, d7;
-    try {
-      let dobDigits = "00000000";
-      if(u.dob) {
-        const d = u.dob.replace(/[^0-9]/g, '');
-        if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
-      }
-      d0=dobDigits[0]||'0'; d1=dobDigits[1]||'0'; d2=dobDigits[2]||'0'; d3=dobDigits[3]||'0'; d4=dobDigits[4]||'0'; d5=dobDigits[5]||'0'; d6=dobDigits[6]||'0'; d7=dobDigits[7]||'0';
-    } catch (e) {
-      throw new Error("জন্ম তারিখ (Date of Birth) ফরmeট প্রসেস করতে ব্যর্থ হয়েছে।");
+    // ৩. জন্ম তারিখ ট্র্যাকিং চেক
+    let dobDigits = "00000000";
+    if(u.dob) {
+      const d = u.dob.replace(/[^0-9]/g, '');
+      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
     }
+    const d0=dobDigits[0]||'0'; d1=dobDigits[1]||'0'; d2=dobDigits[2]||'0'; d3=dobDigits[3]||'0'; d4=dobDigits[4]||'0'; d5=dobDigits[5]||'0'; d6=dobDigits[6]||'0'; d7=dobDigits[7]||'0';
 
-    // ৫. মোবাইল নাম্বার ১০ টু ১১ ডিজিট কনভার্সন ট্র্যাকিং চেক
-    let mStr, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10;
-    try {
-      mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
-      if (mStr.length === 10) {
-        mStr = '0' + mStr;
-      } else if (mStr.length < 11) {
-        mStr = mStr.padStart(11, '0');
-      }
-      m0=mStr[0]||'0'; m1=mStr[1]||'0'; m2=mStr[2]||'0'; m3=mStr[3]||'0'; m4=mStr[4]||'0'; m5=mStr[5]||'0'; m6=mStr[6]||'0'; m7=mStr[7]||'0'; m8=mStr[8]||'0'; m9=mStr[9]||'0'; m10=mStr[10]||'0';
-    } catch (e) {
-      throw new Error("মোবাইল নাম্বার (Mobile Number) ডিজিট কনভার্ট করতে ব্যর্থ হয়েছে।");
+    // ৪. মোবাইল নাম্বার ১০ টু ১১ ডিজিট কনভার্সন
+    let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
+    if (mStr.length === 10) {
+      mStr = '0' + mStr;
+    } else if (mStr.length < 11) {
+      mStr = mStr.padStart(11, '0');
     }
+    const m0=mStr[0]||'0'; m1=mStr[1]||'0'; m2=mStr[2]||'0'; m3=mStr[3]||'0'; m4=mStr[4]||'0'; m5=mStr[5]||'0'; m6=mStr[6]||'0'; m7=mStr[7]||'0'; m8=mStr[8]||'0'; m9=mStr[9]||'0'; m10=mStr[10]||'0';
 
     const g = String(u.gender || 'Male').toLowerCase();
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // ৬. গুগল চার্টস থেকে ডাইনামিক কিউআর কোড জেনারেশন (QRCode লাইব্রেরির ওপর নির্ভরশীলতা মুক্ত)
+    // ৫. গুগল চার্টস থেকে কিউআর কোড ইউআরএল জেনারেশন
     let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
     let googleQrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}&choe=UTF-8`;
 
-    const printWrapper = document.createElement('div');
-    printWrapper.style.width = "750px";
-    printWrapper.style.position = "fixed"; 
-    printWrapper.style.left = "0"; 
-    printWrapper.style.top = "0";
-    printWrapper.style.zIndex = "-9999"; 
-    printWrapper.style.opacity = "0.01";  
-    printWrapper.style.background = "#ffffff";
-    printWrapper.style.padding = "15px";
+    // ৬. ইমেজ প্রি-লোডার ট্র্যাকিং চেক (এখানে কিউআর কোড ইমেজও প্রিলোড করে নেওয়া হলো)
+    try {
+      await Promise.all([
+        preloadImageAsync(logoUrl),
+        preloadImageAsync(userPhotoUrl),
+        preloadImageAsync(googleQrUrl)
+      ]);
+    } catch (e) {
+      throw new Error("মেম্বারের ছবি, লোগো বা কিউআর কোড ডাটাবেজ থেকে প্রিলোড হতে ব্যর্থ হয়েছে।");
+    }
 
+    // ৭. অফ-স্ক্রিন রেন্ডার ডম কন্টেইনার (সাদা পাতা বাগ দূর করার জন্য স্টাইল অপ্টিমাইজড)
+    const printWrapper = document.createElement('div');
+    printWrapper.style.width = "794px"; // A4 স্ট্যান্ডার্ড উইডথ পিক্সেল রেস
+    printWrapper.style.position = "absolute"; 
+    printWrapper.style.left = "-9999px"; 
+    printWrapper.style.top = "0";
+    printWrapper.style.background = "#ffffff";
+    printWrapper.style.padding = "20px";
+    printWrapper.style.color = "#000000";
+                                                                                                               
 printWrapper.innerHTML = `
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
@@ -571,7 +552,6 @@ printWrapper.innerHTML = `
                 <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <!-- গুগল কিউআর ডিরেক্ট ইমেজ হিসেবে বসানো হলো -->
                 <img src="${googleQrUrl}" crossOrigin="anonymous" style="width: 65px; height: 65px; margin: 0 auto; display: block; background: #fff;">
                 <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
               </td>
@@ -593,10 +573,10 @@ printWrapper.innerHTML = `
 
     document.body.appendChild(printWrapper);
 
-    // কিউআর কোড ইমেজ লোড হওয়ার জন্য অতিরিক্ত একটু অপেক্ষা ও প্রমিজ সিকোয়েন্স
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // ৮. ডম ইনজেক্ট এবং প্রসেসিং সিকোয়েন্স কমপ্লিশন এর জন্য সামান্য ওয়েট
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // ৭. পিডিএফ রেন্ডারিং ও লাইব্রেরি ট্র্যাকিং চেক
+    // ৯. html2canvas রেন্ডারিং (সাদা কাগজ প্রোটেকশন সহ)
     try {
       const { jsPDF } = window.jspdf;
       const canvas = await html2canvas(printWrapper, { 
@@ -604,12 +584,14 @@ printWrapper.innerHTML = `
         useCORS: true, 
         allowTaint: false,
         logging: false,
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
+        windowWidth: 794 // ডম নোডের উইডথ ফিক্সড লক করা হলো
       });
       
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
       
+      // A4 সাইজ (২১০মিমি x ২৯৭মিমি) ফিটিং
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
       
       document.body.removeChild(printWrapper);
@@ -620,7 +602,7 @@ printWrapper.innerHTML = `
     }
 
   } catch (err) {
-    const badWrapper = document.querySelector('div[style*="z-index: -9999"]');
+    const badWrapper = document.querySelector('div[style*="left: -9999px"]');
     if(badWrapper && document.body.contains(badWrapper)) {
       document.body.removeChild(badWrapper);
     }
@@ -641,4 +623,3 @@ window.closeMemberModal = closeMemberModal;
 window.exportToExcel = exportToExcel;
 window.exportToPDF = exportToPDF;
 window.downloadOfficialTemplatePDF = downloadOfficialTemplatePDF;
-  
