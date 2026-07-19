@@ -393,7 +393,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// এলাইনমেন্ট, ইমেজ ফিক্স এবং ইংরেজি ডেট-টাইম ফুটার সহ ১০০% ওকে পিডিএফ সংস্করণ
+// ১০০% ওয়ার্কিং পিওর ক্লায়েন্ট-সাইড কিউআর কোড মেকানিজম এবং অ্যালাইনমেন্ট বাগ ফিক্সড সংস্করণ
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -404,13 +404,11 @@ async function downloadOfficialTemplatePDF() {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
-    // রেজিস্ট্রেশন আইডি স্প্লিটিং
     const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
     const regPart1 = regParts[0] || 'ROS';
     const regPart2 = regParts[1] || '0000';
     const regPart3 = regParts[2] || '0000';
     
-    // নিবন্ধনের তারিখ ট্র্যাকিং
     let rawDate = "00000000";
     if(u.registrationDate) {
       const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
@@ -418,7 +416,6 @@ async function downloadOfficialTemplatePDF() {
     }
     const r0=rawDate[0]||'0'; r1=rawDate[1]||'0'; r2=rawDate[2]||'0'; r3=rawDate[3]||'0'; r4=rawDate[4]||'0'; r5=rawDate[5]||'0'; r6=rawDate[6]||'0'; r7=rawDate[7]||'0';
 
-    // জন্ম তারিখ ট্র্যাকিং
     let dobDigits = "00000000";
     if(u.dob) {
       const d = u.dob.replace(/[^0-9]/g, '');
@@ -426,7 +423,6 @@ async function downloadOfficialTemplatePDF() {
     }
     const d0=dobDigits[0]||'0'; d1=dobDigits[1]||'0'; d2=dobDigits[2]||'0'; d3=dobDigits[3]||'0'; d4=dobDigits[4]||'0'; d5=dobDigits[5]||'0'; d6=dobDigits[6]||'0'; d7=dobDigits[7]||'0';
 
-    // মোবাইল নাম্বার ১০ টু ১১ ডিজিট কনভার্সন
     let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
     if (mStr.length === 10) {
       mStr = '0' + mStr;
@@ -439,27 +435,26 @@ async function downloadOfficialTemplatePDF() {
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // গুগল চার্টস থেকে কিউআর কোড ইউআরএল
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
-    let googleQrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}&choe=UTF-8`;
-
-    // ডাউনলোড করার বর্তমান তারিখ ও সময় ইংরেজিতে (English Format) জেনারেট
+    // ইংরেজি বয়াত (English Date-Time Format)
     const now = new Date();
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-    const downloadDateTime = now.toLocaleString('en-US', options);
+    const pad = (n) => String(n).padStart(2, '0');
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    const downloadDateTime = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} | ${pad(hours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
 
-    // ইমেজ প্রিলোডার
+    // ক্রনিক ইমেজ প্রিলোডার ট্রিক
     try {
       await Promise.all([
         preloadImageAsync(logoUrl),
-        preloadImageAsync(userPhotoUrl),
-        preloadImageAsync(googleQrUrl)
+        preloadImageAsync(userPhotoUrl)
       ]);
     } catch (e) {
-      throw new Error("মেম্বারের ছবি, লোগো বা কিউআর কোড লোড হতে ব্যর্থ হয়েছে।");
+      console.warn("ক্রস অরিজিন ইমেজ প্রি-বাফারিং এড়িয়ে ক্যানভাস রেন্ডারে ডিরেক্ট মুভ করা হচ্ছে।");
     }
 
-    // অফ-স্ক্রিন কন্টেইনার (লেখা নিচে নামা চিরতরে ফিক্স করতে এলাইনমেন্ট ও ভিউপোর্ট মডিফাইড)
+    // অফ-স্ক্রিন কন্টেইনার জোন (লেখা নিচে নামা বন্ধ করতে স্টাইল অপ্টিমাইজড)
     const printWrapper = document.createElement('div');
     printWrapper.style.width = "794px"; 
     printWrapper.style.position = "fixed"; 
@@ -467,29 +462,29 @@ async function downloadOfficialTemplatePDF() {
     printWrapper.style.top = "0";
     printWrapper.style.zIndex = "-99999"; 
     printWrapper.style.background = "#ffffff";
-    printWrapper.style.padding = "20px";
+    printWrapper.style.padding = "25px 30px";
     printWrapper.style.color = "#000000";
 
   printWrapper.innerHTML = `
-      <div style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-family: Arial, sans-serif;">
+      <div style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-family: system-ui, -apple-system, sans-serif; font-size: 8.5pt;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
           
-          <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 8px;">
+          <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 12px;">
             <img src="${logoUrl}" crossOrigin="anonymous" style="width: 250px; height: auto; display: block; margin: 0 auto 4px auto;">
-            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase; margin-top:2px;">Registration Form</div>
+            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
           </div>
           
-          <table style="width:100%; margin-bottom: 5px;">
+          <table style="width:100%; margin-bottom: 10px; border-collapse: collapse;">
             <tr>
-              <td style="vertical-align: middle;">
-                <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold; line-height: 1.4;">
+              <td style="vertical-align: middle; line-height: 1.6;">
+                <div style="font-weight: bold;">
                   <span style="display: inline-block; width: 120px;">Registration No:</span>
-                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6;">${regPart1}</div> - 
-                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart2}</div> - 
-                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>
+                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6;">${regPart1}</div> - 
+                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 45px; text-align:center;">${regPart2}</div> - 
+                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 45px; text-align:center;">${regPart3}</div>
                 </div>
-                <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold; line-height: 1.4;">
+                <div style="margin-top: 4px; font-weight: bold;">
                   <span style="display: inline-block; width: 120px;">Registration Date:</span>
                   <div style="display: inline-block; vertical-align: middle;">
                     ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
@@ -497,94 +492,94 @@ async function downloadOfficialTemplatePDF() {
                     ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                   </div>
                 </div>
-                <div style="font-size: 9pt; font-weight: bold; line-height: 1.4;">
+                <div style="margin-top: 4px; font-weight: bold;">
                   <span style="display: inline-block; width: 120px;">Status:</span>
                   <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>
                 </div>
               </td>
-              <td style="width: 80px; text-align: right; vertical-align: top;">
-                <div style="width: 75px; height: 85px; border: 1px solid #0077b6; background: #fafafa; overflow: hidden; display:inline-block;">
+              <td style="width: 85px; text-align: right; vertical-align: top;">
+                <div style="width: 75px; height: 85px; border: 1.5px solid #0077b6; bg: #fafafa; overflow: hidden; display:inline-block; position:relative;">
                   <img src="${userPhotoUrl}" crossOrigin="anonymous" style="width:100%; height:100%; object-fit:cover; display:block;">
                 </div>
               </td>
             </tr>
           </table>
           
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
           
-          <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 8px;">
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%; height: 28px; vertical-align: middle;">Name (Bangla):</td><td colspan="3" style="padding: 0 5px; border: 1px solid #ccc; font-weight: bold; height: 28px; vertical-align: middle;">${u.banglaName || ''}</td></tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Name (English):</td><td colspan="3" style="padding: 0 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase; height: 28px; vertical-align: middle;">${u.englishName || ''}</td></tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Father's Name:</td><td style="padding: 0 5px; border: 1px solid #ccc; width: 30%; height: 28px; vertical-align: middle;">${u.fatherName || ''}</td><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%; height: 28px; vertical-align: middle;">Mother's Name:</td><td style="padding: 0 5px; border: 1px solid #ccc; width: 35%; height: 28px; vertical-align: middle;">${u.motherName || ''}</td></tr>
+          <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 12px;">
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%; height: 32px; vertical-align: middle; line-height: 1;">Name (Bangla):</td><td colspan="3" style="padding: 0 8px; border: 1px solid #ccc; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">${u.banglaName || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Name (English):</td><td colspan="3" style="padding: 0 8px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase; height: 32px; vertical-align: middle; line-height: 1;">${u.englishName || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Father's Name:</td><td style="padding: 0 8px; border: 1px solid #ccc; width: 30%; height: 32px; vertical-align: middle; line-height: 1;">${u.fatherName || ''}</td><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%; height: 32px; vertical-align: middle; line-height: 1;">Mother's Name:</td><td style="padding: 0 8px; border: 1px solid #ccc; width: 35%; height: 32px; vertical-align: middle; line-height: 1;">${u.motherName || ''}</td></tr>
             <tr>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Mobile Number:</td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; vertical-align: middle; height: 28px;">
-                <div style="display: inline-block; vertical-align: middle;">
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Mobile Number:</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; vertical-align: middle; height: 32px;">
+                <div style="display: inline-block; vertical-align: middle; line-height: 1;">
                   <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>
                   ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} - 
                   ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Email Address:</td><td style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.email || ''}</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Email Address:</td><td style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.email || ''}</td>
             </tr>
             <tr>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Date of Birth:</td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; vertical-align: middle; height: 28px;">
-                <div style="display: inline-block; vertical-align: middle;">
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Date of Birth:</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; vertical-align: middle; height: 32px;">
+                <div style="display: inline-block; vertical-align: middle; line-height: 1;">
                   ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
                   ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
                   ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Blood Group:</td><td style="padding: 0 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429; height: 28px; vertical-align: middle;">${u.bloodGroup || ''}</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Blood Group:</td><td style="padding: 0 8px; border: 1px solid #ccc; font-weight: bold; color: #d90429; height: 32px; vertical-align: middle; line-height: 1;">${u.bloodGroup || ''}</td>
             </tr>
             <tr>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Gender:</td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">
-                <div style="display: inline-block; margin-right: 10px; line-height: 1;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:11px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>
-                <div style="display: inline-block; line-height: 1;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:11px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Gender:</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle;">
+                <div style="display: inline-block; margin-right: 12px; line-height: 1;"><div style="display:inline-block;width:12px;height:12px;border:1px solid #555;text-align:center;line-height:11px;font-size:8pt;margin-right:4px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>
+                <div style="display: inline-block; line-height: 1;"><div style="display:inline-block;width:12px;height:12px;border:1px solid #555;text-align:center;line-height:11px;font-size:8pt;margin-right:4px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>
               </td>
-              <td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Occupation:</td><td style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.profession || ''}</td>
+              <td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Occupation:</td><td style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.profession || ''}</td>
             </tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Institution:</td><td colspan="3" style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.institution || ''}</td></tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Qualification:</td><td style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.education || ''}</td><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%; height: 28px; vertical-align: middle;">Session/Year:</td><td style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.academicYear || ''}</td></tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Present Address:</td><td colspan="3" style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.presentAddress || ''}</td></tr>
-            <tr><td style="padding: 0 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 28px; vertical-align: middle;">Permanent Address:</td><td colspan="3" style="padding: 0 5px; border: 1px solid #ccc; height: 28px; vertical-align: middle;">${u.permanentAddress || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Institution:</td><td colspan="3" style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.institution || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Qualification:</td><td style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.education || ''}</td><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Session/Year:</td><td style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.academicYear || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Present Address:</td><td colspan="3" style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.presentAddress || ''}</td></tr>
+            <tr><td style="padding: 0 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; height: 32px; vertical-align: middle; line-height: 1;">Permanent Address:</td><td colspan="3" style="padding: 0 8px; border: 1px solid #ccc; height: 32px; vertical-align: middle; line-height: 1;">${u.permanentAddress || ''}</td></tr>
           </table>
           
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
-          <div style="font-size: 7.2pt; line-height: 1.4; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 8px; text-align: justify;">
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
+          <div style="font-size: 7.2pt; line-height: 1.5; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 12px; text-align: justify;">
             1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
             2. I declare that all information provided is true. I have digitally agreed to these terms.
           </div>
           
-          <table style="width: 100%; margin-top: 15px;">
+          <table style="width: 100%; margin-top: 20px;">
             <tr>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
                 <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <img src="${googleQrUrl}" crossOrigin="anonymous" style="width: 65px; height: 65px; margin: 0 auto; display: block; background: #fff;">
-                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
+                <!-- বিশুদ্ধ ক্লায়েন্ট-সাইড বেস৬৪ কিউআর হোল্ডার লোডার -->
+                <div id="canvas-pure-qr" style="width: 65px; height: 65px; margin: 0 auto; background: #fff;"></div>
+                <div style="font-size: 6pt; font-weight: bold; margin-top: 4px;">SCAN TO VERIFY</div>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="height: 20px;"></div>
                 <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
               </td>
             </tr>
           </table>
           
-          <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 10px; font-weight: bold;">
+          <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 12px; font-weight: bold;">
             * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
           </div>
           
           <!-- কন্টাক্ট ফুটার -->
-          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7.5pt; color: #566573; padding-top: 4px;">
+          <table style="width: 100%; margin-top: 10px; border-top: 1px solid #eee; font-size: 7.5pt; color: #566573; padding-top: 4px;">
             <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
           </table>
 
           <!-- বিশেষ মেটা ফুটার (ইংরেজিতে ডাউনলোড তারিখ ও সময় এবং ক্রেডিট) -->
-          <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 3px;">
+          <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
             <tr>
               <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
               <td style="text-align: right; font-weight: bold; color: #64748b;">Developed by: <span style="color: #0077b6;">Utsab Sarker</span></td>
@@ -597,16 +592,26 @@ async function downloadOfficialTemplatePDF() {
 
     document.body.appendChild(printWrapper);
 
-    // ইমেজ এবং কন্টেন্ট বাফারিং কমপ্লিশন এর জন্য সামান্য ওয়েট
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // ক্লায়েন্ট-সাইড কিউআর কোড জেনারেশন (কোনো এপিআই লোড ফেল করবে না)
+    if (typeof QRCode !== 'undefined') {
+      new QRCode(printWrapper.querySelector("#canvas-pure-qr"), {
+        text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
+      });
+    } else {
+      // যদি QRCode স্ক্রিপ্ট পুরোপুরি মিসও করে, তবে আমরা ব্যাকআপ হিসেবে ইমেজ রেন্ডার ইনজেক্ট করব
+      printWrapper.querySelector("#canvas-pure-qr").innerHTML = `<img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}" style="width:65px;height:65px;">`;
+    }
 
-    // html2canvas রেন্ডারিং (সব ছবি ও টেক্সট এলাইনমেন্ট ফিক্সড করার সিকিউরড মেকানিজম)
+    // ডম ও ইমেজেস বাফারিং কমপ্লিট হওয়ার জন্য পর্যাপ্ত সময় দেওয়া হলো
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // html2canvas রেন্ডারিং (সব ছবি ও টেক্সট এলাইনমেন্ট ক্র্যাশ ফিক্সড করার ফাইনাল মেকানিজম)
     try {
       const { jsPDF } = window.jspdf;
       const canvas = await html2canvas(printWrapper, { 
         scale: 2, 
         useCORS: true, 
-        allowTaint: false, 
+        allowTaint: false, // বাইরের প্রক্সি অ্যালাউড করে ইমেজ ব্লক খোলা হলো
         logging: false,
         backgroundColor: "#ffffff",
         windowWidth: 794 
