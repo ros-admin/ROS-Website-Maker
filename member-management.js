@@ -340,7 +340,6 @@ function openMemberModal(memberId) {
   document.getElementById('memberPopupModal').classList.remove('hidden');
 }
 
-// জেএস প্রমিজ দিয়ে ব্যাকগ্রাউন্ড ইমেজ প্রি-লোডার ট্রিক
 function preloadImageAsync(url) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -394,7 +393,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-                    // ১০০% কার্যকরী অফিশিয়াল মেম্বারশিপ ফর্ম পিডিএফ জেনারেটর (মোবাইল নাম্বার ও ডিজিট বাগ ফিক্সড)
+// ট্র্যাকিং এরর হ্যান্ডেলার সহ এডভান্সড পিডিএফ জেনারেটর
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -405,48 +404,71 @@ async function downloadOfficialTemplatePDF() {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
-    // রেজিস্ট্রেশন আইডি স্প্লিটিং ফিক্স
-    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
-    const regPart1 = regParts[0] || 'ROS';
-    const regPart2 = regParts[1] || '0000';
-    const regPart3 = regParts[2] || '0000';
-    
-    // নিবন্ধনের তারিখ ফিক্স
-    let rawDate = "00000000";
-    if(u.registrationDate) {
-      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
-      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
+    // ১. ইমেজ প্রি-লোডার ট্র্যাকিং চেক
+    try {
+      await Promise.all([
+        preloadImageAsync(logoUrl),
+        preloadImageAsync(userPhotoUrl)
+      ]);
+    } catch (e) {
+      throw new Error("মেম্বারের ছবি বা লোগো ক্লাউডিনারি থেকে লোড হতে ব্যর্থ হয়েছে। ইউআরএল/কানেকশন চেক করুন।");
     }
-    const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';
 
-    // জন্ম তারিখ ফিক্স
-    let dobDigits = "00000000";
-    if(u.dob) {
-      const d = u.dob.replace(/[^0-9]/g, '');
-      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
+    // ২. রেজিস্ট্রেশন আইডি স্প্লিটিং ট্র্যাকিং চেক
+    let regPart1, regPart2, regPart3;
+    try {
+      const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
+      regPart1 = regParts[0] || 'ROS';
+      regPart2 = regParts[1] || '0000';
+      regPart3 = regParts[2] || '0000';
+    } catch (e) {
+      throw new Error("মেম্বার রেজিস্ট্রেশন আইডির (Member ID) ফরমেট ডাটাবেজে ত্রুটিপূর্ণ।");
     }
-    const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';
+    
+    // ৩. নিবন্ধনের তারিখ ট্র্যাকিং চেক
+    let r0, r1, r2, r3, r4, r5, r6, r7;
+    try {
+      let rawDate = "00000000";
+      if(u.registrationDate) {
+        const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
+        if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
+      }
+      r0=rawDate[0]||'0'; r1=rawDate[1]||'0'; r2=rawDate[2]||'0'; r3=rawDate[3]||'0'; r4=rawDate[4]||'0'; r5=rawDate[5]||'0'; r6=rawDate[6]||'0'; r7=rawDate[7]||'0';
+    } catch (e) {
+      throw new Error("নিবন্ধনের তারিখ (Registration Date) প্রসেস করতে ব্যর্থ হয়েছে।");
+    }
 
-    // ================= [মোবাইল নাম্বার ফিক্স জোন] =================
-    // শুধুমাত্র সংখ্যাগুলো আলাদা করা হচ্ছে
-    let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
-    
-    // যদি ১০ ডিজিটের নাম্বার হয়, তাহলে শুরুতে '0' যোগ করে ১১ ডিজিট করা হচ্ছে
-    if (mStr.length === 10) {
-      mStr = '0' + mStr;
-    } else if (mStr.length < 11) {
-      mStr = mStr.padStart(11, '0'); // ১১ ডিজিটের কম হলে বাকিটা ০ দিয়ে পূরণ হবে
+    // ৪. জন্ম তারিখ ট্র্যাকিং চেক
+    let d0, d1, d2, d3, d4, d5, d6, d7;
+    try {
+      let dobDigits = "00000000";
+      if(u.dob) {
+        const d = u.dob.replace(/[^0-9]/g, '');
+        if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
+      }
+      d0=dobDigits[0]||'0'; d1=dobDigits[1]||'0'; d2=dobDigits[2]||'0'; d3=dobDigits[3]||'0'; d4=dobDigits[4]||'0'; d5=dobDigits[5]||'0'; d6=dobDigits[6]||'0'; d7=dobDigits[7]||'0';
+    } catch (e) {
+      throw new Error("জন্ম তারিখ (Date of Birth) ফরমেট প্রসেস করতে ব্যর্থ হয়েছে।");
     }
-    
-    // প্রতিটি ডিজিট আলাদা ভেরিয়েবলে অ্যাসাইন (এরর প্রোটেকশন সহ)
-    const m0=mStr[0]||'0', m1=mStr[1]||'0', m2=mStr[2]||'0', m3=mStr[3]||'0', m4=mStr[4]||'0', m5=mStr[5]||'0', m6=mStr[6]||'0', m7=mStr[7]||'0', m8=mStr[8]||'0', m9=mStr[9]||'0', m10=mStr[10]||'0';
-    // ============================================================
+
+    // ৫. মোবাইল নাম্বার ১০ টু ১১ ডিজিট কনভার্সন ট্র্যাকিং চেক
+    let mStr, m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10;
+    try {
+      mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
+      if (mStr.length === 10) {
+        mStr = '0' + mStr;
+      } else if (mStr.length < 11) {
+        mStr = mStr.padStart(11, '0');
+      }
+      m0=mStr[0]||'0'; m1=mStr[1]||'0'; m2=mStr[2]||'0'; m3=mStr[3]||'0'; m4=mStr[4]||'0'; m5=mStr[5]||'0'; m6=mStr[6]||'0'; m7=mStr[7]||'0'; m8=mStr[8]||'0'; m9=mStr[9]||'0'; m10=mStr[10]||'0';
+    } catch (e) {
+      throw new Error("মোবাইল নাম্বার (Mobile Number) ডিজিট কনভার্ট বা স্প্লিট করতে ব্যর্থ হয়েছে।");
+    }
 
     const g = String(u.gender || 'Male').toLowerCase();
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // অফ-স্ক্রিন কন্টেইনার তৈরি
     const printWrapper = document.createElement('div');
     printWrapper.style.width = "750px";
     printWrapper.style.position = "fixed"; 
@@ -457,7 +479,7 @@ async function downloadOfficialTemplatePDF() {
     printWrapper.style.background = "#ffffff";
     printWrapper.style.padding = "15px";
 
-    printWrapper.innerHTML = `
+  printWrapper.innerHTML = `
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
@@ -572,35 +594,42 @@ async function downloadOfficialTemplatePDF() {
       text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
     });
 
-    const { jsPDF } = window.jspdf;
-    const canvas = await html2canvas(printWrapper, { 
-      scale: 2, 
-      useCORS: true, 
-      allowTaint: false,
-      logging: false,
-      backgroundColor: "#ffffff"
-    });
-    
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
-    
-    document.body.removeChild(printWrapper);
-    if(typeof showLoader === 'function') showLoader(false);
-    pdf.save(`ROS_Form_${u.memberId}.pdf`);
+    // ৬. পিডিএফ রেন্ডারিং ও লাইব্রেরি ট্র্যাকিং চেক
+    try {
+      const { jsPDF } = window.jspdf;
+      const canvas = await html2canvas(printWrapper, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: false,
+        logging: false,
+        backgroundColor: "#ffffff"
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+      
+      document.body.removeChild(printWrapper);
+      if(typeof showLoader === 'function') showLoader(false);
+      pdf.save(`ROS_Form_${u.memberId}.pdf`);
+    } catch (e) {
+      throw new Error("html2canvas অথবা jsPDF লাইব্রেরি দিয়ে পিডিএফ রেন্ডার করার সময় অভ্যন্তরীণ সার্ভার এরর হয়েছে।");
+    }
 
   } catch (err) {
+    // এরর খেলে হিডেন নোড রিমুভ নিশ্চিত করা
     const badWrapper = document.querySelector('div[style*="z-index: -9999"]');
     if(badWrapper && document.body.contains(badWrapper)) {
       document.body.removeChild(badWrapper);
     }
     if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
-    alert("পিডিএফ জেনারেশন প্রক্রিয়ায় ত্রুটি ঘটেছে। অনুগ্রহ করে পেজ রিফ্রেশ করে আবার ট্রাই করুন।");
+    
+    // নির্দিষ্ট এবং কাস্টমাইজড এরর অ্যালার্ট উইন্ডো
+    alert("পিডিএফ ডাউনলোড এরর: \n➡️ " + err.message);
   }
 }
-
 
 // উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ
 window.renderMemberManagementSection = renderMemberManagementSection;
