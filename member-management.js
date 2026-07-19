@@ -400,7 +400,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// ১০০% কার্যকরী অফিশিয়াল মেম্বারশিপ ফর্ম পিডিএফ জেনারেটর (CORS ব্লকিং ও বাফার ফিক্সড)
+// ১০০% কার্যকরী অফিশিয়াল মেম্বারশিপ ফর্ম পিডিএফ জেনারেটর (পিওর জাভাস্ক্রিপ্ট ফিক্সড সংস্করণ)
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -408,7 +408,6 @@ async function downloadOfficialTemplatePDF() {
   if(typeof showLoader === 'function') showLoader(true, "অফিশিয়াল মেম্বারশিপ পিডিএফ জেনারেট হচ্ছে...");
 
   try {
-    // ইমেজ ফাইলগুলোকে আগেই Base64-এ কনভার্ট করে মেমোরিতে নেওয়া হচ্ছে
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
 
@@ -416,74 +415,70 @@ async function downloadOfficialTemplatePDF() {
       ROS_getBase64ImageFromUrl(logoUrl),
       ROS_getBase64ImageFromUrl(userPhotoUrl)
     ]);
-    // আইডি ডাটা স্প্লিটিং[span_2](start_span)[span_2](end_span)
-    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');[span_3](start_span)[span_3](end_span)
-    const regPart1 = regParts[0] || 'ROS';[span_4](start_span)[span_4](end_span)
-    const regPart2 = regParts[1] || '0000';[span_5](start_span)[span_5](end_span)
-    const regPart3 = regParts[2] || '0000';[span_6](start_span)[span_6](end_span)
+
+    const regParts = String(u.memberId || 'ROS-0000-0000').split('-');
+    const regPart1 = regParts[0] || 'ROS';
+    const regPart2 = regParts[1] || '0000';
+    const regPart3 = regParts[2] || '0000';
     
-    // ডেট ডিজিট চপার[span_7](start_span)[span_7](end_span)
-    let rawDate = "00000000";[span_8](start_span)[span_8](end_span)
-    if(u.registrationDate) {[span_9](start_span)[span_9](end_span)
-      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');[span_10](start_span)[span_10](end_span)
-      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;[span_11](start_span)[span_11](end_span)
+    let rawDate = "00000000";
+    if(u.registrationDate) {
+      const dOnly = u.registrationDate.split(' ')[0].replace(/[^0-9]/g, '');
+      if(dOnly.length === 8) rawDate = u.registrationDate.includes('-') && u.registrationDate.indexOf('-') === 4 ? dOnly.substring(6,8) + dOnly.substring(4,6) + dOnly.substring(0,4) : dOnly;
     }
-    const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';[span_12](start_span)[span_12](end_span)
+    const r0=rawDate[0]||'0', r1=rawDate[1]||'0', r2=rawDate[2]||'0', r3=rawDate[3]||'0', r4=rawDate[4]||'0', r5=rawDate[5]||'0', r6=rawDate[6]||'0', r7=rawDate[7]||'0';
 
-    // বার্থডেট ডিজিট চপার[span_13](start_span)[span_13](end_span)
-    let dobDigits = "00000000";[span_14](start_span)[span_14](end_span)
-    if(u.dob) {[span_15](start_span)[span_15](end_span)
-      const d = u.dob.replace(/[^0-9]/g, '');[span_16](start_span)[span_16](end_span)
-      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;[span_17](start_span)[span_17](end_span)
+    let dobDigits = "00000000";
+    if(u.dob) {
+      const d = u.dob.replace(/[^0-9]/g, '');
+      if(d.length === 8) dobDigits = u.dob.includes('-') && u.dob.indexOf('-') === 4 ? d.substring(6,8) + d.substring(4,6) + d.substring(0,4) : d;
     }
-    const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';[span_18](start_span)[span_18](end_span)
+    const d0=dobDigits[0]||'0', d1=dobDigits[1]||'0', d2=dobDigits[2]||'0', d3=dobDigits[3]||'0', d4=dobDigits[4]||'0', d5=dobDigits[5]||'0', d6=dobDigits[6]||'0', d7=dobDigits[7]||'0';
 
-    // মোবাইল ডিজিট চপার[span_19](start_span)[span_19](end_span)
-    let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');[span_20](start_span)[span_20](end_span)
-    if(mStr.length < 11) mStr = mStr.padStart(11, '0');[span_21](start_span)[span_21](end_span)
-    const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];[span_22](start_span)[span_22](end_span)
+    let mStr = String(u.mobile || '01000000000').replace(/[^0-9]/g, '');
+    if(mStr.length < 11) mStr = mStr.padStart(11, '0');
+    const m0=mStr[0], m1=mStr[1], m2=mStr[2], m3=mStr[3], m4=mStr[4], m5=mStr[5], m6=mStr[6], m7=mStr[7], m8=mStr[8], m9=mStr[9], m10=mStr[10];
 
-    const g = String(u.gender || 'Male').toLowerCase();[span_23](start_span)[span_23](end_span)
-    const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';[span_24](start_span)[span_24](end_span)
-    const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';[span_25](start_span)[span_25](end_span)
+    const g = String(u.gender || 'Male').toLowerCase();
+    const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
+    const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
 
-    // ডাইনামিক অফ-স্ক্রিন কন্টেইনার তৈরি[span_26](start_span)[span_26](end_span)
-    const printWrapper = document.createElement('div');[span_27](start_span)[span_27](end_span)
-    printWrapper.style.width = "750px";[span_28](start_span)[span_28](end_span)
+    const printWrapper = document.createElement('div');
+    printWrapper.style.width = "750px";
     printWrapper.style.position = "absolute";
-    printWrapper.style.left = "-9999px"; // কিছু ব্রাউজারের হিডেন বাগ ফিক্স করতে বাইরে পাঠানো হলো
-    printWrapper.style.top = "0";[span_29](start_span)[span_29](end_span)
-    printWrapper.style.background = "#ffffff";[span_30](start_span)[span_30](end_span)
-    printWrapper.style.padding = "15px";[span_31](start_span)[span_31](end_span)
+    printWrapper.style.left = "-9999px"; 
+    printWrapper.style.top = "0";
+    printWrapper.style.background = "#ffffff";
+    printWrapper.style.padding = "15px";
 
-    printWrapper.innerHTML = `
+  printWrapper.innerHTML = `
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
-          <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>[span_32](start_span)[span_32](end_span)
+          <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
           <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 8px;">
             <img src="${base64Logo}" style="width: 250px; height: auto; display: block; margin: 0 auto 4px auto;">
-            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>[span_33](start_span)[span_33](end_span)
+            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
           </div>
           <table style="width:100%; margin-bottom: 5px;">
             <tr>
               <td>
                 <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Registration No:</span>[span_34](start_span)[span_34](end_span)
+                  <span style="display: inline-block; width: 120px;">Registration No:</span>
                   <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6;">${regPart1}</div> - 
                   <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart2}</div> - 
-                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>[span_35](start_span)[span_35](end_span)
+                  <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 55px; text-align:center;">${regPart3}</div>
                 </div>
                 <div style="margin-bottom: 6px; font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Registration Date:</span>[span_36](start_span)[span_36](end_span)
+                  <span style="display: inline-block; width: 120px;">Registration Date:</span>
                   <div style="display: inline-block; vertical-align: middle;">
-                    ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[span_37](start_span)[span_37](end_span)
-                    ${[r2,r3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[span_38](start_span)[span_38](end_span)
-                    ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[span_39](start_span)[span_39](end_span)
+                    ${[r0,r1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                    ${[r2,r3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                    ${[r4,r5,r6,r7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                   </div>
                 </div>
                 <div style="font-size: 9pt; font-weight: bold;">
-                  <span style="display: inline-block; width: 120px;">Status:</span>[span_40](start_span)[span_40](end_span)
-                  <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>[span_41](start_span)[span_41](end_span)
+                  <span style="display: inline-block; width: 120px;">Status:</span>
+                  <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase;">${u.status || 'ACTIVE'}</span>
                 </div>
               </td>
               <td style="width: 80px; text-align: right; vertical-align: top;">
@@ -493,111 +488,108 @@ async function downloadOfficialTemplatePDF() {
               </td>
             </tr>
           </table>
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>[span_42](start_span)[span_42](end_span)
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
           <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 8px;">
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold;">${u.banglaName || ''}</td></tr>[span_43](start_span)[span_43](end_span)
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>[span_44](start_span)[span_44](end_span)
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 30%;">${u.fatherName || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 35%;">${u.motherName || ''}</td></tr>[span_45](start_span)[span_45](end_span)
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold;">${u.banglaName || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 30%;">${u.fatherName || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="padding: 5px; border: 1px solid #ccc; width: 35%;">${u.motherName || ''}</td></tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Mobile Number:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
                 <div style="display: inline-block; vertical-align: middle;">
-                  <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>[span_46](start_span)[span_46](end_span)
-                  ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} -[span_47](start_span)[span_47](end_span)
-                  ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[span_48](start_span)[span_48](end_span)
+                  <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${m0}</div>
+                  ${[m1,m2,m3,m4].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')} - 
+                  ${[m5,m6,m7,m8,m9,m10].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.email || ''}</td>[span_49](start_span)[span_49](end_span)
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.email || ''}</td>
             </tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Date of Birth:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
                 <div style="display: inline-block; vertical-align: middle;">
-                  ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[span_50](start_span)[span_50](end_span)
-                  ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.[span_51](start_span)[span_51](end_span)
-                  ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}[span_52](start_span)[span_52](end_span)
+                  ${[d0,d1].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                  ${[d2,d3].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}.
+                  ${[d4,d5,d6,d7].map(x=>`<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('')}
                 </div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="padding: 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>[span_53](start_span)[span_53](end_span)
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="padding: 5px; border: 1px solid #ccc; font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>
             </tr>
             <tr>
               <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Gender:</td>
               <td style="padding: 5px; border: 1px solid #ccc;">
-                <div style="display: inline-block; margin-right: 10px;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>[span_54](start_span)[span_54](end_span)
-                <div style="display: inline-block;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>[span_55](start_span)[span_55](end_span)
+                <div style="display: inline-block; margin-right: 10px;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isMale}</div>Male</div>
+                <div style="display: inline-block;"><div style="display:inline-block;width:13px;height:13px;border:1px solid #555;text-align:center;line-height:10px;font-size:8pt;margin-right:3px;background:#fff;vertical-align:middle;">${isFemale}</div>Female</div>
               </td>
-              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Occupation:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.profession || ''}</td>[span_56](start_span)[span_56](end_span)
+              <td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Occupation:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.profession || ''}</td>
             </tr>
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.institution || ''}</td></tr>[span_57](start_span)[span_57](end_span)
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Qualification:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.education || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Session/Year:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.academicYear || ''}</td></tr>[span_58](start_span)[span_58](end_span)
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.presentAddress || ''}</td></tr>[span_59](start_span)[span_59](end_span)
-            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.permanentAddress || ''}</td></tr>[span_60](start_span)[span_60](end_span)
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.institution || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Qualification:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.education || ''}</td><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Session/Year:</td><td style="padding: 5px; border: 1px solid #ccc;">${u.academicYear || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.presentAddress || ''}</td></tr>
+            <tr><td style="padding: 5px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3" style="padding: 5px; border: 1px solid #ccc;">${u.permanentAddress || ''}</td></tr>
           </table>
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>[span_61](start_span)[span_61](end_span)
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 10px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
           <div style="font-size: 7.2pt; line-height: 1.3; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 8px; text-align: justify;">
-            1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>[span_62](start_span)[span_62](end_span)
-            2. I declare that all information provided is true. I have digitally agreed to these terms.[span_63](start_span)[span_63](end_span)
+            1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
+            2. I declare that all information provided is true. I have digitally agreed to these terms.
           </div>
           <table style="width: 100%; margin-top: 20px;">
             <tr>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>[span_64](start_span)[span_64](end_span)
+                <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>[span_65](start_span)[span_65](end_span)
-                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>[span_66](start_span)[span_66](end_span)
+                <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>
+                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="height: 20px;"></div>[span_67](start_span)[span_67](end_span)
-                <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>[span_68](start_span)[span_68](end_span)
+                <div style="height: 20px;"></div>
+                <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
               </td>
             </tr>
           </table>
           <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 10px; font-weight: bold;">
             * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
           </div>
-          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7pt; color: #566573; padding-top: 4px;">[span_69](start_span)[span_69](end_span)
-            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>[span_70](start_span)[span_70](end_span)
+          <table style="width: 100%; margin-top: 6px; border-top: 1px solid #eee; font-size: 7pt; color: #566573; padding-top: 4px;">
+            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
           </table>
         </div>
       </div>
     `;
 
-    document.body.appendChild(printWrapper);[span_71](start_span)[span_71](end_span)
+    document.body.appendChild(printWrapper);
 
-    // QR কোড ডাটা ইঞ্জিন জেনারেশন[span_72](start_span)[span_72](end_span)
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;[span_73](start_span)[span_73](end_span)
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${u.mobile || 'N/A'}`;
     
-    new QRCode(printWrapper.querySelector("#real-instantly-qr"), {[span_74](start_span)[span_74](end_span)
-      text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H[span_75](start_span)[span_75](end_span)
+    new QRCode(printWrapper.querySelector("#real-instantly-qr"), {
+      text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
     });
 
-    // অল্প বাফার দিয়ে ক্যানভাস রেন্ডারিং স্টার্ট
     setTimeout(async () => {
       try {
-        const { jsPDF } = window.jspdf;[span_76](start_span)[span_76](end_span)
+        const { jsPDF } = window.jspdf;
         
         const canvas = await html2canvas(printWrapper, { 
           scale: 2, 
           useCORS: true, 
           allowTaint: false,
           logging: false,
-          backgroundColor: "#ffffff[span_77](start_span)"[span_77](end_span)
+          backgroundColor: "#ffffff"
         });
         
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);[span_78](start_span)[span_78](end_span)
-        const pdf = new jsPDF('p', 'mm', 'a4');[span_79](start_span)[span_79](end_span)
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const pdf = new jsPDF('p', 'mm', 'a4');
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);[span_80](start_span)[span_80](end_span)
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
         
-        // ডম মেমোরি ক্লিনআপ
-        document.body.removeChild(printWrapper);[span_81](start_span)[span_81](end_span)
+        document.body.removeChild(printWrapper);
         
-        if(typeof showLoader === 'function') showLoader(false);[span_82](start_span)[span_82](end_span)
-        pdf.save(`ROS_Form_${u.memberId}.pdf`);[span_83](start_span)[span_83](end_span)
+        if(typeof showLoader === 'function') showLoader(false);
+        pdf.save(`ROS_Form_${u.memberId}.pdf`);
       } catch (err) {
-        if(printWrapper.parentNode) document.body.removeChild(printWrapper);[span_84](start_span)[span_84](end_span)
-        if(typeof showLoader === 'function') showLoader(false);[span_85](start_span)[span_85](end_span)
+        if(printWrapper.parentNode) document.body.removeChild(printWrapper);
+        if(typeof showLoader === 'function') showLoader(false);
         console.error(err);
         alert("PDF রেন্ডার করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
       }
@@ -610,7 +602,7 @@ async function downloadOfficialTemplatePDF() {
   }
 }
 
-// উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ[span_86](start_span)[span_86](end_span)
+// উইন্ডো স্কোপ বাইন্ডিং নিশ্চিতকরণ
 window.renderMemberManagementSection = renderMemberManagementSection;
 window.populateDateFilter = populateDateFilter;
 window.filterAndRenderMembersTable = filterAndRenderMembersTable;
