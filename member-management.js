@@ -107,7 +107,7 @@ function renderMemberManagementSection(container) {
       </div>
     </section>
 
-    <!-- মডাল পপআপ এবং থিম কাস্টমাইজেশন -->
+    <!-- মডাল পপআপ -->
     <div id="memberPopupModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-50">
       <div class="bg-slate-900 border-2 border-[#00b4d8]/40 rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
         <div class="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
@@ -393,7 +393,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// ট্র্যাকিং এরর হ্যান্ডেলার সহ এডভান্সড পিডিএফ জেনারেটর
+// থার্ড পার্টি QRCode লাইব্রেরিমুক্ত গুগল এপিআই ভিত্তিক মেম্বারশিপ পিডিএফ জেনারেটর
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -411,7 +411,7 @@ async function downloadOfficialTemplatePDF() {
         preloadImageAsync(userPhotoUrl)
       ]);
     } catch (e) {
-      throw new Error("মেম্বারের ছবি বা লোগো ক্লাউডিনারি থেকে লোড হতে ব্যর্থ হয়েছে। ইউআরএল/কানেকশন চেক করুন।");
+      throw new Error("মেম্বারের ছবি বা লোগো ক্লাউডিনারি থেকে লোড হতে ব্যর্থ হয়েছে।");
     }
 
     // ২. রেজিস্ট্রেশন আইডি স্প্লিটিং ট্র্যাকিং চেক
@@ -448,7 +448,7 @@ async function downloadOfficialTemplatePDF() {
       }
       d0=dobDigits[0]||'0'; d1=dobDigits[1]||'0'; d2=dobDigits[2]||'0'; d3=dobDigits[3]||'0'; d4=dobDigits[4]||'0'; d5=dobDigits[5]||'0'; d6=dobDigits[6]||'0'; d7=dobDigits[7]||'0';
     } catch (e) {
-      throw new Error("জন্ম তারিখ (Date of Birth) ফরমেট প্রসেস করতে ব্যর্থ হয়েছে।");
+      throw new Error("জন্ম তারিখ (Date of Birth) ফরmeট প্রসেস করতে ব্যর্থ হয়েছে।");
     }
 
     // ৫. মোবাইল নাম্বার ১০ টু ১১ ডিজিট কনভার্সন ট্র্যাকিং চেক
@@ -462,12 +462,16 @@ async function downloadOfficialTemplatePDF() {
       }
       m0=mStr[0]||'0'; m1=mStr[1]||'0'; m2=mStr[2]||'0'; m3=mStr[3]||'0'; m4=mStr[4]||'0'; m5=mStr[5]||'0'; m6=mStr[6]||'0'; m7=mStr[7]||'0'; m8=mStr[8]||'0'; m9=mStr[9]||'0'; m10=mStr[10]||'0';
     } catch (e) {
-      throw new Error("মোবাইল নাম্বার (Mobile Number) ডিজিট কনভার্ট বা স্প্লিট করতে ব্যর্থ হয়েছে।");
+      throw new Error("মোবাইল নাম্বার (Mobile Number) ডিজিট কনভার্ট করতে ব্যর্থ হয়েছে।");
     }
 
     const g = String(u.gender || 'Male').toLowerCase();
     const isMale = (g === 'male' || g === 'পুরুষ') ? '✓' : '';
     const isFemale = (g === 'female' || g === 'মহিলা') ? '✓' : '';
+
+    // ৬. গুগল চার্টস থেকে ডাইনামিক কিউআর কোড জেনারেশন (QRCode লাইব্রেরির ওপর নির্ভরশীলতা মুক্ত)
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
+    let googleQrUrl = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(qrPayloadString)}&choe=UTF-8`;
 
     const printWrapper = document.createElement('div');
     printWrapper.style.width = "750px";
@@ -479,7 +483,7 @@ async function downloadOfficialTemplatePDF() {
     printWrapper.style.background = "#ffffff";
     printWrapper.style.padding = "15px";
 
-  printWrapper.innerHTML = `
+printWrapper.innerHTML = `
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
@@ -567,7 +571,8 @@ async function downloadOfficialTemplatePDF() {
                 <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                <div style="width: 65px; height: 65px; margin: 0 auto; background: #fff;" id="real-instantly-qr"></div>
+                <!-- গুগল কিউআর ডিরেক্ট ইমেজ হিসেবে বসানো হলো -->
+                <img src="${googleQrUrl}" crossOrigin="anonymous" style="width: 65px; height: 65px; margin: 0 auto; display: block; background: #fff;">
                 <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
               </td>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
@@ -588,13 +593,10 @@ async function downloadOfficialTemplatePDF() {
 
     document.body.appendChild(printWrapper);
 
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
-    
-    new QRCode(printWrapper.querySelector("#real-instantly-qr"), {
-      text: qrPayloadString, width: 65, height: 65, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
-    });
+    // কিউআর কোড ইমেজ লোড হওয়ার জন্য অতিরিক্ত একটু অপেক্ষা ও প্রমিজ সিকোয়েন্স
+    await new Promise(resolve => setTimeout(resolve, 300));
 
-    // ৬. পিডিএফ রেন্ডারিং ও লাইব্রেরি ট্র্যাকিং চেক
+    // ৭. পিডিএফ রেন্ডারিং ও লাইব্রেরি ট্র্যাকিং চেক
     try {
       const { jsPDF } = window.jspdf;
       const canvas = await html2canvas(printWrapper, { 
@@ -618,15 +620,12 @@ async function downloadOfficialTemplatePDF() {
     }
 
   } catch (err) {
-    // এরর খেলে হিডেন নোড রিমুভ নিশ্চিত করা
     const badWrapper = document.querySelector('div[style*="z-index: -9999"]');
     if(badWrapper && document.body.contains(badWrapper)) {
       document.body.removeChild(badWrapper);
     }
     if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
-    
-    // নির্দিষ্ট এবং কাস্টমাইজড এরর অ্যালার্ট উইন্ডো
     alert("পিডিএফ ডাউনলোড এরর: \n➡️ " + err.message);
   }
 }
@@ -642,3 +641,4 @@ window.closeMemberModal = closeMemberModal;
 window.exportToExcel = exportToExcel;
 window.exportToPDF = exportToPDF;
 window.downloadOfficialTemplatePDF = downloadOfficialTemplatePDF;
+  
