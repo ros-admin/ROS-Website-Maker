@@ -394,7 +394,6 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-// প্রোফাইল পিকচার এবং টেক্সট পজিশনিং সমস্যার শতভাগ কার্যকর ফিক্সড কোড
 async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
@@ -406,26 +405,27 @@ async function downloadOfficialTemplatePDF() {
     const rawQrCenterLogoUrl = "https://rosociety.vercel.app/ros%20logo.png";
     const rawUserPhotoUrl = u.photoUrl || rawQrCenterLogoUrl;
 
-    // ইমেজ লোডার উইথ সেফ ফ্যালব্যাক (প্রোফাইল ছবি ব্লক হলে অ্যাপ লোগো লোড হবে)
+    // ইমেজ লোডারের জন্য ১০০% নিশ্চিত প্রমিজ (ছবি পুরোপুরি লোড হওয়া পর্যন্ত ওয়েট করবে)
     const loadSafeImg = (url) => {
       return new Promise((resolve) => {
+        if (!url) return resolve(rawQrCenterLogoUrl);
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.onload = function () {
-          const canvas = document.createElement('canvas');
-          canvas.width = this.naturalWidth || 100;
-          canvas.height = this.naturalHeight || 100;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(this, 0, 0);
           try {
+            const canvas = document.createElement('canvas');
+            canvas.width = this.naturalWidth || 100;
+            canvas.height = this.naturalHeight || 100;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(this, 0, 0);
             resolve(canvas.toDataURL('image/png'));
           } catch (e) {
-            resolve(rawQrCenterLogoUrl);
+            resolve(url); // ক্যানভাস কনভার্ট না হলে ডিরেক্ট ইউআরএল ব্যবহার করবে
           }
         };
         img.onerror = function () {
-          // ছবি লোড না হলে ডিফল্ট লোগো ব্যবহার হবে
-          if(url !== rawQrCenterLogoUrl) {
+          // ইমেজ ফেল করলে ডিফল্ট সেফ লোগো ফেচ করবে
+          if (url !== rawQrCenterLogoUrl) {
             loadSafeImg(rawQrCenterLogoUrl).then(resolve);
           } else {
             resolve('');
@@ -435,6 +435,7 @@ async function downloadOfficialTemplatePDF() {
       });
     };
 
+    // সব ছবি আগেভাগে লোড নিশ্চিত করা
     const [logoUrl, userPhotoUrl, qrCenterLogoUrl] = await Promise.all([
       loadSafeImg(rawLogoUrl),
       loadSafeImg(rawUserPhotoUrl),
@@ -492,7 +493,6 @@ async function downloadOfficialTemplatePDF() {
     printWrapper.style.padding = "25px 30px";
     printWrapper.style.color = "#000000";
 
-    // টেবিল বেসড ডিজিট রেন্ডার যা একদম নিচ দিয়ে ফেটে যাবে না
     const renderDigitBoxes = (digits) => {
       return `<table style="display:inline-table; border-collapse:collapse; vertical-align:middle; margin:0 1px;"><tr>` +
         digits.map(x => `<td style="width:14px; height:18px; border:1px solid #777; text-align:center; vertical-align:middle; font-size:8pt; font-weight:bold; background:#f4f5f6; font-family:Arial, sans-serif; padding:0; line-height:18px;">${x}</td>`).join('') +
@@ -504,57 +504,58 @@ async function downloadOfficialTemplatePDF() {
         #ros-pdf-content, #ros-pdf-content * {
           box-sizing: border-box !important;
           font-family: Arial, sans-serif !important;
-          line-height: 1.15 !important;
         }
         #ros-pdf-content table {
           border-collapse: collapse !important;
         }
+        /* বক্সগুলো এবং সেলগুলোর মার্জিন/প্যাডিং একটু বাড়িয়ে জায়গা শিফট করা হলো */
         #ros-pdf-content .info-table td {
-          padding: 4px 6px !important;
+          padding: 6px 8px !important;
           border: 1px solid #ccc !important;
           vertical-align: middle !important;
           font-size: 8.5pt !important;
-          height: 24px !important;
+          height: 28px !important;
         }
       </style>
       <div id="ros-pdf-content" style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-size: 8.5pt;">
-        <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
+        <div style="border: 1px solid #0077b6; padding: 18px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
           
-          <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 8px; margin-bottom: 12px;">
-            <img src="${logoUrl}" style="width: 250px; height: auto; display: block; margin: 0 auto 6px auto;">
-            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
+          <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 10px; margin-bottom: 16px;">
+            <img src="${logoUrl}" style="width: 250px; height: auto; display: block; margin: 0 auto 8px auto;">
+            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 4px 14px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase;">Registration Form</div>
           </div>
           
-          <table style="width:100%; margin-bottom: 10px;">
+          <table style="width:100%; margin-bottom: 16px;">
             <tr>
               <td style="vertical-align: middle; text-align: left; padding: 0;">
-                <div style="font-weight: bold; margin-bottom: 6px;">
+                <div style="font-weight: bold; margin-bottom: 8px;">
                   <span style="display: inline-block; width: 120px;">Registration No:</span>
                   <span style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; background: #eef7fc; color: #0077b6; display:inline-block; vertical-align:middle;">${regPart1}</span> - 
                   <span style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; background: #eef7fc; color: #0077b6; display:inline-block; vertical-align:middle;">${regPart2}</span> - 
                   <span style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 2px 6px; background: #eef7fc; color: #0077b6; display:inline-block; vertical-align:middle;">${regPart3}</span>
                 </div>
-                <div style="font-weight: bold; margin-bottom: 6px;">
+                <div style="font-weight: bold; margin-bottom: 8px;">
                   <span style="display: inline-block; width: 120px;">Registration Date:</span>
                   ${renderDigitBoxes([r0,r1])} . ${renderDigitBoxes([r2,r3])} . ${renderDigitBoxes([r4,r5,r6,r7])}
                 </div>
                 <div style="font-weight: bold;">
                   <span style="display: inline-block; width: 120px;">Status:</span>
-                  <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; display:inline-block; vertical-align:middle;">${u.status || 'ACTIVE'}</span>
+                  <span style="background: #2a9d8f; color: #fff; padding: 3px 10px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; display:inline-block; vertical-align:middle;">${u.status || 'ACTIVE'}</span>
                 </div>
               </td>
               <td style="width: 85px; text-align: right; vertical-align: top; padding: 0;">
                 <div style="width: 75px; height: 85px; border: 1.5px solid #0077b6; background: #f0f0f0; overflow: hidden; display:inline-block; text-align:center;">
-                  <img src="${userPhotoUrl}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                  <img id="pdf-user-img" src="${userPhotoUrl}" style="width:100%; height:100%; object-fit:cover; display:block;">
                 </div>
               </td>
             </tr>
           </table>
           
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 8px; margin: 18px 0 10px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
           
-          <table class="info-table" style="width:100%; margin-bottom: 12px;">
+          <!-- টেবিলের পজিশন সামান্য ফ্লেক্সিবল ও নামানো হয়েছে -->
+          <table class="info-table" style="width:100%; margin-bottom: 18px;">
             <tr><td style="background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="font-weight: bold;">${u.banglaName || ''}</td></tr>
             <tr><td style="background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>
             <tr><td style="background: #f8f9fa; font-weight: bold; width: 20%;">Father's Name:</td><td style="width: 30%;">${u.fatherName || ''}</td><td style="background: #f8f9fa; font-weight: bold; width: 15%;">Mother's Name:</td><td style="width: 35%;">${u.motherName || ''}</td></tr>
@@ -589,13 +590,16 @@ async function downloadOfficialTemplatePDF() {
             <tr><td style="background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3">${u.permanentAddress || ''}</td></tr>
           </table>
           
-          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
-          <div style="font-size: 7.2pt; line-height: 1.3 !important; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 12px; text-align: justify;">
+          <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 8px; margin: 18px 0 10px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
+          
+          <!-- বক্সের প্যাডিং বাড়িয়ে একটু বড় করা হয়েছে -->
+          <div style="font-size: 7.2pt; line-height: 1.4 color: #222; background: #fdfdfd; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 20px; text-align: justify;">
             1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
             2. I declare that all information provided is true. I have digitally agreed to these terms.
           </div>
           
-          <table style="width: 100%; margin-top: 15px;">
+          <!-- নিচের সিগনেচার অংশ খানিকটা নিচে স্পেস দিয়ে সেট করা হয়েছে -->
+          <table style="width: 100%; margin-top: 25px;">
             <tr>
               <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
                 <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
@@ -612,15 +616,15 @@ async function downloadOfficialTemplatePDF() {
             </tr>
           </table>
           
-          <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 5px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 12px; font-weight: bold;">
+          <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 6px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 16px; font-weight: bold;">
             * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
           </div>
           
-          <table style="width: 100%; margin-top: 10px; border-top: 1px solid #eee; font-size: 7.5pt; color: #566573; padding-top: 4px;">
+          <table style="width: 100%; margin-top: 14px; border-top: 1px solid #eee; font-size: 7.5pt; color: #566573; padding-top: 6px;">
             <tr><td style="text-align: left;">🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
           </table>
 
-          <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
+          <table style="width: 100%; margin-top: 6px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
             <tr>
               <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
               <td style="text-align: right; font-weight: bold; color: #64748b;">Developed by: <span style="color: #0077b6;">Utsab Sarker</span></td>
@@ -632,7 +636,7 @@ async function downloadOfficialTemplatePDF() {
 
     document.body.appendChild(printWrapper);
 
-    // কিউআর কোড এবং কাস্টম সেন্টার লোগো জেনারেটর
+    // কিউআর কোড জেনারেশন
     const qrContainer = printWrapper.querySelector("#canvas-pure-qr");
     let qrGenerated = false;
 
@@ -679,7 +683,7 @@ async function downloadOfficialTemplatePDF() {
           qrGenerated = true;
         }
       } catch(e) {
-        console.error("QR Code Generation Error:", e);
+        console.error("QR Code Error:", e);
       }
     }
 
@@ -689,8 +693,8 @@ async function downloadOfficialTemplatePDF() {
       qrContainer.innerHTML = `<img src="${backupBase64}" style="width:85px;height:85px;display:block;">`;
     }
 
-    // ক্যানভাস লোড হওয়ার নিরাপদ বাফারিং টাইম
-    await new Promise(resolve => setTimeout(resolve, 600));
+    // ছবিগুলো পুরোপুরি রেন্ডার নিশ্চিত করতে ব্রাউজারকে ১ সেকেন্ড ওয়েটিং ব্যাকঅফ সময় দেওয়া হলো
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     try {
       const { jsPDF } = window.jspdf;
@@ -725,10 +729,11 @@ async function downloadOfficialTemplatePDF() {
     console.error(err);
     alert("পিডিএফ ডাউনলোড এরর: \n➡️ " + err.message);
   }
-            }
-            
-                          
-// উইন্ডো স্কোপ বাইন্ডিং
+}
+  
+
+
+
 window.renderMemberManagementSection = renderMemberManagementSection;
 window.populateDateFilter = populateDateFilter;
 window.filterAndRenderMembersTable = filterAndRenderMembersTable;
