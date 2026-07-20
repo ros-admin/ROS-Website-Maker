@@ -394,24 +394,25 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-                                          
-    async function downloadOfficialTemplatePDF() {
+        async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
   
-  if(typeof showLoader === 'function') showLoader(true, "পিডিএফ প্রিন্ট প্রিপেয়ার হচ্ছে...");
+  if(typeof showLoader === 'function') showLoader(true, "পিডিএফ প্রিপেয়ার হচ্ছে...");
 
   try {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
     const qrCenterLogoUrl = "https://rosociety.vercel.app/ros%20logo.png";
 
+    // রেজিস্ট্রেশন নম্বর স্প্লিট
     const rawId = String(u.memberId || 'ROS-0000-0000');
     const regParts = rawId.includes('-') ? rawId.split('-') : ['ROS', '0000', '0000'];
     const regPart1 = regParts[0] || 'ROS';
     const regPart2 = regParts[1] || '0000';
     const regPart3 = regParts[2] || '0000';
     
+    // তারিখ প্রসেসিং
     const formatDigits = (dateStr) => {
       if (!dateStr) return ["0","0","0","0","0","0","0","0"];
       const clean = dateStr.replace(/[^0-9]/g, '');
@@ -422,9 +423,11 @@ function exportToPDF() {
       return d.padEnd(8, '0').slice(0, 8).split('');
     };
 
-    const regDigits = formatDigits(u.registrationDate ? u.registrationDate.split(' ')[0] : '');
+    const regDateFormatted = u.registrationDate ? u.registrationDate.split(' ')[0] : '';
+    const regDigits = formatDigits(regDateFormatted);
     const dobDigits = formatDigits(u.dob || '');
 
+    // মোবাইল নম্বর
     let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
     if (mStr.length === 10) mStr = '0' + mStr;
     else if (mStr.length < 11) mStr = mStr.padStart(11, '0');
@@ -441,11 +444,86 @@ function exportToPDF() {
     hours = hours % 12 || 12; 
     const downloadDateTime = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(hours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
 
-    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
+    // ১. কিউআর কোডের নতুন বিস্তারিত ডাটা পে-লোড
+    let qrPayloadString = `--- ROS MEMBER VERIFICATION ---
+Reg No: ${u.memberId || 'N/A'}
+Reg Date: ${regDateFormatted || 'N/A'}
+Status: ${(u.status || 'ACTIVE').toUpperCase()}
+Name: ${u.englishName || u.banglaName || 'N/A'}
+Mobile: ${mStr}
+Email: ${u.email || 'N/A'}
+DOB: ${u.dob || 'N/A'}
+Blood Group: ${u.bloodGroup || 'N/A'}
+Gender: ${u.gender || 'N/A'}`;
+
+    // ২. সেন্টারে লোগো সহ কিউআর কোড ইমেজ তৈরি (Canvas base64)
+    const generateQrDataUrlWithLogo = async (text, logoSrc) => {
+      return new Promise((resolve) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.style.display = 'none';
+        document.body.appendChild(tempDiv);
+
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(tempDiv, {
+            text: text,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+
+          setTimeout(() => {
+            const qrImg = tempDiv.querySelector('img');
+            if (qrImg && qrImg.src) {
+              const canvas = document.createElement('canvas');
+              canvas.width = 200;
+              canvas.height = 200;
+              const ctx = canvas.getContext('2d');
+
+              const baseQr = new Image();
+              baseQr.crossOrigin = "anonymous";
+              baseQr.onload = () => {
+                ctx.drawImage(baseQr, 0, 0, 200, 200);
+
+                const centerLogo = new Image();
+                centerLogo.crossOrigin = "anonymous";
+                centerLogo.onload = () => {
+                  const logoSize = 48;
+                  const x = (200 - logoSize) / 2;
+                  const y = (200 - logoSize) / 2;
+
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(x - 3, y - 3, logoSize + 6, logoSize + 6);
+                  ctx.drawImage(centerLogo, x, y, logoSize, logoSize);
+
+                  const finalUrl = canvas.toDataURL('image/png');
+                  document.body.removeChild(tempDiv);
+                  resolve(finalUrl);
+                };
+                centerLogo.onerror = () => {
+                  document.body.removeChild(tempDiv);
+                  resolve(qrImg.src);
+                };
+                centerLogo.src = logoSrc;
+              };
+              baseQr.src = qrImg.src;
+            } else {
+              document.body.removeChild(tempDiv);
+              resolve(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`);
+            }
+          }, 300);
+        } else {
+          document.body.removeChild(tempDiv);
+          resolve(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`);
+        }
+      });
+    };
+
+    const qrFinalImgUrl = await generateQrDataUrlWithLogo(qrPayloadString, qrCenterLogoUrl);
 
     const makeBoxes = (arr) => arr.map(x => `<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('');
 
-    // আইফ্রেম তৈরি করে পারফেক্ট নেটিভ প্রিন্ট
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
@@ -564,6 +642,18 @@ function exportToPDF() {
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Qualification:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.education || ''}</td><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Session/Year:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.academicYear || ''}</td></tr>
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Present Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.presentAddress || ''}</td></tr>
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Permanent Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.permanentAddress || ''}</td></tr>
+              
+              <!-- নতুন যোগ করা ফিল্ডসমূহ -->
+              <tr>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">WhatsApp Number:</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.whatsapp || u.mobile || ''}</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">NID / Birth Cert No:</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.nidNo || u.birthCertNo || u.nid || ''}</td>
+              </tr>
+              <tr>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Facebook ID:</td>
+                <td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.facebookId || u.facebookUrl || ''}</td>
+              </tr>
             </table>
             
             <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold; line-height: 1.2;">2. TERMS & DECLARATION</div>
@@ -578,7 +668,7 @@ function exportToPDF() {
                   <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
                 </td>
                 <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrPayloadString)}" style="width: 75px; height: 75px; display: block; margin: 0 auto;">
+                  <img src="${qrFinalImgUrl}" style="width: 75px; height: 75px; display: block; margin: 0 auto;">
                   <div style="font-size: 6.5pt; font-weight: bold; margin-top: 4px;">SCAN TO VERIFY</div>
                 </td>
                 <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
@@ -608,26 +698,23 @@ function exportToPDF() {
     `);
     doc.close();
 
-    // ইমেজ লোড সম্পন্ন হওয়া পর্যন্ত কিছুটা সময় দেয়া
     setTimeout(() => {
       if(typeof showLoader === 'function') showLoader(false);
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-      
-      // প্রিন্ট ডায়ালগ বন্ধের পর আইফ্রেম রিমুভ
+
       setTimeout(() => {
         document.body.removeChild(iframe);
       }, 2000);
-    }, 800);
+    }, 600);
 
   } catch (err) {
     if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
     alert("পিডিএফ জেনারেশন এরর: " + err.message);
   }
-    }
-
-
+        }
+         
                     
 // উইন্ডো স্কোপ বাইন্ডিং
 window.renderMemberManagementSection = renderMemberManagementSection;
