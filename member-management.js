@@ -470,6 +470,25 @@ async function downloadOfficialTemplatePDF() {
 
     // CSS ফিক্স: line-height এবং vertical-align সুনির্দিষ্ট করে লেখা নিচে নামা বন্ধ করা হয়েছে
     printWrapper.innerHTML = `
+  <style>
+    /* html2canvas টেক্সট নিচে নামা বন্ধ করার রেসপন্সিভ রেসেট */
+    #pdf-print-root * {
+      box-sizing: border-box !important;
+      font-family: Arial, sans-serif !important;
+    }
+    #pdf-print-root table td {
+      vertical-align: middle !important;
+      line-height: 1.1 !important;
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+    }
+    #pdf-print-root div, #pdf-print-root span {
+      line-height: 1.1 !important;
+    }
+  </style>
+
+  <div id="pdf-print-root" style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-size: 8.5pt;">
+   
       <div style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-family: Arial, sans-serif; font-size: 8.5pt; line-height: 1.2;">
         <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
           <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
