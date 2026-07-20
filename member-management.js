@@ -4,8 +4,8 @@
  */
 
 // Cloudinary Configuration
-const CLOUDINARY_UPLOAD_PRESET = "YOUR_UPLOAD_PRESET"; // আপনার Cloudinary Upload Preset লিখুন
-const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";     // আপনার Cloudinary Cloud Name লিখুন
+const CLOUDINARY_UPLOAD_PRESET = "ros_uploads"; // আপনার Cloudinary Upload Preset লিখুন
+const CLOUDINARY_CLOUD_NAME = "dcmu3hius";     // আপনার Cloudinary Cloud Name লিখুন
 
 function renderMemberManagementSection(container) {
   container.innerHTML = `
