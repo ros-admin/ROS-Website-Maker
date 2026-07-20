@@ -583,8 +583,8 @@ Gender: ${u.gender || 'N/A'}`;
                   <div style="margin-top: 4px; font-weight: bold; padding: 2px 0;">
                     <span style="display: inline-block; width: 120px;">Registration Date:</span>
                     <div style="display: inline-block; vertical-align: middle; line-height: 1;">
-                      ${makeBoxes(regDigits.slice(0,2))}.
-                      ${makeBoxes(regDigits.slice(2,4))}.
+                      ${makeBoxes(regDigits.slice(0,2))} .
+                      ${makeBoxes(regDigits.slice(2,4))} .
                       ${makeBoxes(regDigits.slice(4,8))}
                     </div>
                   </div>
@@ -623,8 +623,8 @@ Gender: ${u.gender || 'N/A'}`;
                 <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Date of Birth:</td>
                 <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
                   <div style="display: inline-block; vertical-align: middle; line-height: 1;">
-                    ${makeBoxes(dobDigits.slice(0,2))}.
-                    ${makeBoxes(dobDigits.slice(2,4))}.
+                    ${makeBoxes(dobDigits.slice(0,2))} .
+                    ${makeBoxes(dobDigits.slice(2,4))} .
                     ${makeBoxes(dobDigits.slice(4,8))}
                   </div>
                 </td>
@@ -693,7 +693,7 @@ Gender: ${u.gender || 'N/A'}`;
 
             <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
               <tr>
-                <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
+                <td style="text-align: left;">Downloaded: ${downloadDateTime}</td>
                 <td style="text-align: right; font-weight: bold; color: #64748b;">Developed by: <span style="color: #0077b6;">Utsab Sarker</span></td>
               </tr>
             </table>
