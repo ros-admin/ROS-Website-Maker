@@ -394,7 +394,8 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-async function downloadOfficialTemplatePDF() {
+        
+    async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
   
@@ -442,7 +443,7 @@ async function downloadOfficialTemplatePDF() {
     const isMale = (g === 'male' || g === 'পুরুষ');
     const isFemale = (g === 'female' || g === 'মহিলা');
 
-    // ১. Status অনুযায়ী Dynamic Background Color
+    // Status অনুযায়ী Dynamic Background Color
     const statusUpper = String(u.status || 'ACTIVE').toUpperCase();
     let statusBgColor = '#2a9d8f'; // Default Green (Active)
     let statusTextColor = '#ffffff';
@@ -474,42 +475,45 @@ DOB: ${u.dob || 'N/A'}
 Blood Group: ${u.bloodGroup || 'N/A'}
 Gender: ${u.gender || 'N/A'}`;
 
-    // ২. সেন্টারে লোগো সহ QR Code জেনারেটর (Canvas Based Guaranteed Overlay)
+    // Ultra High-Resolution (HD) QR Code & Center Logo Generator
     const generateQrDataUrlWithLogo = async (text, logoSrc) => {
       return new Promise((resolve) => {
-        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&ecc=H&data=${encodeURIComponent(text)}`;
+        // High Resolution (800x800) for crystal clear HD output
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&ecc=H&data=${encodeURIComponent(text)}`;
         
         const canvas = document.createElement('canvas');
-        canvas.width = 250;
-        canvas.height = 250;
+        canvas.width = 800;
+        canvas.height = 800;
         const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         const qrImg = new Image();
         qrImg.crossOrigin = "anonymous";
         qrImg.src = qrApiUrl;
 
         qrImg.onload = () => {
-          ctx.drawImage(qrImg, 0, 0, 250, 250);
+          ctx.drawImage(qrImg, 0, 0, 800, 800);
 
           const logo = new Image();
           logo.crossOrigin = "anonymous";
           logo.src = logoSrc;
 
           logo.onload = () => {
-            const logoSize = 60; // Center Logo Size
-            const x = (250 - logoSize) / 2;
-            const y = (250 - logoSize) / 2;
+            const logoSize = 180; // Scaled for 800x800 canvas
+            const x = (800 - logoSize) / 2;
+            const y = (800 - logoSize) / 2;
 
-            // লোগোর ব্যাকগ্রাউন্ডে সাদা বর্ডার/বক্স
+            // White padding box around center logo
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(x - 4, y - 4, logoSize + 8, logoSize + 8);
+            ctx.fillRect(x - 12, y - 12, logoSize + 24, logoSize + 24);
             ctx.drawImage(logo, x, y, logoSize, logoSize);
 
-            resolve(canvas.toDataURL('image/png'));
+            resolve(canvas.toDataURL('image/png', 1.0));
           };
 
           logo.onerror = () => {
-            resolve(canvas.toDataURL('image/png'));
+            resolve(canvas.toDataURL('image/png', 1.0));
           };
         };
 
@@ -539,7 +543,7 @@ Gender: ${u.gender || 'N/A'}`;
       <!DOCTYPE html>
       <html>
       <head>
-        <title>ROS_Form_${u.memberId}</title>
+        <title>REG_FORM_${u.memberId || 'UNKNOWN'}</title>
         <style>
           @page {
             size: A4 portrait;
@@ -590,7 +594,6 @@ Gender: ${u.gender || 'N/A'}`;
                   </div>
                   <div style="margin-top: 4px; font-weight: bold; padding: 2px 0;">
                     <span style="display: inline-block; width: 120px;">Status:</span>
-                    <!-- Dynamic Status Background Color -->
                     <span style="background: ${statusBgColor}; color: ${statusTextColor}; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; line-height: 1; display: inline-block; vertical-align: middle;">${statusUpper}</span>
                   </div>
                 </td>
@@ -643,7 +646,6 @@ Gender: ${u.gender || 'N/A'}`;
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Present Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.presentAddress || ''}</td></tr>
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Permanent Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.permanentAddress || ''}</td></tr>
               
-              <!-- আপডেটকৃত ফিল্ডসমূহ (১১ বক্স হোয়াটসঅ্যাপ নম্বর সহ) -->
               <tr>
                 <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">WhatsApp Number:</td>
                 <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
@@ -664,7 +666,7 @@ Gender: ${u.gender || 'N/A'}`;
             
             <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold; line-height: 1.2;">2. TERMS & DECLARATION</div>
             <div style="font-size: 7.2pt; line-height: 1.4; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 12px; text-align: justify;">
-              1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
+              1. <b>Supreme Authority:</b> If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
               2. I declare that all information provided is true. I have digitally agreed to these terms.
             </div>
             
@@ -683,6 +685,7 @@ Gender: ${u.gender || 'N/A'}`;
               </tr>
             </table>
             
+            <!-- Full Note Section Bolded -->
             <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 12px; font-weight: bold;">
               * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
             </div>
@@ -719,8 +722,8 @@ Gender: ${u.gender || 'N/A'}`;
     console.error(err);
     alert("পিডিএফ জেনারেশন এরর: " + err.message);
   }
-}
-
+    }
+                    
 // উইন্ডো স্কোপ বাইন্ডিং
 window.renderMemberManagementSection = renderMemberManagementSection;
 window.populateDateFilter = populateDateFilter;
