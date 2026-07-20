@@ -394,25 +394,24 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-                                async function downloadOfficialTemplatePDF() {
+                                          
+    async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
   
-  if(typeof showLoader === 'function') showLoader(true, "এইচডি কোয়ালিটিতে মেম্বারশিপ পিডিএফ জেনারেট হচ্ছে...");
+  if(typeof showLoader === 'function') showLoader(true, "পিডিএফ প্রিন্ট প্রিপেয়ার হচ্ছে...");
 
   try {
     const logoUrl = "https://rosociety.vercel.app/Assets/Logo/ROS%20Logo%20Title.png";
     const userPhotoUrl = u.photoUrl || "https://rosociety.vercel.app/ros%20logo.png";
     const qrCenterLogoUrl = "https://rosociety.vercel.app/ros%20logo.png";
 
-    // রেজিস্ট্রেশন নম্বর
     const rawId = String(u.memberId || 'ROS-0000-0000');
     const regParts = rawId.includes('-') ? rawId.split('-') : ['ROS', '0000', '0000'];
     const regPart1 = regParts[0] || 'ROS';
     const regPart2 = regParts[1] || '0000';
     const regPart3 = regParts[2] || '0000';
     
-    // তারিখ ও মোবাইল প্রসেসিং
     const formatDigits = (dateStr) => {
       if (!dateStr) return ["0","0","0","0","0","0","0","0"];
       const clean = dateStr.replace(/[^0-9]/g, '');
@@ -444,193 +443,189 @@ function exportToPDF() {
 
     let qrPayloadString = `--- ROS MEMBER VERIFICATION ---\nReg No: ${u.memberId || 'N/A'}\nStatus: ${(u.status || 'ACTIVE').toUpperCase()}\nName: ${u.englishName || 'N/A'}\nMobile: ${mStr}`;
 
-    const printWrapper = document.createElement('div');
-    printWrapper.style.width = "794px"; 
-    printWrapper.style.position = "absolute"; 
-    printWrapper.style.top = "0";
-    printWrapper.style.left = "0";
-    printWrapper.style.zIndex = "-9999"; 
-    printWrapper.style.background = "#ffffff";
-    printWrapper.style.padding = "20px";
-    printWrapper.style.color = "#000000";
+    const makeBoxes = (arr) => arr.map(x => `<div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#f4f5f6;margin-right:-1px;">${x}</div>`).join('');
 
-    const makeBoxes = (arr) => arr.map(x => `<span style="display:inline-block; width:13px; height:16px; border:1px solid #777; text-align:center; line-height:16px; font-size:8pt; background:#f4f5f6; margin-right:1px; vertical-align:middle;">${x}</span>`).join('');
+    // আইফ্রেম তৈরি করে পারফেক্ট নেটিভ প্রিন্ট
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
 
-    printWrapper.innerHTML = `
-      <style>
-        #ros-pdf-card * {
-          box-sizing: border-box !important;
-          font-family: Arial, Helvetica, sans-serif !important;
-          -webkit-print-color-adjust: exact !important;
-        }
-        #ros-pdf-card table {
-          border-collapse: collapse !important;
-          width: 100% !important;
-        }
-        #ros-pdf-card td {
-          vertical-align: middle !important;
-          line-height: 1.15 !important;
-          padding: 5px 6px !important;
-        }
-      </style>
+    const doc = iframe.contentWindow.document;
 
-      <div id="ros-pdf-card" style="border: 1px solid #0077b6; padding: 2px; background:#fff; font-size: 8.5pt;">
-        <div style="border: 1px solid #0077b6; padding: 12px; position: relative; background: #ffffff;">
-          
-          <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 10px;">
-            <img src="${logoUrl}" crossOrigin="anonymous" style="width: 240px; height: auto; display: block; margin: 0 auto 4px auto;">
-            <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 2px; text-transform: uppercase;">Registration Form</div>
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ROS_Form_${u.memberId}</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+          * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 8.5pt;
+            line-height: 1.2;
+            color: #000;
+            background: #fff;
+          }
+        </style>
+      </head>
+      <body>
+        <div style="border: 1px solid #0077b6; padding: 2px; background:#fff;">
+          <div style="border: 1px solid #0077b6; padding: 15px; position: relative; background: #ffffff;">
+            <div style="position: absolute; top: 40%; left: 5%; transform: rotate(-25deg); font-size: 26pt; font-weight: bold; text-align: center; width: 90%; opacity: 0.03; color: #000; z-index: 1; pointer-events: none;">RAJSHAHI OLYMPIAD SOCIETY</div>
+            
+            <div style="text-align: center; border-bottom: 2px solid #0077b6; padding-bottom: 6px; margin-bottom: 12px;">
+              <img src="${logoUrl}" style="width: 250px; height: auto; display: block; margin: 0 auto 4px auto;">
+              <div style="display: inline-block; background: #0077b6; color: #fff; padding: 3px 12px; font-size: 8.5pt; font-weight: bold; border-radius: 3px; text-transform: uppercase; line-height: 1;">Registration Form</div>
+            </div>
+            
+            <table style="width:100%; margin-bottom: 10px; border-collapse: collapse;">
+              <tr>
+                <td style="vertical-align: middle; line-height: 1.4;">
+                  <div style="font-weight: bold; padding: 2px 0;">
+                    <span style="display: inline-block; width: 120px;">Registration No:</span>
+                    <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6; line-height: 1;">${regPart1}</div> - 
+                    <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 45px; text-align:center; line-height: 1;">${regPart2}</div> - 
+                    <div style="border: 1.5px solid #0077b6; border-radius: 3px; padding: 1px 6px; display: inline-block; background: #eef7fc; color: #0077b6; width: 45px; text-align:center; line-height: 1;">${regPart3}</div>
+                  </div>
+                  <div style="margin-top: 4px; font-weight: bold; padding: 2px 0;">
+                    <span style="display: inline-block; width: 120px;">Registration Date:</span>
+                    <div style="display: inline-block; vertical-align: middle; line-height: 1;">
+                      ${makeBoxes(regDigits.slice(0,2))}.
+                      ${makeBoxes(regDigits.slice(2,4))}.
+                      ${makeBoxes(regDigits.slice(4,8))}
+                    </div>
+                  </div>
+                  <div style="margin-top: 4px; font-weight: bold; padding: 2px 0;">
+                    <span style="display: inline-block; width: 120px;">Status:</span>
+                    <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; line-height: 1; display: inline-block; vertical-align: middle;">${u.status || 'ACTIVE'}</span>
+                  </div>
+                </td>
+                <td style="width: 85px; text-align: right; vertical-align: top;">
+                  <div style="width: 75px; height: 85px; border: 1.5px solid #0077b6; background: #fafafa; overflow: hidden; display:inline-block; position:relative;">
+                    <img src="${userPhotoUrl}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                  </div>
+                </td>
+              </tr>
+            </table>
+            
+            <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold; line-height: 1.2;">1. MEMBER'S PERSONAL INFORMATION</div>
+            
+            <table style="width:100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 12px;">
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 20%; vertical-align: middle;">Name (Bangla):</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; font-weight: bold; vertical-align: middle;">${u.banglaName || ''}</td></tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Name (English):</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; font-weight: bold; text-transform: uppercase; vertical-align: middle;">${u.englishName || ''}</td></tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Father's Name:</td><td style="padding: 5px 8px; border: 1px solid #ccc; width: 30%; vertical-align: middle;">${u.fatherName || ''}</td><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; width: 18%; vertical-align: middle;">Mother's Name:</td><td style="padding: 5px 8px; border: 1px solid #ccc; width: 32%; vertical-align: middle;">${u.motherName || ''}</td></tr>
+              <tr>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Mobile Number:</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
+                  <div style="display: inline-block; vertical-align: middle; line-height: 1;">
+                    <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${mDigits[0]||'0'}</div>
+                    ${makeBoxes(mDigits.slice(1,5))} - 
+                    ${makeBoxes(mDigits.slice(5,11))}
+                  </div>
+                </td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Email Address:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle; font-family: monospace;">${u.email || ''}</td>
+              </tr>
+              <tr>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Date of Birth:</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
+                  <div style="display: inline-block; vertical-align: middle; line-height: 1;">
+                    ${makeBoxes(dobDigits.slice(0,2))}.
+                    ${makeBoxes(dobDigits.slice(2,4))}.
+                    ${makeBoxes(dobDigits.slice(4,8))}
+                  </div>
+                </td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Blood Group:</td><td style="padding: 5px 8px; border: 1px solid #ccc; font-weight: bold; color: #d90429; vertical-align: middle;">${u.bloodGroup || ''}</td>
+              </tr>
+              <tr>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Gender:</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
+                  <div style="display: inline-block; margin-right: 12px;"><span style="display:inline-block;width:12px;height:12px;border:1px solid #333;text-align:center;line-height:10px;font-size:9pt;margin-right:4px;background:${isMale?'#0077b6':'#fff'};color:${isMale?'#fff':'#000'};">${isMale?'✓':''}</span>Male</div>
+                  <div style="display: inline-block;"><span style="display:inline-block;width:12px;height:12px;border:1px solid #333;text-align:center;line-height:10px;font-size:9pt;margin-right:4px;background:${isFemale?'#0077b6':'#fff'};color:${isFemale?'#fff':'#000'};">${isFemale?'✓':''}</span>Female</div>
+                </td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Occupation:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.profession || ''}</td>
+              </tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Institution:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.institution || ''}</td></tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Qualification:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.education || ''}</td><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Session/Year:</td><td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.academicYear || ''}</td></tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Present Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.presentAddress || ''}</td></tr>
+              <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Permanent Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.permanentAddress || ''}</td></tr>
+            </table>
+            
+            <div style="font-size: 9.5pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 12px 0 6px 0; font-weight: bold; line-height: 1.2;">2. TERMS & DECLARATION</div>
+            <div style="font-size: 7.2pt; line-height: 1.4; color: #222; background: #fdfdfd; padding: 6px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 12px; text-align: justify;">
+              1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
+              2. I declare that all information provided is true. I have digitally agreed to these terms.
+            </div>
+            
+            <table style="width: 100%; margin-top: 15px;">
+              <tr>
+                <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
+                  <div style="width: 110px; margin: 0 auto 4px auto; border-top: 1px solid #333;"></div><span style="font-size: 8pt;">Applicant's Signature</span>
+                </td>
+                <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrPayloadString)}" style="width: 75px; height: 75px; display: block; margin: 0 auto;">
+                  <div style="font-size: 6.5pt; font-weight: bold; margin-top: 4px;">SCAN TO VERIFY</div>
+                </td>
+                <td style="width: 33.33%; text-align: center; vertical-align: bottom;">
+                  <div style="border-top: 1px solid #0077b6; padding-top: 4px; color: #0077b6; font-weight: bold; font-size: 8pt; width: 140px; margin: 0 auto;">Authorized Signature & Seal</div>
+                </td>
+              </tr>
+            </table>
+            
+            <div style="text-align: center; font-size: 7.5pt; color: #e63946; background: #fff5f5; padding: 4px; border: 1px dashed #e63946; border-radius: 4px; margin-top: 12px; font-weight: bold;">
+              * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
+            </div>
+            
+            <table style="width: 100%; margin-top: 10px; border-top: 1px solid #eee; font-size: 7.5pt; color: #566573; padding-top: 4px;">
+              <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
+            </table>
+
+            <table style="width: 100%; margin-top: 4px; font-size: 6.5pt; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
+              <tr>
+                <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
+                <td style="text-align: right; font-weight: bold; color: #64748b;">Developed by: <span style="color: #0077b6;">Utsab Sarker</span></td>
+              </tr>
+            </table>
           </div>
-          
-          <table style="margin-bottom: 8px;">
-            <tr>
-              <td style="vertical-align: top !important;">
-                <div style="font-weight: bold; margin-bottom: 4px;">
-                  <span style="display: inline-block; width: 115px;">Registration No:</span>
-                  <span style="border: 1px solid #0077b6; padding: 1px 6px; background: #eef7fc; color: #0077b6;">${regPart1}</span> - 
-                  <span style="border: 1px solid #0077b6; padding: 1px 6px; background: #eef7fc; color: #0077b6;">${regPart2}</span> - 
-                  <span style="border: 1px solid #0077b6; padding: 1px 6px; background: #eef7fc; color: #0077b6;">${regPart3}</span>
-                </div>
-                <div style="font-weight: bold; margin-bottom: 4px;">
-                  <span style="display: inline-block; width: 115px;">Registration Date:</span>
-                  ${makeBoxes(regDigits.slice(0,2))}.
-                  ${makeBoxes(regDigits.slice(2,4))}.
-                  ${makeBoxes(regDigits.slice(4,8))}
-                </div>
-                <div style="font-weight: bold;">
-                  <span style="display: inline-block; width: 115px;">Status:</span>
-                  <span style="background: #2a9d8f; color: #fff; padding: 2px 6px; font-size: 7.5pt; border-radius: 2px;">${u.status || 'ACTIVE'}</span>
-                </div>
-              </td>
-              <td style="width: 85px; text-align: right; vertical-align: top !important;">
-                <div style="width: 75px; height: 85px; border: 1px solid #0077b6; background: #fafafa; overflow: hidden; display:inline-block;">
-                  <img src="${userPhotoUrl}" crossOrigin="anonymous" style="width:100%; height:100%; object-fit:cover;">
-                </div>
-              </td>
-            </tr>
-          </table>
-          
-          <div style="font-size: 9pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 8px 0 5px 0; font-weight: bold;">1. MEMBER'S PERSONAL INFORMATION</div>
-          
-          <table style="border: 1px solid #ccc; font-size: 8.5pt; margin-bottom: 10px;">
-            <tr><td style="background: #f8f9fa; font-weight: bold; width: 20%;">Name (Bangla):</td><td colspan="3" style="font-weight: bold;">${u.banglaName || ''}</td></tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Name (English):</td><td colspan="3" style="font-weight: bold; text-transform: uppercase;">${u.englishName || ''}</td></tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Father's Name:</td><td style="width: 30%;">${u.fatherName || ''}</td><td style="background: #f8f9fa; font-weight: bold; width: 18%;">Mother's Name:</td><td style="width: 32%;">${u.motherName || ''}</td></tr>
-            <tr>
-              <td style="background: #f8f9fa; font-weight: bold;">Mobile Number:</td>
-              <td>
-                <span style="display:inline-block; width:13px; height:16px; border:1px solid #777; text-align:center; line-height:16px; font-size:8pt; background:#d2d4d6; font-weight:bold; margin-right:1px; vertical-align:middle;">${mDigits[0]||'0'}</span>
-                ${makeBoxes(mDigits.slice(1,5))} - ${makeBoxes(mDigits.slice(5,11))}
-              </td>
-              <td style="background: #f8f9fa; font-weight: bold;">Email Address:</td><td style="font-family: monospace;">${u.email || ''}</td>
-            </tr>
-            <tr>
-              <td style="background: #f8f9fa; font-weight: bold;">Date of Birth:</td>
-              <td>
-                ${makeBoxes(dobDigits.slice(0,2))}.
-                ${makeBoxes(dobDigits.slice(2,4))}.
-                ${makeBoxes(dobDigits.slice(4,8))}
-              </td>
-              <td style="background: #f8f9fa; font-weight: bold;">Blood Group:</td><td style="font-weight: bold; color: #d90429;">${u.bloodGroup || ''}</td>
-            </tr>
-            <tr>
-              <td style="background: #f8f9fa; font-weight: bold;">Gender:</td>
-              <td>
-                <span style="margin-right: 10px;"><span style="display:inline-block; width:11px; height:11px; border:1px solid #333; text-align:center; line-height:10px; font-size:7.5pt; margin-right:3px; background:${isMale?'#0077b6':'#fff'}; color:${isMale?'#fff':'#000'};">${isMale?'✓':''}</span>Male</span>
-                <span><span style="display:inline-block; width:11px; height:11px; border:1px solid #333; text-align:center; line-height:10px; font-size:7.5pt; margin-right:3px; background:${isFemale?'#0077b6':'#fff'}; color:${isFemale?'#fff':'#000'};">${isFemale?'✓':''}</span>Female</span>
-              </td>
-              <td style="background: #f8f9fa; font-weight: bold;">Occupation:</td><td>${u.profession || ''}</td>
-            </tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Institution:</td><td colspan="3">${u.institution || ''}</td></tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Qualification:</td><td>${u.education || ''}</td><td style="background: #f8f9fa; font-weight: bold;">Session/Year:</td><td>${u.academicYear || ''}</td></tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Present Address:</td><td colspan="3">${u.presentAddress || ''}</td></tr>
-            <tr><td style="background: #f8f9fa; font-weight: bold;">Permanent Address:</td><td colspan="3">${u.permanentAddress || ''}</td></tr>
-          </table>
-          
-          <div style="font-size: 9pt; color: #0077b6; border-left: 3px solid #0077b6; padding-left: 6px; margin: 8px 0 5px 0; font-weight: bold;">2. TERMS & DECLARATION</div>
-          <div style="font-size: 7pt; line-height: 1.3; color: #222; background: #fdfdfd; padding: 5px; border: 1px solid #e0e0e0; margin-bottom: 10px;">
-            1. Supreme Authority: If any member is found involved in activities contrary to the discipline, image, or ideology of the ROS, the authority reserves the right to cancel membership at any time.<br>
-            2. I declare that all information provided is true. I have digitally agreed to these terms.
-          </div>
-          
-          <table style="margin-top: 10px;">
-            <tr>
-              <td style="width: 33%; text-align: center; vertical-align: bottom !important;">
-                <div style="width: 110px; margin: 0 auto 3px auto; border-top: 1px solid #333;"></div><span style="font-size: 7.5pt;">Applicant's Signature</span>
-              </td>
-              <td style="width: 34%; text-align: center; vertical-align: bottom !important;">
-                <div id="canvas-pure-qr" style="width: 75px; height: 75px; margin: 0 auto;"></div>
-                <div style="font-size: 6pt; font-weight: bold; margin-top: 2px;">SCAN TO VERIFY</div>
-              </td>
-              <td style="width: 33%; text-align: center; vertical-align: bottom !important;">
-                <div style="border-top: 1px solid #0077b6; padding-top: 3px; color: #0077b6; font-weight: bold; font-size: 7.5pt; width: 130px; margin: 0 auto;">Authorized Signature & Seal</div>
-              </td>
-            </tr>
-          </table>
-          
-          <div style="text-align: center; font-size: 7pt; color: #e63946; background: #fff5f5; padding: 3px; border: 1px dashed #e63946; margin-top: 8px; font-weight: bold;">
-            * NOTE: This is a system-generated, digitally verified document. Real-time online database verification is available, so no physical signature is required.
-          </div>
-          
-          <table style="margin-top: 8px; border-top: 1px solid #eee; font-size: 7pt; color: #566573;">
-            <tr><td>🌐 rosociety.vercel.app</td><td style="text-align:center;">📧 helpline.ros@gmail.com</td><td style="text-align:right;">📞 +8801745-668545</td></tr>
-          </table>
-
-          <table style="margin-top: 3px; font-size: 6pt; color: #94a3b8; border-top: 1px dashed #e2e8f0;">
-            <tr>
-              <td style="text-align: left;">📅 Downloaded: ${downloadDateTime}</td>
-              <td style="text-align: right; font-weight: bold; color: #64748b;">Developed by: <span style="color: #0077b6;">Utsab Sarker</span></td>
-            </tr>
-          </table>
         </div>
-      </div>
-    `;
+      </body>
+      </html>
+    `);
+    doc.close();
 
-    document.body.appendChild(printWrapper);
-
-    // QR Code
-    const qrContainer = printWrapper.querySelector("#canvas-pure-qr");
-    if (typeof QRCode !== 'undefined') {
-      new QRCode(qrContainer, { text: qrPayloadString, width: 75, height: 75 });
-    } else {
-      qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=${encodeURIComponent(qrPayloadString)}" style="width:75px;height:75px;">`;
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    // html2canvas rendering with letter-rendering fix
-    const canvas = await html2canvas(printWrapper, { 
-      scale: 2, 
-      useCORS: true, 
-      allowTaint: false, 
-      logging: false,
-      scrollY: 0,
-      windowWidth: 794,
-      onclone: (clonedDoc) => {
-        // Force letter spacing and text bounds inside cloned DOM
-        const elem = clonedDoc.getElementById('ros-pdf-card');
-        if(elem) {
-          elem.style.transform = 'none';
-        }
-      }
-    });
-    
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height * 210) / canvas.width);
-    
-    document.body.removeChild(printWrapper);
-    if(typeof showLoader === 'function') showLoader(false);
-    pdf.save(`ROS_Form_${u.memberId}.pdf`);
+    // ইমেজ লোড সম্পন্ন হওয়া পর্যন্ত কিছুটা সময় দেয়া
+    setTimeout(() => {
+      if(typeof showLoader === 'function') showLoader(false);
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      
+      // প্রিন্ট ডায়ালগ বন্ধের পর আইফ্রেম রিমুভ
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 2000);
+    }, 800);
 
   } catch (err) {
     if(typeof showLoader === 'function') showLoader(false);
     console.error(err);
     alert("পিডিএফ জেনারেশন এরর: " + err.message);
   }
-                                }
+    }
 
 
                     
