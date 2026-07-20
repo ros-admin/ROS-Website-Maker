@@ -394,7 +394,7 @@ function exportToPDF() {
   doc.save(`ROS_Table_List.pdf`);
 }
 
-        async function downloadOfficialTemplatePDF() {
+async function downloadOfficialTemplatePDF() {
   if(!window.activePopupUser) return;
   const u = window.activePopupUser;
   
@@ -427,15 +427,33 @@ function exportToPDF() {
     const regDigits = formatDigits(regDateFormatted);
     const dobDigits = formatDigits(u.dob || '');
 
-    // মোবাইল নম্বর
-    let mStr = String(u.mobile || '').replace(/[^0-9]/g, '');
-    if (mStr.length === 10) mStr = '0' + mStr;
-    else if (mStr.length < 11) mStr = mStr.padStart(11, '0');
-    const mDigits = mStr.slice(0, 11).split('');
+    // মোবাইল নম্বর প্রসেসিং (১১ ডিজিট)
+    const formatMobileDigits = (numStr) => {
+      let str = String(numStr || '').replace(/[^0-9]/g, '');
+      if (str.length === 10) str = '0' + str;
+      else if (str.length < 11) str = str.padStart(11, '0');
+      return str.slice(0, 11).split('');
+    };
+
+    const mDigits = formatMobileDigits(u.mobile);
+    const waDigits = formatMobileDigits(u.whatsappNumber || u.mobile);
 
     const g = String(u.gender || 'Male').toLowerCase();
     const isMale = (g === 'male' || g === 'পুরুষ');
     const isFemale = (g === 'female' || g === 'মহিলা');
+
+    // ১. Status অনুযায়ী Dynamic Background Color
+    const statusUpper = String(u.status || 'ACTIVE').toUpperCase();
+    let statusBgColor = '#2a9d8f'; // Default Green (Active)
+    let statusTextColor = '#ffffff';
+
+    if (statusUpper === 'PENDING' || statusUpper === 'INACTIVE') {
+      statusBgColor = '#e9c46a'; // Yellow / Orange
+      statusTextColor = '#000000';
+    } else if (statusUpper === 'SUSPEND' || statusUpper === 'SUSPENDED') {
+      statusBgColor = '#e63946'; // Red
+      statusTextColor = '#ffffff';
+    }
 
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
@@ -444,79 +462,60 @@ function exportToPDF() {
     hours = hours % 12 || 12; 
     const downloadDateTime = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(hours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
 
-    // ১. কিউআর কোডের নতুন বিস্তারিত ডাটা পে-লোড
+    // কিউআর কোডের ডাটা
     let qrPayloadString = `--- ROS MEMBER VERIFICATION ---
 Reg No: ${u.memberId || 'N/A'}
 Reg Date: ${regDateFormatted || 'N/A'}
-Status: ${(u.status || 'ACTIVE').toUpperCase()}
+Status: ${statusUpper}
 Name: ${u.englishName || u.banglaName || 'N/A'}
-Mobile: ${mStr}
+Mobile: ${mDigits.join('')}
 Email: ${u.email || 'N/A'}
 DOB: ${u.dob || 'N/A'}
 Blood Group: ${u.bloodGroup || 'N/A'}
 Gender: ${u.gender || 'N/A'}`;
 
-    // ২. সেন্টারে লোগো সহ কিউআর কোড ইমেজ তৈরি (Canvas base64)
+    // ২. সেন্টারে লোগো সহ QR Code জেনারেটর (Canvas Based Guaranteed Overlay)
     const generateQrDataUrlWithLogo = async (text, logoSrc) => {
       return new Promise((resolve) => {
-        const tempDiv = document.createElement('div');
-        tempDiv.style.display = 'none';
-        document.body.appendChild(tempDiv);
+        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&ecc=H&data=${encodeURIComponent(text)}`;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = 250;
+        canvas.height = 250;
+        const ctx = canvas.getContext('2d');
 
-        if (typeof QRCode !== 'undefined') {
-          new QRCode(tempDiv, {
-            text: text,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-          });
+        const qrImg = new Image();
+        qrImg.crossOrigin = "anonymous";
+        qrImg.src = qrApiUrl;
 
-          setTimeout(() => {
-            const qrImg = tempDiv.querySelector('img');
-            if (qrImg && qrImg.src) {
-              const canvas = document.createElement('canvas');
-              canvas.width = 200;
-              canvas.height = 200;
-              const ctx = canvas.getContext('2d');
+        qrImg.onload = () => {
+          ctx.drawImage(qrImg, 0, 0, 250, 250);
 
-              const baseQr = new Image();
-              baseQr.crossOrigin = "anonymous";
-              baseQr.onload = () => {
-                ctx.drawImage(baseQr, 0, 0, 200, 200);
+          const logo = new Image();
+          logo.crossOrigin = "anonymous";
+          logo.src = logoSrc;
 
-                const centerLogo = new Image();
-                centerLogo.crossOrigin = "anonymous";
-                centerLogo.onload = () => {
-                  const logoSize = 48;
-                  const x = (200 - logoSize) / 2;
-                  const y = (200 - logoSize) / 2;
+          logo.onload = () => {
+            const logoSize = 60; // Center Logo Size
+            const x = (250 - logoSize) / 2;
+            const y = (250 - logoSize) / 2;
 
-                  ctx.fillStyle = "#ffffff";
-                  ctx.fillRect(x - 3, y - 3, logoSize + 6, logoSize + 6);
-                  ctx.drawImage(centerLogo, x, y, logoSize, logoSize);
+            // লোগোর ব্যাকগ্রাউন্ডে সাদা বর্ডার/বক্স
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(x - 4, y - 4, logoSize + 8, logoSize + 8);
+            ctx.drawImage(logo, x, y, logoSize, logoSize);
 
-                  const finalUrl = canvas.toDataURL('image/png');
-                  document.body.removeChild(tempDiv);
-                  resolve(finalUrl);
-                };
-                centerLogo.onerror = () => {
-                  document.body.removeChild(tempDiv);
-                  resolve(qrImg.src);
-                };
-                centerLogo.src = logoSrc;
-              };
-              baseQr.src = qrImg.src;
-            } else {
-              document.body.removeChild(tempDiv);
-              resolve(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`);
-            }
-          }, 300);
-        } else {
-          document.body.removeChild(tempDiv);
-          resolve(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`);
-        }
+            resolve(canvas.toDataURL('image/png'));
+          };
+
+          logo.onerror = () => {
+            resolve(canvas.toDataURL('image/png'));
+          };
+        };
+
+        qrImg.onerror = () => {
+          resolve(qrApiUrl);
+        };
       });
     };
 
@@ -591,7 +590,8 @@ Gender: ${u.gender || 'N/A'}`;
                   </div>
                   <div style="margin-top: 4px; font-weight: bold; padding: 2px 0;">
                     <span style="display: inline-block; width: 120px;">Status:</span>
-                    <span style="background: #2a9d8f; color: #fff; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; line-height: 1; display: inline-block; vertical-align: middle;">${u.status || 'ACTIVE'}</span>
+                    <!-- Dynamic Status Background Color -->
+                    <span style="background: ${statusBgColor}; color: ${statusTextColor}; padding: 2px 8px; font-size: 8pt; font-weight: bold; border-radius: 4px; text-transform: uppercase; line-height: 1; display: inline-block; vertical-align: middle;">${statusUpper}</span>
                   </div>
                 </td>
                 <td style="width: 85px; text-align: right; vertical-align: top;">
@@ -643,16 +643,22 @@ Gender: ${u.gender || 'N/A'}`;
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Present Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.presentAddress || ''}</td></tr>
               <tr><td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Permanent Address:</td><td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.permanentAddress || ''}</td></tr>
               
-              <!-- নতুন যোগ করা ফিল্ডসমূহ -->
+              <!-- আপডেটকৃত ফিল্ডসমূহ (১১ বক্স হোয়াটসঅ্যাপ নম্বর সহ) -->
               <tr>
                 <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">WhatsApp Number:</td>
-                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.whatsapp || u.mobile || ''}</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">
+                  <div style="display: inline-block; vertical-align: middle; line-height: 1;">
+                    <div style="display:inline-block;width:14px;height:18px;border:1px solid #999;text-align:center;line-height:18px;font-size:8.5pt;background:#e2e4e6;margin-right:-1px;font-weight:bold;">${waDigits[0]||'0'}</div>
+                    ${makeBoxes(waDigits.slice(1,5))} - 
+                    ${makeBoxes(waDigits.slice(5,11))}
+                  </div>
+                </td>
                 <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">NID / Birth Cert No:</td>
-                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.nidNo || u.birthCertNo || u.nid || ''}</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle; font-family: monospace; font-weight: bold;">${u.nidOrBrn || ''}</td>
               </tr>
               <tr>
-                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Facebook ID:</td>
-                <td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle;">${u.facebookId || u.facebookUrl || ''}</td>
+                <td style="padding: 5px 8px; border: 1px solid #ccc; background: #f8f9fa; font-weight: bold; vertical-align: middle;">Facebook Link:</td>
+                <td colspan="3" style="padding: 5px 8px; border: 1px solid #ccc; vertical-align: middle; word-break: break-all; color: #0077b6;">${u.facebookLink || ''}</td>
               </tr>
             </table>
             
@@ -702,7 +708,7 @@ Gender: ${u.gender || 'N/A'}`;
       if(typeof showLoader === 'function') showLoader(false);
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
-
+      
       setTimeout(() => {
         document.body.removeChild(iframe);
       }, 2000);
@@ -713,9 +719,8 @@ Gender: ${u.gender || 'N/A'}`;
     console.error(err);
     alert("পিডিএফ জেনারেশন এরর: " + err.message);
   }
-        }
-         
-                    
+}
+
 // উইন্ডো স্কোপ বাইন্ডিং
 window.renderMemberManagementSection = renderMemberManagementSection;
 window.populateDateFilter = populateDateFilter;
