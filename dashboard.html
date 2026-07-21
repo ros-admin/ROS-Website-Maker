@@ -119,6 +119,14 @@
           <button onclick="switchTab('member_management')" id="btn-member_management" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
             <i class="fa-solid fa-users"></i> Member Management
           </button>
+          
+          <!-- নতুন মেনু আইটেম ২ টি এখানে যুক্ত করা হলো -->
+          <button onclick="switchTab('add_new_member')" id="btn-add_new_member" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
+            <i class="fa-solid fa-user-plus text-[#00b4d8]"></i> Add New Member
+          </button>
+          <button onclick="switchTab('edit_member_info')" id="btn-edit_member_info" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer">
+            <i class="fa-solid fa-user-pen text-amber-400"></i> Edit Member Info
+          </button>
         </nav>
       </div>
     </aside>
@@ -130,10 +138,14 @@
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxzyvgLnm_1Mkc0PxfbHgOro6EobExnwWzITY1iGTzxzcSYjyNPI_I9K8hZvCXXapP4Eg/exec";
     
+    // Cloudinary Credentials (যদি প্রয়োজন হয়)
+    const CLOUDINARY_CLOUD_NAME = "dcmu3hius";
+    const CLOUDINARY_UPLOAD_PRESET = "ros_uploads";
+
     let currentAdmin = null;
     let lineChartObj = null, pieChartObj = null, barChartObj = null;
 
-    // গ্লোবাল ভ্যারিয়েবল উইন্ডো লেভেলে ডিক্লেয়ার করা হলো স্কোপ প্রবলেম ফিক্স করতে
+    // গ্লোবাল ভ্যারিয়েবল
     window.allUsersData = [];
     window.currentFilteredList = [];
     window.activePopupUser = null;
@@ -176,17 +188,25 @@
       const mainContent = document.getElementById('main-content');
       mainContent.innerHTML = "";
 
-      ['main_dashboard', 'member_management'].forEach(id => {
+      // সকল ট্যাবের বাটন স্টাইল রিসেট
+      ['main_dashboard', 'member_management', 'add_new_member', 'edit_member_info'].forEach(id => {
         const btn = document.getElementById(`btn-${id}`);
         if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white text-left cursor-pointer";
       });
+
+      // এক্টিভ বাটন স্টাইল যুক্ত
       const activeBtn = document.getElementById(`btn-${tabId}`);
       if(activeBtn) activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 text-xs font-bold rounded-xl bg-[#00b4d8]/10 text-[#00b4d8] border border-[#00b4d8]/20 text-left cursor-pointer";
 
+      // নির্দিষ্ট সেকশন রেন্ডারিং
       if (tabId === 'main_dashboard' && typeof renderOverviewSection === 'function') {
         renderOverviewSection(mainContent);
       } else if (tabId === 'member_management' && typeof renderMemberManagementSection === 'function') {
         renderMemberManagementSection(mainContent);
+      } else if (tabId === 'add_new_member' && typeof renderAddNewMemberSection === 'function') {
+        renderAddNewMemberSection(mainContent);
+      } else if (tabId === 'edit_member_info' && typeof renderEditMemberInfoSection === 'function') {
+        renderEditMemberInfoSection(mainContent);
       }
       document.getElementById('sidebarMenu').classList.add('hidden');
     }
@@ -220,8 +240,10 @@
     }
   </script>
 
-  <!-- কাস্টম স্ক্রিপ্ট মডিউল -->
+  <!-- কাস্টম স্ক্রিপ্ট মডিউলসমূহ -->
   <script src="overview.js"></script>
   <script src="member-management.js"></script>
+  <script src="add-new-member.js"></script>
+  <script src="edit-member-info.js"></script>
 </body>
 </html>
